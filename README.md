@@ -7,7 +7,8 @@ The system is designed around real-world AI constraints: long-running jobs,
 provider failures, retries, and real-time UI updates.
 
 **Live Demo:** [Coming Soon]
-**Repository:** [GitHub Link]
+
+**Repository:** https://github.com/xperiaroco2/AI-Powered-Decision-Journal
 
 ---
 
@@ -506,9 +507,6 @@ This project is production-ready and can be deployed to:
    Set environment variables:
    - `DATABASE_URL`, `REDIS_URL`, `AI_PROVIDER`, `GROQ_API_KEY`
 
-**Full deployment guide:** See [`DEPLOYMENT.md`](./DEPLOYMENT.md)
-**Production checklist:** See [`PRODUCTION_CHECKLIST.md`](./PRODUCTION_CHECKLIST.md)
-
 ### Build Commands
 
 **Web:**
@@ -534,16 +532,3 @@ cd apps/worker && pnpm start
 ```
 
 ---
-
-## License
-
-MIT
-
----
-
-## Contact
-
-**Author:** [Your Name]
-**Email:** [Your Email]
-**LinkedIn:** [Your LinkedIn]
-**Portfolio:** [Your Portfolio]

@@ -1,12 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import ThemeToggle from "@/components/theme-toggle";
 import SignOutButton from "@/components/sign-out-button";
 
-interface AppHeaderProps {
-  userEmail?: string;
-}
+export default function AppHeader() {
+  const { data: session } = useSession();
 
-export default function AppHeader({ userEmail }: AppHeaderProps) {
   return (
     <header className="border-b border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -39,10 +40,10 @@ export default function AppHeader({ userEmail }: AppHeaderProps) {
             <ThemeToggle />
 
             {/* User Menu */}
-            {userEmail && (
+            {session?.user?.email && (
               <div className="flex items-center gap-3 border-l border-zinc-200 pl-4 dark:border-zinc-700">
                 <span className="hidden text-sm text-zinc-600 dark:text-zinc-400 sm:inline">
-                  {userEmail}
+                  {session.user.email}
                 </span>
                 <SignOutButton variant="compact" />
               </div>

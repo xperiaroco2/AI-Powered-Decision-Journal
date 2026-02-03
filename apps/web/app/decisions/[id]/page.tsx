@@ -1,10 +1,9 @@
 import { redirect, notFound } from "next/navigation";
-import Link from "next/link";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import DecisionDetailClient from "@/components/decision-detail-client";
 import { StatusBadge } from "@/components/ui/status-badge";
-import ThemeToggle from "@/components/theme-toggle";
+import AppHeader from "@/components/app-header";
 
 export default async function DecisionDetailPage({
   params,
@@ -57,19 +56,12 @@ export default async function DecisionDetailPage({
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
+      <AppHeader />
+
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Page Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <Link
-              href="/decisions"
-              className="cursor-pointer text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-            >
-              ← Back to decisions
-            </Link>
-            <ThemeToggle />
-          </div>
-          <div className="mt-4 flex items-start justify-between">
+          <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
                 Decision Details

@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "prisma generate && tsc",
-    "start": "node dist/index.js",
-    "postinstall": "prisma generate"
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",

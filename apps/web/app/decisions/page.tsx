@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import ThemeToggle from "@/components/theme-toggle";
+import AppHeader from "@/components/app-header";
 import DecisionsFilterBar from "@/components/decisions-filter-bar";
 import { Prisma } from "@prisma/client";
 
@@ -122,8 +122,10 @@ export default async function DecisionsPage({
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
+      <AppHeader />
+
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Page Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
@@ -133,21 +135,12 @@ export default async function DecisionsPage({
               Track and analyze your important decisions
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Link
-              href="/dashboard"
-              className="cursor-pointer rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-50 dark:hover:bg-zinc-700"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/decisions/new"
-              className="cursor-pointer rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
-            >
-              New Decision
-            </Link>
-          </div>
+          <Link
+            href="/decisions/new"
+            className="cursor-pointer rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-700 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+          >
+            New Decision
+          </Link>
         </div>
 
         {/* Filter Bar */}
