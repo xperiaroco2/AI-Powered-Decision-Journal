@@ -5,6 +5,11 @@ import { useDecisionUpdates } from "@/hooks/useDecisionUpdates";
 import { useRouter } from "next/navigation";
 import { CategoryBadge } from "@/components/ui/category-badge";
 
+interface CognitiveBias {
+  name: string;
+  description: string;
+}
+
 interface AnalysisRun {
   id: string;
   status: string;
@@ -24,6 +29,7 @@ interface Decision {
   status: string;
   errorMessage: string | null;
   createdAt: Date;
+  latestRunId: string | null;
   latestRun: AnalysisRun | null;
   runs: AnalysisRun[];
 }

@@ -46,7 +46,7 @@ export async function GET() {
 
     // 3. Aggregate category frequency
     const categoryMap = new Map<string, number>();
-    decisions.forEach((decision) => {
+    decisions.forEach((decision: typeof decisions[number]) => {
       const category = decision.latestRun?.categoryText;
       if (category) {
         categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
@@ -60,9 +60,9 @@ export async function GET() {
 
     // 4. Aggregate bias frequency
     const biasMap = new Map<string, number>();
-    decisions.forEach((decision) => {
+    decisions.forEach((decision: typeof decisions[number]) => {
       const biases = decision.latestRun?.biasesText || [];
-      biases.forEach((bias) => {
+      biases.forEach((bias: string) => {
         biasMap.set(bias, (biasMap.get(bias) || 0) + 1);
       });
     });

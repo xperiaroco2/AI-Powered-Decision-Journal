@@ -16,13 +16,18 @@ export async function GET(
 
     const { id } = await params;
 
-    // Fetch decision
+    // Fetch decision with latest run and all runs
     const decision = await prisma.decision.findUnique({
       where: {
         id,
       },
       include: {
-        analysis: true,
+        latestRun: true,
+        runs: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
       },
     });
 

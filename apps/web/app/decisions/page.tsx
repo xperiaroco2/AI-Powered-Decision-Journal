@@ -31,35 +31,37 @@ export default async function DecisionsPage({
     userId: session.user.id,
   };
 
+  // Build latestRun filter object
+  const latestRunFilter: Prisma.DecisionAnalysisRunWhereInput = {};
+
   // Filter by status (based on latestRun status)
   if (params.status && params.status !== "ALL") {
     if (params.status === "PENDING") {
-      where.latestRun = { status: "PENDING" };
+      latestRunFilter.status = "PENDING";
     } else if (params.status === "PROCESSING") {
-      where.latestRun = { status: "PROCESSING" };
+      latestRunFilter.status = "PROCESSING";
     } else if (params.status === "COMPLETED") {
-      where.latestRun = { status: "COMPLETED" };
+      latestRunFilter.status = "COMPLETED";
     } else if (params.status === "FAILED") {
-      where.latestRun = { status: "FAILED" };
+      latestRunFilter.status = "FAILED";
     }
   }
 
   // Filter by category (based on latestRun categoryText)
   if (params.category && params.category !== "ALL") {
-    where.latestRun = {
-      ...where.latestRun,
-      categoryText: params.category,
-    };
+    latestRunFilter.categoryText = params.category;
   }
 
   // Filter by bias (based on latestRun biasesText array)
   if (params.bias && params.bias !== "ALL") {
-    where.latestRun = {
-      ...where.latestRun,
-      biasesText: {
-        has: params.bias,
-      },
+    latestRunFilter.biasesText = {
+      has: params.bias,
     };
+  }
+
+  // Apply latestRun filter if any filters were set
+  if (Object.keys(latestRunFilter).length > 0) {
+    where.latestRun = latestRunFilter;
   }
 
   // Build orderBy clause based on sort param
