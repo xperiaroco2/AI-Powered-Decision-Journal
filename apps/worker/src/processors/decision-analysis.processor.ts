@@ -69,7 +69,7 @@ export async function processDecisionAnalysis(
           missedAlternatives: analysisData.missedAlternatives,
           insights: analysisData.insights,
           rawAiResponse: analysisData.rawAiResponse,
-        },
+        } as any, // Cast to any to satisfy Prisma's JSON type
         // Denormalized fields for dashboard aggregations
         categoryText: analysisData.category,
         biasesText: analysisData.cognitiveBiases.map((b) => b.name),

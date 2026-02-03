@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
     "dev:web": "pnpm --filter web run dev",
     "dev:worker": "pnpm --filter worker run dev",
     "build:web": "pnpm --filter web run build",
