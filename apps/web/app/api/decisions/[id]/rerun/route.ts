@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { enqueueAnalysisRun } from "@/lib/queue";
-import { Prisma } from "@prisma/client";
 
 // POST /api/decisions/:id/rerun - Create a new analysis run for an existing decision
 export async function POST(
@@ -61,7 +60,7 @@ export async function POST(
     const aiProvider = process.env.AI_PROVIDER || "mock";
 
     // 5. Create new analysis run and update decision in a transaction
-    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const result = await prisma.$transaction(async (tx) => {
       // Create new run
       const run = await tx.decisionAnalysisRun.create({
         data: {

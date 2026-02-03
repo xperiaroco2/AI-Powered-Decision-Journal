@@ -3,7 +3,6 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { enqueueAnalysisRun } from "@/lib/queue";
-import { Prisma } from "@prisma/client";
 
 // Validation schema
 const createDecisionSchema = z.object({
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
     const aiProvider = process.env.AI_PROVIDER || "mock";
 
     // Create decision and initial analysis run in a transaction
-    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    const result = await prisma.$transaction(async (tx) => {
       // 1. Create decision
       const decision = await tx.decision.create({
         data: {
