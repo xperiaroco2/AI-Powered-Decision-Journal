@@ -6,7 +6,7 @@ life and work decisions through asynchronous AI analysis.
 The system is designed around real-world AI constraints: long-running jobs,
 provider failures, retries, and real-time UI updates.
 
-**Live Demo:** [Coming Soon]
+**Live Demo:** https://web-production-2239a.up.railway.app/
 
 **Repository:** https://github.com/xperiaroco2/AI-Powered-Decision-Journal
 
