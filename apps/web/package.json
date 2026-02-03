@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx watch server.ts",
     "build": "pnpm prisma generate --schema=../../prisma/schema.prisma && next build",
-    "start": "node dist/server.js",
+    "start": "tsx server.ts",
     "lint": "eslint"
   },
   "dependencies": {
