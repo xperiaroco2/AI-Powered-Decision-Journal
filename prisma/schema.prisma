@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// User Model
+// ============================================================================
+// Represents an authenticated user who can create decisions.
+// Auth-library agnostic: supports both credentials (email + password) and OAuth.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?  // Optional: null for OAuth-only users
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  decisions Decision[]
+
+  @@index([email])
+}
+
+// ============================================================================
+// Decision Model
+// ============================================================================
+// Represents a user's documented decision with context and reasoning.
+// Lifecycle: PENDING → PROCESSING → DONE | FAILED
+model Decision {
+  id                String         @id @default(cuid())
+  userId            String
+  situation         String         @db.Text // Long-form description
+  chosenDecision    String         @db.Text // The actual decision made
+  personalReasoning String?        @db.Text // Optional user's own reasoning
+  status            DecisionStatus @default(PENDING)
+  errorMessage      String?        @db.Text // Error message if status is FAILED (legacy)
+  latestRunId       String?        // FK to latest analysis run
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  // Relations
+  user        User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  runs        DecisionAnalysisRun[]   // Multiple analysis attempts
+  latestRun   DecisionAnalysisRun?    @relation("LatestRun", fields: [latestRunId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([latestRunId])
+}
+
+// ============================================================================
+// DecisionAnalysisRun Model
+// ============================================================================
+// Represents a single analysis attempt for a decision.
+// Supports multiple runs per decision (re-analyze/retry functionality).
+model DecisionAnalysisRun {
+  id         String           @id @default(cuid())
+  decisionId String
+  status     AnalysisRunStatus @default(PENDING)
+  provider   String           // "mock" | "groq"
+
+  // Result data (populated when status = COMPLETED)
+  resultJson Json?            // Full analysis result: { category, cognitiveBiases, missedAlternatives, insights }
+
+  // Denormalized fields for efficient aggregation (populated when status = COMPLETED)
+  categoryText String?        // Denormalized category for dashboard queries
+  biasesText   String[]       // Denormalized bias names for dashboard queries
+
+  // Error data (populated when status = FAILED)
+  error      String?          @db.Text
+
+  // Timestamps
+  createdAt  DateTime         @default(now())
+  startedAt  DateTime?        // When status changed to PROCESSING
+  finishedAt DateTime?        // When status changed to COMPLETED or FAILED
+
+  // Relations
+  decision         Decision   @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+  latestForDecision Decision[] @relation("LatestRun")
+
+  @@index([decisionId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([categoryText])
+}
+
+// ============================================================================
+// Enums
+// ============================================================================
+
+enum DecisionStatus {
+  PENDING    // Decision created, awaiting analysis
+  PROCESSING // Analysis job is running
+  DONE       // Analysis completed successfully
+  FAILED     // Analysis failed (can be retried)
+}
+
+enum AnalysisRunStatus {
+  PENDING    // Run created, awaiting processing
+  PROCESSING // Run is being processed
+  COMPLETED  // Run completed successfully
+  FAILED     // Run failed
+}
+
+enum Category {
+  CAREER              // Job changes, promotions, career pivots
+  FINANCIAL           // Investments, purchases, budgeting
+  RELATIONSHIPS       // Personal relationships, family decisions
+  HEALTH              // Medical, fitness, lifestyle choices
+  EDUCATION           // Learning, courses, degrees
+  BUSINESS            // Entrepreneurship, strategy, partnerships
+  LIFESTYLE           // Moving, hobbies, major life changes
+  ETHICAL             // Moral dilemmas, values-based decisions
+  CREATIVE            // Artistic, design, creative project choices
+  TECHNICAL           // Technology choices, architecture decisions
+  OTHER               // Uncategorized or multi-category decisions
+}
