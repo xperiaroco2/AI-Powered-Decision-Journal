@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useDecisionUpdates } from "@/hooks/useDecisionUpdates";
 import { useRouter } from "next/navigation";
 import { CategoryBadge } from "@/components/ui/category-badge";
+import DecisionAttachments from "@/components/decision-attachments";
 
 interface CognitiveBias {
   name: string;
@@ -14,7 +15,7 @@ interface AnalysisRun {
   id: string;
   status: string;
   provider: string;
-  resultJson: any;
+  resultJson: Record<string, unknown>;
   error: string | null;
   createdAt: Date;
   startedAt: Date | null;
@@ -27,7 +28,6 @@ interface Decision {
   chosenDecision: string;
   personalReasoning: string | null;
   status: string;
-  errorMessage: string | null;
   createdAt: Date;
   latestRunId: string | null;
   latestRun: AnalysisRun | null;
@@ -160,9 +160,9 @@ export default function DecisionDetailClient({
                 <p className="text-sm font-medium text-red-800 dark:text-red-400">
                   ❌ Analysis failed
                 </p>
-                {decision.errorMessage && (
+                {decision.latestRun?.error && (
                   <p className="mt-2 text-xs text-red-700 dark:text-red-500">
-                    {decision.errorMessage}
+                    {decision.latestRun.error}
                   </p>
                 )}
               </div>
@@ -270,6 +270,9 @@ export default function DecisionDetailClient({
             </div>
           )}
         </div>
+
+        {/* Attachments Section */}
+        <DecisionAttachments decisionId={decision.id} />
 
         {/* Previous Runs Section */}
         {decision.runs && decision.runs.length > 1 && (

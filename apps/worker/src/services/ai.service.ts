@@ -1,18 +1,21 @@
+import { PrismaClient } from "@prisma/client";
 import { AIProvider, DecisionInput, AnalysisResult } from "./providers/types";
 import { MockProvider } from "./providers/mock.provider";
 import { GroqProvider } from "./providers/groq.provider";
 
 /**
  * AI Service Factory
- * 
+ *
  * Creates the appropriate AI provider based on AI_PROVIDER environment variable.
- * 
+ *
  * Supported providers:
  * - mock: Always works, no API key needed (default)
- * - groq: Free-tier Groq API with Llama 3
+ * - groq: Production-grade orchestration with multi-step workflow
  */
 
 type ProviderType = "mock" | "groq";
+
+const prisma = new PrismaClient();
 
 function getProviderType(): ProviderType {
   const provider = process.env.AI_PROVIDER?.toLowerCase();
@@ -38,7 +41,7 @@ function createProvider(): AIProvider {
         console.error("Falling back to mock provider");
         return new MockProvider();
       }
-      return new GroqProvider(apiKey);
+      return new GroqProvider(apiKey, prisma);
     }
 
     case "mock":

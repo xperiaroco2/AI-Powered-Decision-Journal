@@ -7,14 +7,26 @@ config({ path: resolve(__dirname, "../../../.env") });
 import { Worker } from "bullmq";
 import { createRedisConnection } from "./config/redis";
 import { QUEUE_NAME, DecisionAnalysisJobData } from "./config/queue";
+import {
+  EMBEDDING_QUEUE_NAME,
+  DecisionEmbeddingJobData,
+} from "./config/embedding-queue";
+import {
+  ATTACHMENT_QUEUE_NAME,
+  AttachmentEmbeddingJobData,
+} from "./config/attachment-queue";
 import { processDecisionAnalysis } from "./processors/decision-analysis.processor";
+import { processDecisionEmbedding } from "./processors/decision-embedding.processor";
+import { processAttachmentEmbedding } from "./processors/attachment-embedding.processor";
 import { getAIProvider } from "./services/ai.service";
+import { getEmbeddingProvider } from "./services/embedding.service";
 
-// Initialize AI provider (logs which provider is being used)
+// Initialize providers (logs which providers are being used)
 getAIProvider();
+getEmbeddingProvider();
 
-// Create the worker
-const worker = new Worker<DecisionAnalysisJobData>(
+// Create the decision analysis worker
+const analysisWorker = new Worker<DecisionAnalysisJobData>(
   QUEUE_NAME,
   async (job) => {
     await processDecisionAnalysis(job);
@@ -25,33 +37,103 @@ const worker = new Worker<DecisionAnalysisJobData>(
   }
 );
 
-// Worker event handlers
-worker.on("ready", () => {
-  console.log("🚀 Worker is ready and waiting for jobs");
+// Create the decision embedding worker
+const embeddingWorker = new Worker<DecisionEmbeddingJobData>(
+  EMBEDDING_QUEUE_NAME,
+  async (job) => {
+    await processDecisionEmbedding(job);
+  },
+  {
+    connection: createRedisConnection(),
+    concurrency: 10, // Embeddings are faster, allow more concurrency
+  }
+);
+
+// Create the attachment embedding worker
+const attachmentWorker = new Worker<AttachmentEmbeddingJobData>(
+  ATTACHMENT_QUEUE_NAME,
+  async (job) => {
+    await processAttachmentEmbedding(job);
+  },
+  {
+    connection: createRedisConnection(),
+    concurrency: 3, // Lower concurrency due to chunking overhead
+  }
+);
+
+// Analysis worker event handlers
+analysisWorker.on("ready", () => {
+  console.log("🚀 Analysis worker is ready and waiting for jobs");
 });
 
-worker.on("active", (job) => {
-  console.log(`▶ Job ${job.id} started`);
+analysisWorker.on("active", (job) => {
+  console.log(`▶ Analysis job ${job.id} started`);
 });
 
-worker.on("completed", (job) => {
-  console.log(`✓ Job ${job.id} completed`);
+analysisWorker.on("completed", (job) => {
+  console.log(`✓ Analysis job ${job.id} completed`);
 });
 
-worker.on("failed", (job, err) => {
-  console.error(`✗ Job ${job?.id} failed:`, err.message);
+analysisWorker.on("failed", (job, err) => {
+  console.error(`✗ Analysis job ${job?.id} failed:`, err.message);
 });
 
-worker.on("error", (err) => {
-  console.error("Worker error:", err);
+analysisWorker.on("error", (err) => {
+  console.error("Analysis worker error:", err);
+});
+
+// Embedding worker event handlers
+embeddingWorker.on("ready", () => {
+  console.log("🚀 Embedding worker is ready and waiting for jobs");
+});
+
+embeddingWorker.on("active", (job) => {
+  console.log(`▶ Embedding job ${job.id} started`);
+});
+
+embeddingWorker.on("completed", (job) => {
+  console.log(`✓ Embedding job ${job.id} completed`);
+});
+
+embeddingWorker.on("failed", (job, err) => {
+  console.error(`✗ Embedding job ${job?.id} failed:`, err.message);
+});
+
+embeddingWorker.on("error", (err) => {
+  console.error("Embedding worker error:", err);
+});
+
+// Attachment worker event handlers
+attachmentWorker.on("ready", () => {
+  console.log("🚀 Attachment worker is ready and waiting for jobs");
+});
+
+attachmentWorker.on("active", (job) => {
+  console.log(`▶ Attachment job ${job.id} started`);
+});
+
+attachmentWorker.on("completed", (job) => {
+  console.log(`✓ Attachment job ${job.id} completed`);
+});
+
+attachmentWorker.on("failed", (job, err) => {
+  console.error(`✗ Attachment job ${job?.id} failed:`, err.message);
+});
+
+attachmentWorker.on("error", (err) => {
+  console.error("Attachment worker error:", err);
 });
 
 // Graceful shutdown
 const shutdown = async (signal: string) => {
-  console.log(`${signal} received, closing worker...`);
+  console.log(`${signal} received, closing workers...`);
   try {
-    await worker.close();
-    console.log("Worker closed successfully");
+    await Promise.all([
+      analysisWorker.close(),
+      embeddingWorker.close(),
+      attachmentWorker.close(),
+    ]);
+    console.log("Workers closed successfully");
     process.exit(0);
   } catch (err) {
     console.error("Error during shutdown:", err);
@@ -73,5 +155,8 @@ process.on("unhandledRejection", (reason, promise) => {
   shutdown("UNHANDLED_REJECTION");
 });
 
-console.log(`Worker started, listening to queue: ${QUEUE_NAME}`);
+console.log(`Workers started:`);
+console.log(`  - Analysis queue: ${QUEUE_NAME}`);
+console.log(`  - Embedding queue: ${EMBEDDING_QUEUE_NAME}`);
+console.log(`  - Attachment queue: ${ATTACHMENT_QUEUE_NAME}`);
 

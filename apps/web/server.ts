@@ -1,8 +1,10 @@
 import { config } from "dotenv";
 import { resolve } from "path";
 
-// Load .env from repository root
-config({ path: resolve(__dirname, "../../.env") });
+// Load .env from repository root (skip in test mode as env vars are already set)
+if (process.env.NODE_ENV !== "test") {
+  config({ path: resolve(__dirname, "../../.env") });
+}
 
 import { createServer } from "http";
 import { parse } from "url";

@@ -11,6 +11,16 @@ export interface DecisionUpdateEvent {
   status: "PROCESSING" | "COMPLETED" | "FAILED"; // Changed DONE to COMPLETED
 }
 
+export interface AttachmentUpdateEvent {
+  type: "attachment:update";
+  attachmentId: string;
+  decisionId: string;
+  status: "PENDING" | "PROCESSING" | "READY" | "FAILED";
+  error?: string;
+}
+
+type WebSocketEvent = DecisionUpdateEvent | AttachmentUpdateEvent;
+
 const EVENTS_CHANNEL = "decision-events";
 
 let io: SocketIOServer | null = null;
@@ -63,12 +73,16 @@ export function initSocketServer(httpServer: HTTPServer): SocketIOServer {
   subscriber.on("message", (channel, message) => {
     if (channel === EVENTS_CHANNEL) {
       try {
-        const event: DecisionUpdateEvent = JSON.parse(message);
-        
-        // Emit to all connected clients
-        io?.emit("decision:update", event);
-        
-        console.log(`📤 Broadcasted event: ${event.status} for decision ${event.decisionId}`);
+        const event: WebSocketEvent = JSON.parse(message);
+
+        // Emit to all connected clients based on event type
+        if (event.type === "decision:update") {
+          io?.emit("decision:update", event);
+          console.log(`📤 Broadcasted decision event: ${event.status} for decision ${event.decisionId}`);
+        } else if (event.type === "attachment:update") {
+          io?.emit("attachment:update", event);
+          console.log(`📤 Broadcasted attachment event: ${event.status} for attachment ${event.attachmentId}`);
+        }
       } catch (error) {
         console.error("Failed to parse Redis message:", error);
       }

@@ -1,10 +1,12 @@
+"use client";
+
 import Link from "next/link";
-import { auth } from "@/lib/auth";
+import { useAuth } from "@/hooks/useAuth";
 import SignOutButton from "@/components/sign-out-button";
 import ThemeToggle from "@/components/theme-toggle";
 
-export default async function Home() {
-  const session = await auth();
+export default function Home() {
+  const { user, isLoading } = useAuth();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-900">
@@ -24,11 +26,15 @@ export default async function Home() {
         </div>
 
         <div className="rounded-lg bg-white p-8 shadow-md dark:bg-zinc-800">
-          {session?.user ? (
+          {isLoading ? (
+            <div className="text-center text-zinc-600 dark:text-zinc-400">
+              Loading...
+            </div>
+          ) : user ? (
             <div className="space-y-4">
               <div className="rounded-md bg-green-50 p-4 dark:bg-green-900/20">
                 <p className="text-sm font-medium text-green-800 dark:text-green-400">
-                  ✓ You are signed in as {session.user.email}
+                  ✓ You are signed in as {user.email}
                 </p>
               </div>
               <div className="flex flex-col gap-3">

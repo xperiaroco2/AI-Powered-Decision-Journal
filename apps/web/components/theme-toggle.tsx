@@ -15,7 +15,9 @@ export default function ThemeToggle() {
 
   // Prevent hydration mismatch by only rendering after mount
   useEffect(() => {
-    setMounted(true);
+    // Use setTimeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   if (!mounted) {

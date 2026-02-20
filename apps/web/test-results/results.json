@@ -1,0 +1,206 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\playwright.config.ts",
+    "rootDir": "C:/Users/xperi/WebstormProjects/AI-Powered-Decision-Journal/apps/web/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\global-setup.ts",
+    "globalTeardown": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/xperi/WebstormProjects/AI-Powered-Decision-Journal/apps/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/xperi/WebstormProjects/AI-Powered-Decision-Journal/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.e2e-spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.e2e-spec.ts",
+      "file": "auth.e2e-spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Auth E2E Tests",
+          "file": "auth.e2e-spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Registration Flow",
+              "file": "auth.e2e-spec.ts",
+              "line": 19,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should register a new user successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2685,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-20T08:14:38.157Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-292caa4408e40326c469",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 20,
+                  "column": 9
+                },
+                {
+                  "title": "should register without name",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1146,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-20T08:14:40.968Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-031121d377a1264e4484",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 38,
+                  "column": 9
+                },
+                {
+                  "title": "should show error for duplicate email",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2589,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-20T08:14:42.127Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-43ec64c7f27b848b3385",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 53,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-02-20T08:14:12.504Z",
+    "duration": 33518.782,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

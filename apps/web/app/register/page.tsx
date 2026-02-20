@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 import ThemeToggle from "@/components/theme-toggle";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { register } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -19,25 +21,15 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password, name }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "Registration failed");
-        return;
+      // Register and auto-login
+      await register(email, password, name);
+      router.push("/");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Registration failed");
+      } else {
+        setError("An error occurred. Please try again.");
       }
-
-      // Registration successful, redirect to login
-      router.push("/login?registered=true");
-    } catch (err) {
-      setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }

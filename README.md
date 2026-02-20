@@ -17,9 +17,12 @@ provider failures, retries, and real-time UI updates.
 This isn't a simple CRUD app with an AI wrapper. Key technical challenges addressed:
 
 - **Asynchronous AI Processing**: AI analysis runs in a separate worker process via BullMQ, not in the request/response cycle
+- **RAG Advisory System**: Complete retrieval-augmented generation pipeline with vector embeddings, semantic search, and document chunking
+- **Vector Database Integration**: PostgreSQL with pgvector extension for efficient similarity search over 1536-dimensional embeddings
 - **Real-Time Updates**: WebSocket integration with Redis Pub/Sub for live status updates across distributed processes
 - **Failure Handling**: Explicit FAILED state with retry/re-analyze functionality and multiple analysis runs per decision
 - **Provider Abstraction**: Swappable AI providers (mock for development, Groq for production) with structured JSON output
+- **Anti-Hallucination Design**: Document-grounded prompting with strict constraints to prevent LLM from inventing facts
 - **Denormalized Aggregations**: Dashboard queries optimized with denormalized fields to avoid parsing JSONB in aggregations
 - **Server-Side Filtering**: Complex filtering and sorting logic (including custom "needs attention" and "most biases" sorts)
 - **Production-Ready Architecture**: Monorepo with separate web and worker apps, designed for Vercel + background worker deployment
@@ -34,6 +37,14 @@ This isn't a simple CRUD app with an AI wrapper. Key technical challenges addres
 - ✅ **Asynchronous AI Analysis**: Background processing via BullMQ + Redis queue
 - ✅ **Structured AI Output**: Category classification, cognitive bias detection, missed alternatives, strategic insights
 
+### RAG Advisory System (NEW)
+- ✅ **Decision-Based Advice**: Ask questions and receive advice grounded in past decision patterns
+- ✅ **Document-Based Advice**: Upload attachments and ask questions about specific documents
+- ✅ **Vector Similarity Search**: pgvector-powered semantic search over decisions and document chunks
+- ✅ **Async Embedding Generation**: Background processing of embeddings for decisions and attachments
+- ✅ **Document Chunking**: Fixed-size chunking (500 tokens, 100 overlap) for large documents
+- ✅ **Anti-Hallucination Prompting**: Strict constraints to ground advice in actual document content
+
 ### Advanced Features
 - ✅ **Real-Time Status Updates**: WebSocket connection with Socket.IO + Redis adapter for live analysis progress
 - ✅ **Multiple Analysis Runs**: Support for re-analyzing decisions with full run history
@@ -44,9 +55,10 @@ This isn't a simple CRUD app with an AI wrapper. Key technical challenges addres
 
 ### Technical Features
 - ✅ **AI Provider Abstraction**: Pluggable providers (mock for dev, Groq for production)
+- ✅ **Embedding Provider Abstraction**: Pluggable embedding providers (mock, OpenAI)
 - ✅ **Worker-Only AI Execution**: AI calls isolated to worker process, never in web server
 - ✅ **Denormalized Fields**: Optimized dashboard queries with `categoryText` and `biasesText` fields
-- ✅ **Type-Safe Schema**: Prisma ORM with PostgreSQL, full TypeScript coverage
+- ✅ **Type-Safe Schema**: Prisma ORM with PostgreSQL + pgvector extension, full TypeScript coverage
 - ✅ **Monorepo Structure**: pnpm workspaces with `apps/web` and `apps/worker`
 
 ---
@@ -123,8 +135,13 @@ This isn't a simple CRUD app with an AI wrapper. Key technical challenges addres
 - Redis (queue + pub/sub)
 
 **Database:**
-- PostgreSQL 15
+- PostgreSQL 15 with pgvector extension
 - Prisma ORM v6
+
+**AI/ML:**
+- OpenAI Embeddings API (text-embedding-3-small, 1536 dimensions)
+- Groq LLM API (llama-3.3-70b-versatile)
+- pgvector (IVFFlat index with cosine similarity)
 
 **Infrastructure:**
 - Docker Compose (local dev)
@@ -253,6 +270,187 @@ const provider = process.env.AI_PROVIDER === 'groq'
 
 ---
 
+## RAG Advisory System
+
+### Overview
+
+The RAG (Retrieval-Augmented Generation) Advisory System enables users to ask questions and receive personalized advice grounded in their past decisions or specific documents. This is a complete production-ready implementation with 4 stages:
+
+**Stage 1: Decision Embeddings (Ingestion)**
+- Automatically generate vector embeddings for every decision
+- Background processing via BullMQ worker
+- 1536-dimensional vectors using OpenAI's text-embedding-3-small
+
+**Stage 2: Decision-Based Advice (Retrieval)**
+- Ask open-ended questions like "Should I take this job offer?"
+- Semantic search over past decisions using pgvector
+- Advice grounded in personal decision patterns
+
+**Stage 3: Attachment Embeddings (Ingestion)**
+- Upload text documents related to decisions (contracts, reports, etc.)
+- Automatic chunking (500 tokens per chunk, 100 token overlap)
+- Background embedding generation for each chunk
+
+**Stage 4: Attachment-Based Advice (Retrieval)**
+- Ask questions about specific documents
+- Semantic search over document chunks
+- Document-grounded advice with anti-hallucination constraints
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     RAG Advisory System                          │
+└─────────────────────────────────────────────────────────────────┘
+
+INGESTION (Background)              RETRIEVAL (Online)
+─────────────────────              ──────────────────
+
+Stage 1: Decision Embeddings       Stage 2: Decision-Based Advice
+  User creates decision              User asks question
+       ↓                                  ↓
+  Enqueue embedding job              Generate question embedding
+       ↓                                  ↓
+  Worker generates embedding         Vector search (pgvector)
+       ↓                                  ↓
+  Store in DecisionEmbedding         Retrieve top-3 decisions
+                                          ↓
+                                     Build advisory prompt
+                                          ↓
+                                     Generate advice (LLM)
+
+Stage 3: Attachment Embeddings     Stage 4: Attachment-Based Advice
+  User uploads attachment            User asks question + attachmentId
+       ↓                                  ↓
+  Enqueue embedding job              Generate question embedding
+       ↓                                  ↓
+  Worker chunks content              Vector search (pgvector)
+       ↓                                  ↓
+  Worker generates embeddings        Retrieve top-5 chunks
+       ↓                                  ↓
+  Store in AttachmentChunkEmbedding  Build document-grounded prompt
+                                          ↓
+                                     Generate advice (LLM)
+```
+
+### Key Features
+
+**Vector Similarity Search:**
+- PostgreSQL with pgvector extension
+- IVFFlat index with cosine similarity
+- User-scoped queries (no data leakage)
+- Configurable similarity thresholds
+
+**Document Chunking:**
+- Fixed-size chunking (500 tokens per chunk)
+- 100 token overlap for context preservation
+- Cost control (max 50 chunks per attachment)
+- Preserves chunk order in retrieval
+
+**Anti-Hallucination Prompting:**
+- Strict constraints: "Answer ONLY based on document excerpts"
+- Explicit prohibition of inventing facts
+- Graceful degradation when context is missing
+- Labeled inferences vs. direct quotes
+
+**Cost Efficiency:**
+- ~$0.000002 per decision embedding
+- ~$0.00005 per attachment (5 chunks)
+- ~$0.00014 per advisory query
+- **Total: ~$2.81/month for 100 active users**
+
+### API Examples
+
+**Decision-Based Advice:**
+```bash
+POST /api/advice
+{
+  "question": "Should I take this new job offer?"
+}
+
+Response:
+{
+  "advice": "Based on your past decisions...",
+  "retrievedDecisions": [
+    {
+      "decisionId": "...",
+      "situation": "Considering a job change",
+      "similarity": 0.85
+    }
+  ],
+  "metadata": {
+    "retrievalType": "decisions",
+    "retrievalCount": 3,
+    "hasContext": true
+  }
+}
+```
+
+**Attachment-Based Advice:**
+```bash
+POST /api/advice
+{
+  "question": "What should I know about the salary in this contract?",
+  "relatedAttachmentId": "clxxx..."
+}
+
+Response:
+{
+  "advice": "Based on the document excerpts...",
+  "retrievedChunks": [
+    {
+      "chunkId": "...",
+      "attachmentTitle": "Employment Contract",
+      "content": "The base salary is $120,000...",
+      "similarity": 0.87
+    }
+  ],
+  "metadata": {
+    "retrievalType": "attachment",
+    "attachmentTitle": "Employment Contract",
+    "retrievalCount": 5
+  }
+}
+```
+
+### Design Decisions
+
+**1. Separate Ingestion and Retrieval**
+- Ingestion runs asynchronously in worker (Stage 1, 3)
+- Retrieval runs synchronously in web server (Stage 2, 4)
+- Prevents blocking user requests during embedding generation
+
+**2. Single Attachment Scope**
+- Retrieve from ONE attachment at a time
+- Simpler mental model for users
+- Easier source attribution
+- Future: Hybrid retrieval across multiple sources
+
+**3. Chunk Order Preservation**
+- Sort retrieved chunks by `chunkIndex` after similarity ranking
+- Maintains document narrative flow
+- Better context for LLM understanding
+
+**4. Lower Threshold for Chunks (0.65 vs 0.70)**
+- Chunks are smaller and more granular than full decisions
+- Better to include borderline chunks than miss context
+- Still high enough to filter noise
+
+**5. Graceful Degradation**
+- Return advice even if no context found
+- Helpful messages: "Document doesn't cover this topic"
+- Better UX than error messages
+
+### Documentation
+
+- **Complete Overview**: `docs/RAG_COMPLETE_OVERVIEW.md`
+- **Stage 1**: `docs/RAG_STAGE_1_DECISION_EMBEDDINGS.md`
+- **Stage 2**: `docs/RAG_STAGE_2_ADVISORY_RETRIEVAL.md`
+- **Stage 3**: `docs/RAG_STAGE_3_ATTACHMENT_INGESTION.md`
+- **Stage 4**: `docs/RAG_STAGE_4_ATTACHMENT_RETRIEVAL.md`
+
+---
+
 ## Local Development
 
 ### Prerequisites
@@ -273,10 +471,12 @@ const provider = process.env.AI_PROVIDER === 'groq'
    pnpm install
    ```
 
-3. **Start infrastructure (PostgreSQL + Redis)**
+3. **Start infrastructure (PostgreSQL with pgvector + Redis)**
    ```bash
    docker-compose up -d
    ```
+
+   **Note:** The PostgreSQL container uses the `pgvector/pgvector:pg15` image which includes the pgvector extension required for the RAG Advisory System.
 
 4. **Set up environment variables**
    ```bash
@@ -288,6 +488,8 @@ const provider = process.env.AI_PROVIDER === 'groq'
    # - REDIS_URL (default: redis://localhost:6379)
    # - AI_PROVIDER (mock | groq)
    # - GROQ_API_KEY (only if AI_PROVIDER=groq)
+   # - EMBEDDING_PROVIDER (mock | openai)
+   # - OPENAI_API_KEY (only if EMBEDDING_PROVIDER=openai)
    # - NEXTAUTH_SECRET (generate with: openssl rand -base64 32)
    ```
 
@@ -346,6 +548,7 @@ REDIS_URL=<redis-connection-string>
 NEXTAUTH_SECRET=<random-secret>
 NEXTAUTH_URL=<production-url>
 AI_PROVIDER=groq
+EMBEDDING_PROVIDER=openai
 ```
 
 **Worker:**
@@ -354,6 +557,8 @@ DATABASE_URL=<postgres-connection-string>
 REDIS_URL=<redis-connection-string>
 AI_PROVIDER=groq
 GROQ_API_KEY=<your-api-key>
+EMBEDDING_PROVIDER=openai
+OPENAI_API_KEY=<your-api-key>
 ```
 
 ### Build Commands
@@ -432,39 +637,59 @@ cd apps/worker && pnpm start
 **1. Architecture Decisions**
 - "I separated the AI processing into a worker to avoid blocking HTTP requests. This is critical because AI calls can take 30+ seconds."
 - "I used Redis Pub/Sub to bridge the worker and web server for real-time updates without polling."
+- "I implemented a complete RAG pipeline with separate ingestion and retrieval stages to optimize for both cost and latency."
 
-**2. Failure Handling**
+**2. RAG System Design**
+- "I built a 4-stage RAG system: decision embeddings, decision-based advice, attachment chunking, and document-based advice."
+- "I used pgvector for semantic search because it's production-ready, cost-effective, and integrates seamlessly with PostgreSQL."
+- "I implemented anti-hallucination prompting with strict constraints to prevent the LLM from inventing facts not in the document."
+- "I preserve chunk order after retrieval to maintain document narrative flow, which improves LLM understanding."
+
+**3. Failure Handling**
 - "I made failures explicit with a FAILED state and retry button because AI APIs are unreliable. Silent failures would be a terrible UX."
 - "I support multiple analysis runs per decision so users can retry without losing history."
+- "Embedding generation happens asynchronously so failures don't block the user experience."
 
-**3. Performance Optimizations**
+**4. Performance Optimizations**
 - "I denormalized category and bias data to avoid parsing JSONB in aggregation queries. This made the dashboard 10x faster."
-- "I added indexes on userId, createdAt, and categoryText to optimize filtering queries."
+- "I added IVFFlat indexes on embedding vectors for sub-50ms similarity search even with thousands of embeddings."
+- "I use different similarity thresholds for decisions (0.70) vs chunks (0.65) because chunks are more granular."
 
-**4. Real-World Constraints**
-- "I built a mock AI provider so the app works without API keys in development. This also helps with testing."
+**5. Real-World Constraints**
+- "I built mock providers for both LLM and embeddings so the app works without API keys in development."
 - "I designed the worker to be horizontally scalable—you can run multiple instances processing the same queue."
+- "I implemented cost controls: max 50 chunks per attachment, which caps embedding costs at $0.0005 per document."
 
-**5. Trade-Offs**
+**6. Trade-Offs**
+- "I chose fixed-size chunking over semantic chunking because it's simpler, more predictable, and good enough for most documents."
+- "I scope retrieval to a single attachment at a time for simplicity, but the architecture supports hybrid retrieval in the future."
 - "I chose in-memory sorting for complex cases because the dataset is small (user-scoped). If this were multi-tenant, I'd use raw SQL."
-- "I didn't add pagination yet because it's not needed for < 100 decisions, but it's an easy add later."
 
 ### Questions You Might Get
 
 **Q: Why not use serverless functions for the worker?**
 A: AI calls take 5-30 seconds, which exceeds most serverless timeouts (10s on Vercel). A long-running worker process is more reliable.
 
+**Q: Why pgvector instead of Pinecone or Weaviate?**
+A: pgvector keeps everything in PostgreSQL, eliminating the need for a separate vector database. It's simpler, cheaper, and performs well for user-scoped queries (< 10K embeddings per user). For multi-tenant scale, I'd consider dedicated vector DBs.
+
+**Q: Why fixed-size chunking instead of semantic chunking?**
+A: Fixed-size chunking is deterministic, fast, and works well for most documents. Semantic chunking adds complexity and cost (LLM calls to determine boundaries) without significant quality improvement for this use case.
+
+**Q: How do you prevent hallucination in document-based advice?**
+A: I use strict prompting constraints: "Answer ONLY based on provided excerpts," "Do NOT invent facts," and "Say so if information is missing." I also include similarity scores in the response for transparency.
+
 **Q: Why WebSockets instead of polling?**
 A: Polling creates unnecessary database load and has poor UX (1-5 second delay). WebSockets give instant updates with minimal overhead.
 
 **Q: Why Prisma instead of raw SQL?**
-A: Type safety and developer experience. Prisma generates TypeScript types from the schema, preventing runtime errors. For complex queries, I can still use raw SQL.
+A: Type safety and developer experience. Prisma generates TypeScript types from the schema, preventing runtime errors. For complex queries like vector similarity search, I use raw SQL via `$queryRawUnsafe`.
 
 **Q: How would you scale this to 10,000 concurrent users?**
-A: Horizontally scale workers (add more instances), use Redis Cluster for high availability, add database read replicas, implement rate limiting, and add pagination.
+A: Horizontally scale workers (add more instances), use Redis Cluster for high availability, add database read replicas, implement rate limiting, add pagination, and consider sharding embeddings by userId.
 
 **Q: What would you do differently if you had more time?**
-A: Add comprehensive error categorization, implement rate limiting, add unit tests for critical paths (worker processor, AI providers), and optimize dashboard queries with materialized views.
+A: Add hybrid retrieval (combine decisions + attachments), implement re-ranking of chunks, add comprehensive error categorization, implement rate limiting, add unit tests for critical paths, and optimize with materialized views for dashboard queries.
 
 ---
 

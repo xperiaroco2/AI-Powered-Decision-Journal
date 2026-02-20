@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useAuth } from "@/hooks/useAuth";
 import ThemeToggle from "@/components/theme-toggle";
 import SignOutButton from "@/components/sign-out-button";
 
 export default function AppHeader() {
-  const { data: session } = useSession();
+  const { user } = useAuth();
 
   return (
     <header className="border-b border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
@@ -35,15 +35,21 @@ export default function AppHeader() {
             >
               Dashboard
             </Link>
+            <Link
+              href="/advice"
+              className="text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-50"
+            >
+              Ask for Advice
+            </Link>
 
             {/* Theme Toggle */}
             <ThemeToggle />
 
             {/* User Menu */}
-            {session?.user?.email && (
+            {user?.email && (
               <div className="flex items-center gap-3 border-l border-zinc-200 pl-4 dark:border-zinc-700">
                 <span className="hidden text-sm text-zinc-600 dark:text-zinc-400 sm:inline">
-                  {session.user.email}
+                  {user.email}
                 </span>
                 <SignOutButton variant="compact" />
               </div>

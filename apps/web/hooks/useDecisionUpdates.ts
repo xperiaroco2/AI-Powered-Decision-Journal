@@ -38,10 +38,12 @@ export function useDecisionUpdates(decisionId: string) {
       }
     });
 
-    setSocket(socketInstance);
+    // Use setTimeout to avoid synchronous setState in effect
+    const timer = setTimeout(() => setSocket(socketInstance), 0);
 
     // Cleanup on unmount
     return () => {
+      clearTimeout(timer);
       socketInstance.disconnect();
     };
   }, [decisionId]);

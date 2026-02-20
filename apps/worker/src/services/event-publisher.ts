@@ -8,6 +8,14 @@ export interface DecisionUpdateEvent {
   status: "PROCESSING" | "COMPLETED" | "FAILED"; // Changed DONE to COMPLETED to match AnalysisRunStatus
 }
 
+export interface AttachmentUpdateEvent {
+  type: "attachment:update";
+  attachmentId: string;
+  decisionId: string;
+  status: "PENDING" | "PROCESSING" | "READY" | "FAILED";
+  error?: string;
+}
+
 // Redis Pub/Sub channel
 const EVENTS_CHANNEL = "decision-events";
 
@@ -52,14 +60,30 @@ export async function publishRunUpdate(
   }
 }
 
-// Legacy function for backward compatibility
-export async function publishDecisionUpdate(
+// Publish attachment status update event
+export async function publishAttachmentUpdate(
+  attachmentId: string,
   decisionId: string,
-  status: "PROCESSING" | "DONE" | "FAILED"
+  status: "PENDING" | "PROCESSING" | "READY" | "FAILED",
+  error?: string
 ): Promise<void> {
-  // Map DONE to COMPLETED for new status enum
-  const mappedStatus = status === "DONE" ? "COMPLETED" : status;
-  await publishRunUpdate(decisionId, "legacy", mappedStatus);
+  try {
+    const event: AttachmentUpdateEvent = {
+      type: "attachment:update",
+      attachmentId,
+      decisionId,
+      status,
+      error,
+    };
+
+    const redis = getPublisher();
+    await redis.publish(EVENTS_CHANNEL, JSON.stringify(event));
+
+    console.log(`📡 Published attachment event: ${status} for attachment ${attachmentId} (decision ${decisionId})`);
+  } catch (error) {
+    console.error("Failed to publish attachment event:", error);
+    // Don't throw - event publishing should not break the main flow
+  }
 }
 
 // Export channel name for subscribers

@@ -4,6 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppHeader from "@/components/app-header";
+import {
+  validateSituation,
+  validateDecision,
+  validateReasoning,
+  countWords,
+} from "@/lib/validation";
 
 export default function NewDecisionPage() {
   const router = useRouter();
@@ -11,20 +17,65 @@ export default function NewDecisionPage() {
   const [chosenDecision, setChosenDecision] = useState("");
   const [personalReasoning, setPersonalReasoning] = useState("");
   const [error, setError] = useState("");
+  const [warnings, setWarnings] = useState<{
+    situation?: string;
+    decision?: string;
+    reasoning?: string;
+  }>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Real-time validation for warnings (non-blocking)
+  const handleSituationChange = (value: string) => {
+    setSituation(value);
+    const result = validateSituation(value);
+    setWarnings((prev) => ({
+      ...prev,
+      situation: result.warning,
+    }));
+  };
+
+  const handleDecisionChange = (value: string) => {
+    setChosenDecision(value);
+    const result = validateDecision(value);
+    setWarnings((prev) => ({
+      ...prev,
+      decision: result.warning,
+    }));
+  };
+
+  const handleReasoningChange = (value: string) => {
+    setPersonalReasoning(value);
+    const result = validateReasoning(value);
+    setWarnings((prev) => ({
+      ...prev,
+      reasoning: result.warning,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // Frontend validation
-    if (situation.trim().length < 10) {
-      setError("Situation must be at least 10 characters");
+    // Frontend validation using word count (matches backend)
+    const situationResult = validateSituation(situation);
+    const decisionResult = validateDecision(chosenDecision);
+    const reasoningResult = personalReasoning
+      ? validateReasoning(personalReasoning)
+      : { valid: true, wordCount: 0 };
+
+    // Check for validation errors
+    if (!situationResult.valid) {
+      setError(situationResult.error || "Invalid situation");
       return;
     }
 
-    if (chosenDecision.trim().length < 5) {
-      setError("Decision must be at least 5 characters");
+    if (!decisionResult.valid) {
+      setError(decisionResult.error || "Invalid decision");
+      return;
+    }
+
+    if (!reasoningResult.valid) {
+      setError(reasoningResult.error || "Invalid reasoning");
       return;
     }
 
@@ -52,7 +103,7 @@ export default function NewDecisionPage() {
 
       // Redirect to the decision detail page
       router.push(`/decisions/${data.id}`);
-    } catch (err) {
+    } catch (_err) {
       setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -79,12 +130,17 @@ export default function NewDecisionPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Situation */}
             <div>
-              <label
-                htmlFor="situation"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                Situation <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="situation"
+                  className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  Situation <span className="text-red-500">*</span>
+                </label>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {countWords(situation)} words (min. 10)
+                </span>
+              </div>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 Describe the context and circumstances surrounding your decision
               </p>
@@ -92,23 +148,32 @@ export default function NewDecisionPage() {
                 id="situation"
                 name="situation"
                 required
-                minLength={10}
                 rows={5}
                 value={situation}
-                onChange={(e) => setSituation(e.target.value)}
+                onChange={(e) => handleSituationChange(e.target.value)}
                 className="mt-2 block w-full rounded-md border border-zinc-300 px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-50 dark:placeholder-zinc-500"
                 placeholder="e.g., I've been offered a new job with higher pay but it requires relocating to a different city..."
               />
+              {warnings.situation && (
+                <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                  ⚠️ {warnings.situation}
+                </p>
+              )}
             </div>
 
             {/* Chosen Decision */}
             <div>
-              <label
-                htmlFor="chosenDecision"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                Your Decision <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="chosenDecision"
+                  className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  Your Decision <span className="text-red-500">*</span>
+                </label>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {countWords(chosenDecision)} words (min. 5)
+                </span>
+              </div>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 What did you decide to do?
               </p>
@@ -116,23 +181,34 @@ export default function NewDecisionPage() {
                 id="chosenDecision"
                 name="chosenDecision"
                 required
-                minLength={5}
                 rows={3}
                 value={chosenDecision}
-                onChange={(e) => setChosenDecision(e.target.value)}
+                onChange={(e) => handleDecisionChange(e.target.value)}
                 className="mt-2 block w-full rounded-md border border-zinc-300 px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-50 dark:placeholder-zinc-500"
                 placeholder="e.g., I decided to accept the job offer and relocate"
               />
+              {warnings.decision && (
+                <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                  ⚠️ {warnings.decision}
+                </p>
+              )}
             </div>
 
             {/* Personal Reasoning (Optional) */}
             <div>
-              <label
-                htmlFor="personalReasoning"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-              >
-                Your Reasoning <span className="text-zinc-400">(Optional)</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="personalReasoning"
+                  className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  Your Reasoning <span className="text-zinc-400">(Optional)</span>
+                </label>
+                {personalReasoning && (
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {countWords(personalReasoning)} words
+                  </span>
+                )}
+              </div>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 Why did you make this decision? What factors influenced you?
               </p>
@@ -140,11 +216,17 @@ export default function NewDecisionPage() {
                 id="personalReasoning"
                 name="personalReasoning"
                 rows={4}
+                required={false}
                 value={personalReasoning}
-                onChange={(e) => setPersonalReasoning(e.target.value)}
+                onChange={(e) => handleReasoningChange(e.target.value)}
                 className="mt-2 block w-full rounded-md border border-zinc-300 px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-50 dark:placeholder-zinc-500"
                 placeholder="e.g., The salary increase will help me pay off student loans faster, and I'm excited about the career growth opportunities..."
               />
+              {warnings.reasoning && (
+                <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                  ⚠️ {warnings.reasoning}
+                </p>
+              )}
             </div>
 
             {/* Error Message */}

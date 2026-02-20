@@ -1,13 +1,31 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import DashboardClient from "@/components/dashboard-client";
 import AppHeader from "@/components/app-header";
 
-export default async function DashboardPage() {
-  const session = await auth();
+export default function DashboardPage() {
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
 
-  if (!session?.user?.id) {
-    redirect("/login");
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-900">
+        <div className="text-zinc-600 dark:text-zinc-400">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (

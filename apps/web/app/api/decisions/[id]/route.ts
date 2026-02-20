@@ -1,53 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { NextRequest } from 'next/server';
+import { proxyGET } from '@/lib/api-proxy';
 
-// GET /api/decisions/[id] - Get a single decision
+/**
+ * Decision Detail API Route (Proxy to NestJS)
+ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    // Check authentication
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { id } = await params;
-
-    // Fetch decision with latest run and all runs
-    const decision = await prisma.decision.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        latestRun: true,
-        runs: {
-          orderBy: {
-            createdAt: "desc",
-          },
-        },
-      },
-    });
-
-    // Check if decision exists
-    if (!decision) {
-      return NextResponse.json({ error: "Decision not found" }, { status: 404 });
-    }
-
-    // Check if decision belongs to user
-    if (decision.userId !== session.user.id) {
-      return NextResponse.json({ error: "Decision not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(decision);
-  } catch (error) {
-    console.error("Error fetching decision:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
+  const { id } = await params;
+  return proxyGET(`/decisions/${id}`, request);
 }
 

@@ -1,8 +1,9 @@
 import { Job } from "bullmq";
 import { PrismaClient } from "@prisma/client";
 import { DecisionAnalysisJobData } from "../config/queue";
-import { analyzeDecision } from "../services/ai.service";
+import { getAIProvider } from "../services/ai.service";
 import { publishRunUpdate } from "../services/event-publisher";
+import { GroqProvider } from "../services/providers/groq.provider";
 
 const prisma = new PrismaClient();
 
@@ -50,7 +51,15 @@ export async function processDecisionAnalysis(
 
     // 4. Generate AI analysis
     console.log(`[Job ${job.id}] Calling AI provider (${run.provider}) for analysis...`);
-    const analysisData = await analyzeDecision({
+
+    const provider = getAIProvider();
+
+    // Set context for Groq provider
+    if (provider instanceof GroqProvider) {
+      provider.setContext(decision.userId, runId);
+    }
+
+    const analysisData = await provider.analyze({
       situation: decision.situation,
       chosenDecision: decision.chosenDecision,
       personalReasoning: decision.personalReasoning,
@@ -85,7 +94,6 @@ export async function processDecisionAnalysis(
       data: {
         status: "DONE",
         latestRunId: runId,
-        errorMessage: null, // Clear any previous error
       },
     });
 
@@ -124,7 +132,6 @@ export async function processDecisionAnalysis(
           data: {
             status: "FAILED",
             latestRunId: runId,
-            errorMessage: errorMessage,
           },
         });
 

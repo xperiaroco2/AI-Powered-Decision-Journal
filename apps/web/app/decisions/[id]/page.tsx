@@ -1,42 +1,74 @@
-import { redirect, notFound } from "next/navigation";
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { apiGet } from "@/lib/api-client";
 import DecisionDetailClient from "@/components/decision-detail-client";
 import { StatusBadge } from "@/components/ui/status-badge";
 import AppHeader from "@/components/app-header";
 
-export default async function DecisionDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const session = await auth();
+interface DecisionRun {
+  id: string;
+  status: string;
+  categoryText: string | null;
+  biasesText: string[] | null;
+  createdAt: string;
+}
 
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
+interface Decision {
+  id: string;
+  situation: string;
+  chosenDecision: string;
+  personalReasoning: string;
+  status: string;
+  createdAt: string;
+  latestRun: DecisionRun | null;
+  runs: DecisionRun[];
+}
 
-  const { id } = await params;
+export default function DecisionDetailPage() {
+  const router = useRouter();
+  const params = useParams();
+  const { user, accessToken, isLoading: authLoading } = useAuth();
+  const [decision, setDecision] = useState<Decision | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Fetch decision server-side with runs
-  const decision = await prisma.decision.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      latestRun: true,
-      runs: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-    },
-  });
+  const id = params.id as string;
 
-  // Check if decision exists and belongs to user
-  if (!decision || decision.userId !== session.user.id) {
-    notFound();
-  }
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    const fetchDecision = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiGet(`/decisions/${id}`, accessToken);
+
+        if (response.status === 404) {
+          router.push("/decisions");
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch decision");
+        }
+
+        const data = await response.json();
+        setDecision(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load decision");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDecision();
+  }, [id, user, accessToken, authLoading, router]);
 
   // Status message helper
   const getStatusMessage = (status: string) => {
@@ -53,6 +85,22 @@ export default async function DecisionDetailPage({
         return "";
     }
   };
+
+  if (authLoading || isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-900">
+        <div className="text-zinc-600 dark:text-zinc-400">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error || !decision) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-900">
+        <div className="text-red-600 dark:text-red-400">{error || "Decision not found"}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
