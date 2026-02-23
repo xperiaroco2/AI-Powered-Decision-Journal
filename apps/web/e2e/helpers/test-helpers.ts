@@ -53,9 +53,9 @@ export async function loginUser(
  * Logout the current user via the UI
  */
 export async function logoutUser(page: Page): Promise<void> {
-  // Click sign out button (usually in header)
+  // Click sign out button (usually in header or on home page)
   await page.click('button:has-text("Sign Out")');
-  
+
   // Wait for redirect to login page
   await page.waitForURL('/login', { timeout: 10000 });
 }

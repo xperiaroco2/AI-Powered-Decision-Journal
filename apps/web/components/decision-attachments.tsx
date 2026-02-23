@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { AttachmentStatusBadge } from "@/components/ui/attachment-status-badge";
 import { useAttachmentUpdates } from "@/hooks/useAttachmentUpdates";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Attachment {
   id: string;
@@ -18,6 +19,7 @@ interface DecisionAttachmentsProps {
 }
 
 export default function DecisionAttachments({ decisionId }: DecisionAttachmentsProps) {
+  const { accessToken } = useAuth();
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,8 +36,10 @@ export default function DecisionAttachments({ decisionId }: DecisionAttachmentsP
 
   // Fetch attachments
   useEffect(() => {
-    fetchAttachments();
-  }, [decisionId]);
+    if (accessToken) {
+      fetchAttachments();
+    }
+  }, [decisionId, accessToken]);
 
   // Apply real-time updates
   useEffect(() => {
@@ -57,9 +61,15 @@ export default function DecisionAttachments({ decisionId }: DecisionAttachmentsP
   }, [updates]);
 
   const fetchAttachments = async () => {
+    if (!accessToken) return;
+
     try {
       setLoading(true);
-      const response = await fetch(`/api/decisions/${decisionId}/attachments`);
+      const response = await fetch(`/api/decisions/${decisionId}/attachments`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch attachments");
@@ -89,6 +99,11 @@ export default function DecisionAttachments({ decisionId }: DecisionAttachmentsP
       return;
     }
 
+    if (!accessToken) {
+      setUploadError("You must be logged in to upload attachments");
+      return;
+    }
+
     setIsUploading(true);
 
     try {
@@ -99,6 +114,9 @@ export default function DecisionAttachments({ decisionId }: DecisionAttachmentsP
 
       const response = await fetch(`/api/decisions/${decisionId}/attachments`, {
         method: "POST",
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
         body: formData, // Don't set Content-Type header - browser will set it with boundary
       });
 
@@ -206,8 +224,6 @@ export default function DecisionAttachments({ decisionId }: DecisionAttachmentsP
             <input
               id="attachment-title"
               type="text"
-              required
-              minLength={3}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="mt-1 block w-full rounded-md border border-zinc-300 px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-50 dark:placeholder-zinc-500"
@@ -228,7 +244,6 @@ export default function DecisionAttachments({ decisionId }: DecisionAttachmentsP
             <input
               id="attachment-file"
               type="file"
-              required
               accept=".txt,.md,.pdf,.doc,.docx,text/plain,text/markdown,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               onChange={handleFileChange}
               className="mt-2 block w-full text-sm text-zinc-900 file:mr-4 file:cursor-pointer file:rounded-md file:border-0 file:bg-zinc-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-zinc-700 hover:file:bg-zinc-200 dark:text-zinc-50 dark:file:bg-zinc-700 dark:file:text-zinc-300 dark:hover:file:bg-zinc-600"

@@ -5,7 +5,18 @@ import { getAIProvider } from "../services/ai.service";
 import { publishRunUpdate } from "../services/event-publisher";
 import { GroqProvider } from "../services/providers/groq.provider";
 
-const prisma = new PrismaClient();
+// Lazy PrismaClient — delays instantiation until first use so that DATABASE_URL
+// set dynamically by Testcontainers (in beforeAll) is picked up correctly.
+let _prismaClient: PrismaClient | undefined;
+const prisma = new Proxy({} as PrismaClient, {
+  get(_: PrismaClient, prop: string | symbol) {
+    if (!_prismaClient) {
+      _prismaClient = new PrismaClient();
+    }
+    const value = (_prismaClient as any)[prop];
+    return typeof value === 'function' ? value.bind(_prismaClient) : value;
+  },
+});
 
 // Main processor function - now processes by runId
 export async function processDecisionAnalysis(

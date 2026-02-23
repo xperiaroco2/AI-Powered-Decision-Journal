@@ -28,7 +28,8 @@ describe('auth-client', () => {
 
       const result = await login('test@example.com', 'password123');
 
-      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/auth/login`, {
+      expect(result).toEqual(mockResponse);
+      expect(global.fetch).toHaveBeenCalledWith(`/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -37,7 +38,6 @@ describe('auth-client', () => {
           password: 'password123',
         }),
       });
-      expect(result).toEqual(mockResponse);
     });
 
     it('should throw error on failed login', async () => {
@@ -70,7 +70,7 @@ describe('auth-client', () => {
 
       const result = await register('test@example.com', 'password123', 'Test User');
 
-      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/auth/register`, {
+      expect(global.fetch).toHaveBeenCalledWith(`/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -102,7 +102,7 @@ describe('auth-client', () => {
 
       await logout();
 
-      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/auth/logout`, {
+      expect(global.fetch).toHaveBeenCalledWith(`/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -130,7 +130,7 @@ describe('auth-client', () => {
 
       const result = await refreshAccessToken();
 
-      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/auth/refresh`, {
+      expect(global.fetch).toHaveBeenCalledWith(`/api/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
       });

@@ -11,7 +11,18 @@ function generateCuid(): string {
   return `c${Date.now().toString(36)}${Math.random().toString(36).substring(2, 15)}`;
 }
 
-const prisma = new PrismaClient();
+// Lazy PrismaClient — delays instantiation until first use so that DATABASE_URL
+// set dynamically by Testcontainers (in beforeAll) is picked up correctly.
+let _prismaClient: PrismaClient | undefined;
+const prisma = new Proxy({} as PrismaClient, {
+  get(_: PrismaClient, prop: string | symbol) {
+    if (!_prismaClient) {
+      _prismaClient = new PrismaClient();
+    }
+    const value = (_prismaClient as any)[prop];
+    return typeof value === 'function' ? value.bind(_prismaClient) : value;
+  },
+});
 
 /**
  * Process Decision Embedding Job

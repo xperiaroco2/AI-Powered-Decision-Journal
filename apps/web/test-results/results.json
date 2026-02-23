@@ -37,7 +37,8 @@
       [
         "html",
         {
-          "outputFolder": "playwright-report"
+          "outputFolder": "playwright-report",
+          "open": "never"
         }
       ],
       [
@@ -65,6 +66,410 @@
     "webServer": null
   },
   "suites": [
+    {
+      "title": "attachments.e2e-spec.ts",
+      "file": "attachments.e2e-spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Attachments E2E Tests",
+          "file": "attachments.e2e-spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Attachment Upload",
+              "file": "attachments.e2e-spec.ts",
+              "line": 40,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should upload attachment to decision",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 10715,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "[BROWSER] log: [Fast Refresh] rebuilding\n"
+                            },
+                            {
+                              "text": "[BROWSER] info: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold\n"
+                            },
+                            {
+                              "text": "[BROWSER] log: [Fast Refresh] rebuilding\n"
+                            },
+                            {
+                              "text": "[BROWSER] log: [Fast Refresh] done in 914ms\n"
+                            },
+                            {
+                              "text": "[TEST] Page content: ((e, i, s, u, m, a, l, h)=>{\n    let d = document.documentElement, w = [\n        \"light\",\n        \"dark\"\n    ];\n    function p(n) {\n        (Array.isArray(e) ? e : [\n            e\n        ]).forEach((y)=>{\n            let k = y === \"class\", S = k && a ? m.map((f)=>a[f] || f) : m;\n            k ? (d.classList.remove(...S), d.classList.add(a && a[n] ? a[n] : n)) : d.setAttribute(y, n);\n        }), R(n);\n    }\n    function R(n) {\n        h && w.includes(n) && (d.style.colorScheme = n);\n    }\n    fu\n"
+                            },
+                            {
+                              "text": "[BROWSER] log: [Fast Refresh] rebuilding\n"
+                            },
+                            {
+                              "text": "[BROWSER] log: [Fast Refresh] done in 287ms\n"
+                            },
+                            {
+                              "text": "[BROWSER] log: ✓ Connected to WebSocket server\n"
+                            },
+                            {
+                              "text": "[BROWSER] log: ✓ Connected to WebSocket server (attachments)\n"
+                            },
+                            {
+                              "text": "[BROWSER] log: [Fast Refresh] rebuilding\n"
+                            },
+                            {
+                              "text": "[BROWSER] log: [Fast Refresh] done in 351ms\n"
+                            },
+                            {
+                              "text": "[BROWSER] log: 📥 Received attachment event: {type: attachment:update, attachmentId: cmlz28xhc0007m9w2p81fk2ag, decisionId: cmlz28t2y0003m9w21h5in93a, status: PROCESSING}\n"
+                            },
+                            {
+                              "text": "[BROWSER] log: 📥 Received attachment event: {type: attachment:update, attachmentId: cmlz28xhc0007m9w2p81fk2ag, decisionId: cmlz28t2y0003m9w21h5in93a, status: READY}\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:55:21.497Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5c9c5bac910a5cdadeda-1ee7e5cc5b9ffba5c555",
+                  "file": "attachments.e2e-spec.ts",
+                  "line": 41,
+                  "column": 9
+                },
+                {
+                  "title": "should show validation error for missing title",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2530,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:55:32.360Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5c9c5bac910a5cdadeda-f6c2ff1f16253450daab",
+                  "file": "attachments.e2e-spec.ts",
+                  "line": 95,
+                  "column": 9
+                },
+                {
+                  "title": "should show validation error for missing file",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1974,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:55:34.905Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5c9c5bac910a5cdadeda-0750cb4bfd4b103a26fa",
+                  "file": "attachments.e2e-spec.ts",
+                  "line": 126,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Attachment List",
+              "file": "attachments.e2e-spec.ts",
+              "line": 152,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should display all attachments for decision",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4359,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:55:36.895Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5c9c5bac910a5cdadeda-19b74d67bc378b67707d",
+                  "file": "attachments.e2e-spec.ts",
+                  "line": 153,
+                  "column": 9
+                },
+                {
+                  "title": "should show empty state when no attachments",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1893,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:55:41.271Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5c9c5bac910a5cdadeda-4ef80d247e3403fbf216",
+                  "file": "attachments.e2e-spec.ts",
+                  "line": 185,
+                  "column": 9
+                },
+                {
+                  "title": "should show attachment status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1912,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:55:43.177Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5c9c5bac910a5cdadeda-8cc14b5a15f3b7fb0b73",
+                  "file": "attachments.e2e-spec.ts",
+                  "line": 201,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Attachment Content",
+              "file": "attachments.e2e-spec.ts",
+              "line": 226,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should view attachment content",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2887,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:55:45.105Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5c9c5bac910a5cdadeda-1a0e6adde26e66bbc20e",
+                  "file": "attachments.e2e-spec.ts",
+                  "line": 227,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Attachment Processing",
+              "file": "attachments.e2e-spec.ts",
+              "line": 251,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should process attachment and update status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2968,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:55:48.005Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5c9c5bac910a5cdadeda-f5e913add12585e21ddf",
+                  "file": "attachments.e2e-spec.ts",
+                  "line": 252,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Multiple Attachments",
+              "file": "attachments.e2e-spec.ts",
+              "line": 283,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should handle multiple attachments for same decision",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 4110,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:55:50.985Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "5c9c5bac910a5cdadeda-e445db81ad6ef6796266",
+                  "file": "attachments.e2e-spec.ts",
+                  "line": 284,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
     {
       "title": "auth.e2e-spec.ts",
       "file": "auth.e2e-spec.ts",
@@ -101,12 +506,12 @@
                           "workerIndex": 0,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 2685,
+                          "duration": 1501,
                           "errors": [],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-20T08:14:38.157Z",
+                          "startTime": "2026-02-23T10:55:55.129Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -135,12 +540,12 @@
                           "workerIndex": 0,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 1146,
+                          "duration": 1237,
                           "errors": [],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-20T08:14:40.968Z",
+                          "startTime": "2026-02-23T10:55:56.652Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -169,12 +574,12 @@
                           "workerIndex": 0,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 2589,
+                          "duration": 3188,
                           "errors": [],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-20T08:14:42.127Z",
+                          "startTime": "2026-02-23T10:55:57.903Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -186,6 +591,912 @@
                   "file": "auth.e2e-spec.ts",
                   "line": 53,
                   "column": 9
+                },
+                {
+                  "title": "should show error for invalid email",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 919,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:01.102Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-116dfc5b44a0aa1ae4cf",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 77,
+                  "column": 9
+                },
+                {
+                  "title": "should show error for weak password",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 888,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:02.034Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-83f8b4f001f676e967b2",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 91,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Login Flow",
+              "file": "auth.e2e-spec.ts",
+              "line": 106,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should login successfully with valid credentials",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1639,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:02.932Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-923514b30d6c2aac7312",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 113,
+                  "column": 9
+                },
+                {
+                  "title": "should show error for invalid password",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1650,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:04.583Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-d36ae61a16adbe6a0356",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 126,
+                  "column": 9
+                },
+                {
+                  "title": "should show error for non-existent user",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1624,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:06.244Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-9fbd2ea24513729142fb",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 143,
+                  "column": 9
+                },
+                {
+                  "title": "should persist session after page reload",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2046,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:07.880Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-285c6d01593d38a6855c",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 157,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Logout Flow",
+              "file": "auth.e2e-spec.ts",
+              "line": 168,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should logout successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3236,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:09.937Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-117d6b5383c018f4750f",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 173,
+                  "column": 9
+                },
+                {
+                  "title": "should not access protected routes after logout",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2048,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:13.185Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-d4d78e105c47c282fc2f",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 187,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Protected Routes",
+              "file": "auth.e2e-spec.ts",
+              "line": 198,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should redirect to login when accessing protected route without auth",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1491,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:15.247Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-1336bf5acb39cab4c982",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 199,
+                  "column": 9
+                },
+                {
+                  "title": "should redirect to login when accessing decisions without auth",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 887,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:16.751Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-6fa846ec39a02f944edf",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 206,
+                  "column": 9
+                },
+                {
+                  "title": "should access protected routes when authenticated",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1472,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:17.651Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-65ec6f36cd6549de781d",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 213,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Session Management",
+              "file": "auth.e2e-spec.ts",
+              "line": 222,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should maintain session across multiple pages",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1865,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:19.134Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-4ff1901efab2193eedd8",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 223,
+                  "column": 9
+                },
+                {
+                  "title": "should handle session expiry gracefully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1440,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:21.011Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "dc5a2755c668dc70fb7a-b78af018ebe92ae9c755",
+                  "file": "auth.e2e-spec.ts",
+                  "line": 234,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "decisions.e2e-spec.ts",
+      "file": "decisions.e2e-spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Decisions E2E Tests",
+          "file": "decisions.e2e-spec.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Decision Creation",
+              "file": "decisions.e2e-spec.ts",
+              "line": 23,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should create a new decision successfully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1566,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:22.467Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1e97faa217a7a9df25e7-0c4e9b718b839c5662b1",
+                  "file": "decisions.e2e-spec.ts",
+                  "line": 24,
+                  "column": 9
+                },
+                {
+                  "title": "should create decision without reasoning",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1583,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:24.047Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1e97faa217a7a9df25e7-780c108de1f31f530389",
+                  "file": "decisions.e2e-spec.ts",
+                  "line": 61,
+                  "column": 9
+                },
+                {
+                  "title": "should show validation errors for empty fields",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1532,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:25.644Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1e97faa217a7a9df25e7-8cece17b3a607f96c273",
+                  "file": "decisions.e2e-spec.ts",
+                  "line": 80,
+                  "column": 9
+                },
+                {
+                  "title": "should show warning for brief situation",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1470,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:27.188Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1e97faa217a7a9df25e7-9381dc13f5100a082217",
+                  "file": "decisions.e2e-spec.ts",
+                  "line": 97,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Decision List",
+              "file": "decisions.e2e-spec.ts",
+              "line": 114,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should display all user decisions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2870,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:28.669Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1e97faa217a7a9df25e7-820f87886e1cc91b44f6",
+                  "file": "decisions.e2e-spec.ts",
+                  "line": 115,
+                  "column": 9
+                },
+                {
+                  "title": "should show empty state when no decisions",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1500,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:31.552Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1e97faa217a7a9df25e7-14d32d1656ed3ab1fc83",
+                  "file": "decisions.e2e-spec.ts",
+                  "line": 138,
+                  "column": 9
+                },
+                {
+                  "title": "should filter decisions by status",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1982,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:33.064Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1e97faa217a7a9df25e7-99194e058e054def0b84",
+                  "file": "decisions.e2e-spec.ts",
+                  "line": 147,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Decision Detail",
+              "file": "decisions.e2e-spec.ts",
+              "line": 165,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should view decision details",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1572,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:35.060Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1e97faa217a7a9df25e7-6bd520c146043bb202d1",
+                  "file": "decisions.e2e-spec.ts",
+                  "line": 166,
+                  "column": 9
+                },
+                {
+                  "title": "should show 404 for non-existent decision",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 1680,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:36.645Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1e97faa217a7a9df25e7-fcf05e0558f43d8a866d",
+                  "file": "decisions.e2e-spec.ts",
+                  "line": 186,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Decision Analysis",
+              "file": "decisions.e2e-spec.ts",
+              "line": 194,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should show analysis when completed",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 7223,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:38.336Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1e97faa217a7a9df25e7-c397e20186148dc6b942",
+                  "file": "decisions.e2e-spec.ts",
+                  "line": 195,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Real-time Updates",
+              "file": "decisions.e2e-spec.ts",
+              "line": 220,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should receive real-time analysis updates via WebSocket",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 3970,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-02-23T10:56:45.574Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "1e97faa217a7a9df25e7-ba5610aa94d427ee78ba",
+                  "file": "decisions.e2e-spec.ts",
+                  "line": 221,
+                  "column": 9
                 }
               ]
             }
@@ -196,9 +1507,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-20T08:14:12.504Z",
-    "duration": 33518.782,
-    "expected": 3,
+    "startTime": "2026-02-23T10:54:45.178Z",
+    "duration": 128541.682,
+    "expected": 36,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

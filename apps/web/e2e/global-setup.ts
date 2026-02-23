@@ -15,10 +15,83 @@ import * as fs from 'fs';
 let postgresContainer: StartedPostgreSqlContainer;
 let redisContainer: StartedTestContainer;
 let apiProcess: ChildProcess;
+let workerProcess: ChildProcess;
 let webProcess: ChildProcess;
 
 async function globalSetup(config: FullConfig) {
   console.log('\n🚀 Starting E2E test infrastructure...\n');
+
+  // 0. Pre-cleanup: Kill any existing processes and containers from previous runs
+  console.log('🧹 Pre-cleanup: Checking for leftover processes...');
+
+  try {
+    // Kill any Node.js processes on ports 4001 and 3001
+    if (process.platform === 'win32') {
+      try {
+        execSync('netstat -ano | findstr :4001', { encoding: 'utf-8' }).split('\n').forEach(line => {
+          const match = line.match(/LISTENING\s+(\d+)/);
+          if (match) {
+            try {
+              execSync(`taskkill /F /PID ${match[1]}`, { stdio: 'ignore' });
+              console.log(`  Killed process on port 4001 (PID: ${match[1]})`);
+            } catch {}
+          }
+        });
+      } catch {}
+
+      try {
+        execSync('netstat -ano | findstr :3001', { encoding: 'utf-8' }).split('\n').forEach(line => {
+          const match = line.match(/LISTENING\s+(\d+)/);
+          if (match) {
+            try {
+              execSync(`taskkill /F /PID ${match[1]}`, { stdio: 'ignore' });
+              console.log(`  Killed process on port 3001 (PID: ${match[1]})`);
+            } catch {}
+          }
+        });
+      } catch {}
+    } else {
+      // Unix-like systems
+      try {
+        const pid4001 = execSync('lsof -ti:4001', { encoding: 'utf-8' }).trim();
+        if (pid4001) {
+          execSync(`kill -9 ${pid4001}`, { stdio: 'ignore' });
+          console.log(`  Killed process on port 4001 (PID: ${pid4001})`);
+        }
+      } catch {}
+
+      try {
+        const pid3001 = execSync('lsof -ti:3001', { encoding: 'utf-8' }).trim();
+        if (pid3001) {
+          execSync(`kill -9 ${pid3001}`, { stdio: 'ignore' });
+          console.log(`  Killed process on port 3001 (PID: ${pid3001})`);
+        }
+      } catch {}
+    }
+
+    // Stop any leftover Docker containers
+    try {
+      const containers = execSync(
+        'docker ps -q --filter "label=org.testcontainers=true"',
+        { encoding: 'utf-8' }
+      ).trim();
+
+      if (containers) {
+        const containerIds = containers.split('\n').filter(id => id.length > 0);
+        for (const containerId of containerIds) {
+          try {
+            execSync(`docker stop ${containerId}`, { stdio: 'ignore', timeout: 5000 });
+            execSync(`docker rm ${containerId}`, { stdio: 'ignore', timeout: 5000 });
+            console.log(`  Stopped and removed container ${containerId}`);
+          } catch {}
+        }
+      }
+    } catch {}
+
+    console.log('✓ Pre-cleanup complete');
+  } catch (error) {
+    console.log('⚠ Pre-cleanup had some issues, continuing anyway...');
+  }
 
   // 1. Start PostgreSQL container with pgvector
   console.log('📦 Starting PostgreSQL container...');
@@ -78,8 +151,11 @@ async function globalSetup(config: FullConfig) {
     REDIS_URL: redisUrl,
     API_PORT: 4001,
     WEB_PORT: 3001,
+    // Store process PIDs for teardown
+    API_PROCESS_PID: 0, // Will be set after process starts
+    WEB_PROCESS_PID: 0, // Will be set after process starts
   };
-  
+
   fs.writeFileSync(envFile, JSON.stringify(testEnv, null, 2));
   console.log(`✓ Test environment saved to ${envFile}`);
 
@@ -124,9 +200,69 @@ async function globalSetup(config: FullConfig) {
   await waitForServer('http://localhost:4001/health', 120000);
   console.log('✓ API server started');
 
-  // 7. Start Web server
-  console.log('🚀 Starting Web server...');
+  // Save API process PID
+  if (apiProcess.pid) {
+    const env = JSON.parse(fs.readFileSync(envFile, 'utf-8'));
+    env.API_PROCESS_PID = apiProcess.pid;
+    fs.writeFileSync(envFile, JSON.stringify(env, null, 2));
+  }
+
+  // 7. Start Worker process
+  console.log('🚀 Starting Worker process...');
+  const workerDir = path.join(__dirname, '../../worker');
+  workerProcess = spawn('pnpm', ['dev'], {
+    cwd: workerDir,
+    env: {
+      ...process.env,
+      DATABASE_URL: databaseUrl,
+      REDIS_URL: redisUrl,
+      AI_PROVIDER: 'mock',
+      EMBEDDING_PROVIDER: 'mock',
+      NODE_ENV: 'test',
+    },
+    shell: true,
+  });
+
+  // Log Worker output for debugging
+  workerProcess.stdout?.on('data', (data) => {
+    console.log(`[WORKER] ${data.toString().trim()}`);
+  });
+  workerProcess.stderr?.on('data', (data) => {
+    console.error(`[WORKER ERROR] ${data.toString().trim()}`);
+  });
+
+  // Wait a bit for worker to initialize
+  await new Promise(resolve => setTimeout(resolve, 3000));
+  console.log('✓ Worker process started');
+
+  // Save Worker process PID
+  if (workerProcess.pid) {
+    const env = JSON.parse(fs.readFileSync(envFile, 'utf-8'));
+    env.WORKER_PROCESS_PID = workerProcess.pid;
+    fs.writeFileSync(envFile, JSON.stringify(env, null, 2));
+  }
+
+  // 8. Clean up .next directory to avoid file lock issues on Windows
+  console.log('🧹 Cleaning .next directory...');
   const webDir = path.join(__dirname, '..');
+  const nextDir = path.join(webDir, '.next');
+
+  if (fs.existsSync(nextDir)) {
+    try {
+      // On Windows, use rmdir /s /q; on Unix, use rm -rf
+      if (process.platform === 'win32') {
+        execSync(`rmdir /s /q "${nextDir}"`, { stdio: 'ignore' });
+      } else {
+        execSync(`rm -rf "${nextDir}"`, { stdio: 'ignore' });
+      }
+      console.log('✓ .next directory cleaned');
+    } catch (error) {
+      console.log('⚠ Failed to clean .next directory, continuing anyway...');
+    }
+  }
+
+  // 8. Start Web server
+  console.log('🚀 Starting Web server...');
   webProcess = spawn('pnpm', ['dev'], {
     cwd: webDir,
     env: {
@@ -135,6 +271,7 @@ async function globalSetup(config: FullConfig) {
       REDIS_URL: redisUrl, // Pass test Redis URL to web server for Socket.IO
       NODE_ENV: 'test',
       PORT: '3001',
+      NEXT_TELEMETRY_DISABLED: '1', // Disable Next.js telemetry to avoid trace file issues
     },
     shell: true,
   });
@@ -151,6 +288,13 @@ async function globalSetup(config: FullConfig) {
   await waitForServer('http://localhost:3001', 180000); // Increased timeout to 3 minutes for Next.js compilation
   console.log('✓ Web server started');
 
+  // Save Web process PID
+  if (webProcess.pid) {
+    const env = JSON.parse(fs.readFileSync(envFile, 'utf-8'));
+    env.WEB_PROCESS_PID = webProcess.pid;
+    fs.writeFileSync(envFile, JSON.stringify(env, null, 2));
+  }
+
   console.log('\n✅ E2E test infrastructure ready!\n');
   console.log('Database:', databaseUrl);
   console.log('Redis:', redisUrl);
@@ -158,6 +302,7 @@ async function globalSetup(config: FullConfig) {
   console.log('Web running on: http://localhost:3001\n');
 
   // Store container and process references globally so global-teardown can access them
+  // NOTE: These are also stored in .test-env.json for cross-process access
   (global as any).__POSTGRES_CONTAINER__ = postgresContainer;
   (global as any).__REDIS_CONTAINER__ = redisContainer;
   (global as any).__API_PROCESS__ = apiProcess;

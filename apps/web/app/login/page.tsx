@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import ThemeToggle from "@/components/theme-toggle";
+import { validateEmail, validatePassword } from "@/lib/validation";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,11 +13,40 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    setEmailError("");
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    setPasswordError("");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setEmailError("");
+    setPasswordError("");
+
+    // Client-side validation
+    const emailValidation = validateEmail(email);
+    const passwordValidation = validatePassword(password);
+
+    if (!emailValidation.isValid) {
+      setEmailError(emailValidation.error || "Invalid email");
+      return;
+    }
+
+    if (!passwordValidation.isValid) {
+      setPasswordError(passwordValidation.error || "Invalid password");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -56,14 +86,22 @@ export default function LoginPage() {
               <input
                 id="email"
                 name="email"
-                type="email"
+                type="text"
                 autoComplete="email"
-                required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-zinc-300 px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-50 dark:placeholder-zinc-500"
+                onChange={(e) => handleEmailChange(e.target.value)}
+                className={`mt-1 block w-full rounded-md border px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-zinc-500 dark:bg-zinc-700 dark:text-zinc-50 dark:placeholder-zinc-500 ${
+                  emailError
+                    ? "border-red-500 dark:border-red-500"
+                    : "border-zinc-300 dark:border-zinc-600"
+                }`}
                 placeholder="you@example.com"
               />
+              {emailError && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {emailError}
+                </p>
+              )}
             </div>
             <div>
               <label
@@ -77,12 +115,20 @@ export default function LoginPage() {
                 name="password"
                 type="password"
                 autoComplete="current-password"
-                required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-zinc-300 px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-50 dark:placeholder-zinc-500"
+                onChange={(e) => handlePasswordChange(e.target.value)}
+                className={`mt-1 block w-full rounded-md border px-3 py-2 text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-zinc-500 dark:bg-zinc-700 dark:text-zinc-50 dark:placeholder-zinc-500 ${
+                  passwordError
+                    ? "border-red-500 dark:border-red-500"
+                    : "border-zinc-300 dark:border-zinc-600"
+                }`}
                 placeholder="••••••••"
               />
+              {passwordError && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {passwordError}
+                </p>
+              )}
             </div>
           </div>
 

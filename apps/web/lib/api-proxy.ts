@@ -7,7 +7,9 @@ import { NextRequest, NextResponse } from 'next/server';
  * Forwards the access token from the Authorization header.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+// API_URL is a server-only (non-NEXT_PUBLIC) variable so it is read at runtime
+// from the container environment, not baked in at build time.
+const API_URL = process.env.API_URL || 'http://localhost:4000';
 
 /**
  * Proxy a request to the NestJS API
@@ -78,11 +80,25 @@ export async function proxyPOST(
   request: NextRequest,
   body?: unknown,
 ): Promise<NextResponse> {
-  const requestBody = body || (await request.json());
+  // Handle empty request bodies gracefully
+  let requestBody = body;
+
+  if (!requestBody) {
+    // Check if request has a body by checking content-type header
+    const contentType = request.headers.get('content-type');
+    if (contentType?.includes('application/json')) {
+      try {
+        requestBody = await request.json();
+      } catch (error) {
+        // If JSON parsing fails (empty body), use undefined
+        requestBody = undefined;
+      }
+    }
+  }
 
   const response = await proxyToNestAPI(path, request, {
     method: 'POST',
-    body: JSON.stringify(requestBody),
+    body: requestBody ? JSON.stringify(requestBody) : undefined,
   });
 
   const data = await response.json();

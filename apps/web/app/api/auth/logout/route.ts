@@ -5,28 +5,37 @@
  */
 export async function POST(request: Request) {
   try {
+    // Get cookies from the incoming request
+    const cookieHeader = request.headers.get('cookie');
+
     // Forward to NestJS API
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    const API_URL = process.env.API_URL || 'http://localhost:4000';
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    // Forward cookies to NestJS API
+    if (cookieHeader) {
+      headers['Cookie'] = cookieHeader;
+    }
+
     const response = await fetch(`${API_URL}/auth/logout`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include', // Forward cookies
+      headers,
     });
 
     // Forward the Set-Cookie header from NestJS to the client (to clear the cookie)
     const setCookieHeader = response.headers.get('set-cookie');
-    const headers: HeadersInit = {
+    const responseHeaders: HeadersInit = {
       'Content-Type': 'application/json',
     };
     if (setCookieHeader) {
-      headers['Set-Cookie'] = setCookieHeader;
+      responseHeaders['Set-Cookie'] = setCookieHeader;
     }
 
     return new Response(null, {
       status: response.status,
-      headers,
+      headers: responseHeaders,
     });
   } catch (error) {
     console.error('[Logout Proxy] Error:', error);

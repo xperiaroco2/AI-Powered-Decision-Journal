@@ -21,10 +21,10 @@
   "packageManager": "pnpm@10.28.2",
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
-    "dotenv": "^17.2.3",
     "prisma": "^6.0.0"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "@prisma/client": "^6.0.0",
     "bcrypt": "^6.0.0",
     "next-auth": "^4.24.13"

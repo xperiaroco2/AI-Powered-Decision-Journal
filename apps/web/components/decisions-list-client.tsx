@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { apiGet } from "@/lib/api-client";
 import DecisionsFilterBar from "@/components/decisions-filter-bar";
 
 interface DecisionRun {
@@ -46,8 +45,13 @@ export default function DecisionsListClient() {
     const fetchDecisions = async () => {
       try {
         setIsLoading(true);
-        const response = await apiGet("/decisions", accessToken);
-        
+        const response = await fetch("/api/decisions", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+          },
+        });
+
         if (!response.ok) {
           throw new Error("Failed to fetch decisions");
         }

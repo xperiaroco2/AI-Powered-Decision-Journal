@@ -19,6 +19,55 @@ export function countWords(text: string): number {
 }
 
 /**
+ * Validate email format
+ * Matches server-side validation in RegisterDto and LoginDto
+ */
+export function validateEmail(email: string): ValidationResult {
+  const trimmed = email.trim();
+
+  if (!trimmed) {
+    return {
+      isValid: false,
+      error: "Email is required",
+    };
+  }
+
+  // Basic email regex - matches most common email formats
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(trimmed)) {
+    return {
+      isValid: false,
+      error: "Please enter a valid email address",
+    };
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Validate password strength
+ * Matches server-side validation in RegisterDto and LoginDto (min 6 characters)
+ */
+export function validatePassword(password: string): ValidationResult {
+  if (!password) {
+    return {
+      isValid: false,
+      error: "Password is required",
+    };
+  }
+
+  if (password.length < 6) {
+    return {
+      isValid: false,
+      error: "Password must be at least 6 characters",
+    };
+  }
+
+  return { isValid: true };
+}
+
+/**
  * Validate situation field
  */
 export function validateSituation(situation: string): ValidationResult {

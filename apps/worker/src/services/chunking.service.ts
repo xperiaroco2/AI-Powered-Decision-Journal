@@ -155,6 +155,14 @@ export function chunkText(
   const chunkSizeChars = tokensToCharacters(config.chunkSizeTokens);
   const overlapChars = tokensToCharacters(config.overlapTokens);
 
+  // Validate configuration early
+  const stepSize = chunkSizeChars - overlapChars;
+  if (stepSize <= 0) {
+    throw new Error(
+      `Invalid chunk configuration: overlap (${config.overlapTokens} tokens) must be less than chunk size (${config.chunkSizeTokens} tokens)`
+    );
+  }
+
   // If text is smaller than one chunk, return it as a single chunk
   if (totalCharacters <= chunkSizeChars) {
     return {
@@ -173,14 +181,7 @@ export function chunkText(
     };
   }
 
-  // Calculate step size (chunk size - overlap)
-  const stepSize = chunkSizeChars - overlapChars;
-
-  if (stepSize <= 0) {
-    throw new Error(
-      `Invalid chunk configuration: overlap (${config.overlapTokens} tokens) must be less than chunk size (${config.chunkSizeTokens} tokens)`
-    );
-  }
+  // Step size already validated above
 
   const chunks: TextChunk[] = [];
   let currentOffset = 0;

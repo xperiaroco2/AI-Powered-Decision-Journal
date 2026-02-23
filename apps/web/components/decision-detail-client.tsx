@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useDecisionUpdates } from "@/hooks/useDecisionUpdates";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import { CategoryBadge } from "@/components/ui/category-badge";
 import DecisionAttachments from "@/components/decision-attachments";
 
@@ -44,6 +45,7 @@ export default function DecisionDetailClient({
   const [decision, setDecision] = useState(initialDecision);
   const [isRerunning, setIsRerunning] = useState(false);
   const { status: realtimeStatus } = useDecisionUpdates(decision.id);
+  const { accessToken } = useAuth();
   const router = useRouter();
 
   // Sync state when initialDecision changes (after router.refresh())
@@ -59,22 +61,49 @@ export default function DecisionDetailClient({
       const mappedStatus = realtimeStatus === "COMPLETED" ? "DONE" : realtimeStatus;
       setDecision((prev) => ({ ...prev, status: mappedStatus }));
 
-      // Refresh the page data when status changes to DONE/COMPLETED
+      // Fetch updated decision data when analysis completes
       if (realtimeStatus === "COMPLETED" || realtimeStatus === "DONE") {
-        router.refresh();
+        const fetchUpdatedDecision = async () => {
+          if (!accessToken) return;
+
+          try {
+            const response = await fetch(`/api/decisions/${decision.id}`, {
+              headers: {
+                "Authorization": `Bearer ${accessToken}`,
+              },
+            });
+
+            if (response.ok) {
+              const updatedDecision = await response.json();
+              setDecision(updatedDecision);
+            }
+          } catch (error) {
+            console.error("Error fetching updated decision:", error);
+          }
+        };
+
+        fetchUpdatedDecision();
       }
     }
-  }, [realtimeStatus, router]);
+  }, [realtimeStatus, decision.id, accessToken]);
 
   // Get analysis data from latestRun
   const analysisData = decision.latestRun?.resultJson || null;
 
   // Handle re-run analysis
   const handleRerun = async () => {
+    if (!accessToken) {
+      alert("You must be logged in to re-run analysis");
+      return;
+    }
+
     setIsRerunning(true);
     try {
       const response = await fetch(`/api/decisions/${decision.id}/rerun`, {
         method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+        },
       });
 
       if (!response.ok) {

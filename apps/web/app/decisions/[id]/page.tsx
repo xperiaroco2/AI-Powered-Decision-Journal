@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { apiGet } from "@/lib/api-client";
 import DecisionDetailClient from "@/components/decision-detail-client";
 import { StatusBadge } from "@/components/ui/status-badge";
 import AppHeader from "@/components/app-header";
@@ -45,9 +44,15 @@ export default function DecisionDetailPage() {
     }
 
     const fetchDecision = async () => {
+      if (!accessToken) return;
+
       try {
         setIsLoading(true);
-        const response = await apiGet(`/decisions/${id}`, accessToken);
+        const response = await fetch(`/api/decisions/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
 
         if (response.status === 404) {
           router.push("/decisions");
