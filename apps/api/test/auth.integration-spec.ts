@@ -257,8 +257,6 @@ describe('Auth Integration Tests', () => {
   });
 
   describe('POST /auth/logout', () => {
-    let accessToken: string;
-
     beforeEach(async () => {
       // Register and login
       await request(app.getHttpServer()).post('/auth/register').send({
@@ -266,14 +264,10 @@ describe('Auth Integration Tests', () => {
         password: 'password123',
       });
 
-      const loginResponse = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123',
-        });
-
-      accessToken = extractAccessToken(loginResponse);
+      await request(app.getHttpServer()).post('/auth/login').send({
+        email: 'test@example.com',
+        password: 'password123',
+      });
     });
 
     it('should logout successfully', async () => {
@@ -300,18 +294,13 @@ describe('Auth Integration Tests', () => {
 
   describe('Protected Routes', () => {
     let accessToken: string;
-    let userId: string;
 
     beforeEach(async () => {
       // Register and login
-      const registerResponse = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send({
-          email: 'test@example.com',
-          password: 'password123',
-        });
-
-      userId = registerResponse.body.user.id;
+      await request(app.getHttpServer()).post('/auth/register').send({
+        email: 'test@example.com',
+        password: 'password123',
+      });
 
       const loginResponse = await request(app.getHttpServer())
         .post('/auth/login')

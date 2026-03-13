@@ -17,8 +17,6 @@ import {
   extractAccessToken,
 } from './helpers/test-helpers';
 import * as bcrypt from 'bcryptjs';
-import * as path from 'path';
-import * as fs from 'fs';
 
 describe('Attachments Integration Tests', () => {
   let app: INestApplication;
