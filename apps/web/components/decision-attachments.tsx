@@ -39,6 +39,7 @@ export default function DecisionAttachments({ decisionId }: DecisionAttachmentsP
     if (accessToken) {
       fetchAttachments();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [decisionId, accessToken]);
 
   // Apply real-time updates

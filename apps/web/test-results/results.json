@@ -102,7 +102,7 @@
                           "workerIndex": 0,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 10715,
+                          "duration": 11049,
                           "errors": [],
                           "stdout": [
                             {
@@ -115,7 +115,7 @@
                               "text": "[BROWSER] log: [Fast Refresh] rebuilding\n"
                             },
                             {
-                              "text": "[BROWSER] log: [Fast Refresh] done in 914ms\n"
+                              "text": "[BROWSER] log: [Fast Refresh] done in 789ms\n"
                             },
                             {
                               "text": "[TEST] Page content: ((e, i, s, u, m, a, l, h)=>{\n    let d = document.documentElement, w = [\n        \"light\",\n        \"dark\"\n    ];\n    function p(n) {\n        (Array.isArray(e) ? e : [\n            e\n        ]).forEach((y)=>{\n            let k = y === \"class\", S = k && a ? m.map((f)=>a[f] || f) : m;\n            k ? (d.classList.remove(...S), d.classList.add(a && a[n] ? a[n] : n)) : d.setAttribute(y, n);\n        }), R(n);\n    }\n    function R(n) {\n        h && w.includes(n) && (d.style.colorScheme = n);\n    }\n    fu\n"
@@ -124,30 +124,24 @@
                               "text": "[BROWSER] log: [Fast Refresh] rebuilding\n"
                             },
                             {
-                              "text": "[BROWSER] log: [Fast Refresh] done in 287ms\n"
-                            },
-                            {
-                              "text": "[BROWSER] log: ✓ Connected to WebSocket server\n"
+                              "text": "[BROWSER] log: [Fast Refresh] done in 251ms\n"
                             },
                             {
                               "text": "[BROWSER] log: ✓ Connected to WebSocket server (attachments)\n"
                             },
                             {
+                              "text": "[BROWSER] log: ✓ Connected to WebSocket server\n"
+                            },
+                            {
                               "text": "[BROWSER] log: [Fast Refresh] rebuilding\n"
                             },
                             {
-                              "text": "[BROWSER] log: [Fast Refresh] done in 351ms\n"
-                            },
-                            {
-                              "text": "[BROWSER] log: 📥 Received attachment event: {type: attachment:update, attachmentId: cmlz28xhc0007m9w2p81fk2ag, decisionId: cmlz28t2y0003m9w21h5in93a, status: PROCESSING}\n"
-                            },
-                            {
-                              "text": "[BROWSER] log: 📥 Received attachment event: {type: attachment:update, attachmentId: cmlz28xhc0007m9w2p81fk2ag, decisionId: cmlz28t2y0003m9w21h5in93a, status: READY}\n"
+                              "text": "[BROWSER] log: [Fast Refresh] done in 329ms\n"
                             }
                           ],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:21.497Z",
+                          "startTime": "2026-03-13T09:42:08.527Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -162,7 +156,7 @@
                 },
                 {
                   "title": "should show validation error for missing title",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -175,18 +169,58 @@
                         {
                           "workerIndex": 0,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 2530,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11612,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:32.360Z",
+                          "startTime": "2026-03-13T09:42:20.111Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-c7abd-ion-error-for-missing-title-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-c7abd-ion-error-for-missing-title-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-c7abd-ion-error-for-missing-title-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "5c9c5bac910a5cdadeda-f6c2ff1f16253450daab",
@@ -196,7 +230,7 @@
                 },
                 {
                   "title": "should show validation error for missing file",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -207,20 +241,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 1,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1974,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11605,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:34.905Z",
+                          "startTime": "2026-03-13T09:42:33.372Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-c9aa1-tion-error-for-missing-file-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-c9aa1-tion-error-for-missing-file-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-c9aa1-tion-error-for-missing-file-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "5c9c5bac910a5cdadeda-0750cb4bfd4b103a26fa",
@@ -238,7 +312,7 @@
               "specs": [
                 {
                   "title": "should display all attachments for decision",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -249,20 +323,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 2,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 4359,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11522,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:36.895Z",
+                          "startTime": "2026-03-13T09:42:46.572Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-f5869-ll-attachments-for-decision-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-f5869-ll-attachments-for-decision-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-f5869-ll-attachments-for-decision-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "5c9c5bac910a5cdadeda-19b74d67bc378b67707d",
@@ -272,7 +386,7 @@
                 },
                 {
                   "title": "should show empty state when no attachments",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -283,20 +397,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 3,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1893,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11489,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:41.271Z",
+                          "startTime": "2026-03-13T09:42:59.681Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-9b478-y-state-when-no-attachments-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-9b478-y-state-when-no-attachments-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-9b478-y-state-when-no-attachments-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "5c9c5bac910a5cdadeda-4ef80d247e3403fbf216",
@@ -306,7 +460,7 @@
                 },
                 {
                   "title": "should show attachment status",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -317,20 +471,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 4,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1912,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11573,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:43.177Z",
+                          "startTime": "2026-03-13T09:43:12.734Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-87365-ould-show-attachment-status-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-87365-ould-show-attachment-status-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-87365-ould-show-attachment-status-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "5c9c5bac910a5cdadeda-8cc14b5a15f3b7fb0b73",
@@ -348,7 +542,7 @@
               "specs": [
                 {
                   "title": "should view attachment content",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -359,20 +553,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 5,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 2887,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11514,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:45.105Z",
+                          "startTime": "2026-03-13T09:43:25.890Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-4e1a8-uld-view-attachment-content-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-4e1a8-uld-view-attachment-content-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-4e1a8-uld-view-attachment-content-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "5c9c5bac910a5cdadeda-1a0e6adde26e66bbc20e",
@@ -390,7 +624,7 @@
               "specs": [
                 {
                   "title": "should process attachment and update status",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -401,20 +635,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 6,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 2968,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11549,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:48.005Z",
+                          "startTime": "2026-03-13T09:43:38.959Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-facb9-ttachment-and-update-status-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-facb9-ttachment-and-update-status-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-facb9-ttachment-and-update-status-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "5c9c5bac910a5cdadeda-f5e913add12585e21ddf",
@@ -432,7 +706,7 @@
               "specs": [
                 {
                   "title": "should handle multiple attachments for same decision",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -443,20 +717,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 7,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 4110,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11509,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\attachments.e2e-spec.ts:37:5\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:50.985Z",
+                          "startTime": "2026-03-13T09:43:52.135Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-db7ad-tachments-for-same-decision-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-db7ad-tachments-for-same-decision-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\attachments.e2e-spec.ts-At-db7ad-tachments-for-same-decision-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "5c9c5bac910a5cdadeda-e445db81ad6ef6796266",
@@ -503,15 +817,15 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 8,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 1501,
+                          "duration": 1212,
                           "errors": [],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:55.129Z",
+                          "startTime": "2026-03-13T09:44:05.479Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -537,15 +851,15 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 8,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 1237,
+                          "duration": 1134,
                           "errors": [],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:56.652Z",
+                          "startTime": "2026-03-13T09:44:06.796Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -571,15 +885,15 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 8,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 3188,
+                          "duration": 2744,
                           "errors": [],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:55:57.903Z",
+                          "startTime": "2026-03-13T09:44:07.945Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -605,15 +919,15 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 8,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 919,
+                          "duration": 937,
                           "errors": [],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:01.102Z",
+                          "startTime": "2026-03-13T09:44:10.703Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -639,15 +953,15 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 8,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 888,
+                          "duration": 923,
                           "errors": [],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:02.034Z",
+                          "startTime": "2026-03-13T09:44:11.655Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -670,7 +984,7 @@
               "specs": [
                 {
                   "title": "should login successfully with valid credentials",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -681,20 +995,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 8,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1639,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11496,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:109:7",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:109:7\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:02.932Z",
+                          "startTime": "2026-03-13T09:44:12.592Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--1e459-ully-with-valid-credentials-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--1e459-ully-with-valid-credentials-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--1e459-ully-with-valid-credentials-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "dc5a2755c668dc70fb7a-923514b30d6c2aac7312",
@@ -704,7 +1058,7 @@
                 },
                 {
                   "title": "should show error for invalid password",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -715,20 +1069,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 9,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1650,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11536,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:109:7",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:109:7\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:04.583Z",
+                          "startTime": "2026-03-13T09:44:25.537Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--ce42c--error-for-invalid-password-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--ce42c--error-for-invalid-password-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--ce42c--error-for-invalid-password-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "dc5a2755c668dc70fb7a-d36ae61a16adbe6a0356",
@@ -738,7 +1132,7 @@
                 },
                 {
                   "title": "should show error for non-existent user",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -749,20 +1143,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 10,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1624,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11767,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:109:7",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:109:7\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:06.244Z",
+                          "startTime": "2026-03-13T09:44:38.574Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--84989-error-for-non-existent-user-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--84989-error-for-non-existent-user-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--84989-error-for-non-existent-user-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "dc5a2755c668dc70fb7a-9fbd2ea24513729142fb",
@@ -772,7 +1206,7 @@
                 },
                 {
                   "title": "should persist session after page reload",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -783,20 +1217,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 11,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 2046,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11552,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:109:7",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:109:7\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:07.880Z",
+                          "startTime": "2026-03-13T09:44:51.935Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--93061-t-session-after-page-reload-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--93061-t-session-after-page-reload-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--93061-t-session-after-page-reload-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "dc5a2755c668dc70fb7a-285c6d01593d38a6855c",
@@ -814,7 +1288,7 @@
               "specs": [
                 {
                   "title": "should logout successfully",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -825,20 +1299,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 12,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 3236,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11542,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:170:7",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:170:7\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:09.937Z",
+                          "startTime": "2026-03-13T09:45:05.308Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--07ba3--should-logout-successfully-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--07ba3--should-logout-successfully-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--07ba3--should-logout-successfully-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "dc5a2755c668dc70fb7a-117d6b5383c018f4750f",
@@ -848,7 +1362,7 @@
                 },
                 {
                   "title": "should not access protected routes after logout",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -859,20 +1373,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 13,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 2048,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11533,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:170:7",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:170:7\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:13.185Z",
+                          "startTime": "2026-03-13T09:45:18.410Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--163b9-otected-routes-after-logout-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--163b9-otected-routes-after-logout-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--163b9-otected-routes-after-logout-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "dc5a2755c668dc70fb7a-d4d78e105c47c282fc2f",
@@ -901,15 +1455,15 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 14,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 1491,
+                          "duration": 2061,
                           "errors": [],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:15.247Z",
+                          "startTime": "2026-03-13T09:45:31.465Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -935,15 +1489,15 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 14,
                           "parallelIndex": 0,
                           "status": "passed",
-                          "duration": 887,
+                          "duration": 950,
                           "errors": [],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:16.751Z",
+                          "startTime": "2026-03-13T09:45:33.633Z",
                           "annotations": [],
                           "attachments": []
                         }
@@ -958,7 +1512,7 @@
                 },
                 {
                   "title": "should access protected routes when authenticated",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -969,20 +1523,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 14,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1472,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11529,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:214:7",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:214:7\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:17.651Z",
+                          "startTime": "2026-03-13T09:45:34.600Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--08844-d-routes-when-authenticated-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--08844-d-routes-when-authenticated-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--08844-d-routes-when-authenticated-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "dc5a2755c668dc70fb7a-65ec6f36cd6549de781d",
@@ -1000,7 +1594,7 @@
               "specs": [
                 {
                   "title": "should maintain session across multiple pages",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -1011,20 +1605,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 15,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1865,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11716,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:224:7",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:224:7\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:19.134Z",
+                          "startTime": "2026-03-13T09:45:47.596Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--5d498-ssion-across-multiple-pages-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--5d498-ssion-across-multiple-pages-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--5d498-ssion-across-multiple-pages-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "dc5a2755c668dc70fb7a-4ff1901efab2193eedd8",
@@ -1034,7 +1668,7 @@
                 },
                 {
                   "title": "should handle session expiry gracefully",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -1045,20 +1679,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 16,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1440,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11525,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:235:7",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\auth.e2e-spec.ts:235:7\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:21.011Z",
+                          "startTime": "2026-03-13T09:46:01.068Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--de9b1-e-session-expiry-gracefully-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--de9b1-e-session-expiry-gracefully-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\auth.e2e-spec.ts-Auth-E2E--de9b1-e-session-expiry-gracefully-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "dc5a2755c668dc70fb7a-b78af018ebe92ae9c755",
@@ -1094,7 +1768,7 @@
               "specs": [
                 {
                   "title": "should create a new decision successfully",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -1105,20 +1779,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 17,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1566,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11593,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\decisions.e2e-spec.ts:20:5",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\decisions.e2e-spec.ts:20:5\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:22.467Z",
+                          "startTime": "2026-03-13T09:46:14.132Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\decisions.e2e-spec.ts-Deci-15d20-a-new-decision-successfully-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\decisions.e2e-spec.ts-Deci-15d20-a-new-decision-successfully-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\decisions.e2e-spec.ts-Deci-15d20-a-new-decision-successfully-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "1e97faa217a7a9df25e7-0c4e9b718b839c5662b1",
@@ -1128,7 +1842,7 @@
                 },
                 {
                   "title": "should create decision without reasoning",
-                  "ok": true,
+                  "ok": false,
                   "tags": [],
                   "tests": [
                     {
@@ -1139,20 +1853,60 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 18,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1583,
-                          "errors": [],
+                          "status": "failed",
+                          "duration": 11598,
+                          "error": {
+                            "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================",
+                            "stack": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\n    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\decisions.e2e-spec.ts:20:5",
+                            "location": {
+                              "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                              "column": 14,
+                              "line": 30
+                            },
+                            "snippet": "\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                                "column": 14,
+                                "line": 30
+                              },
+                              "message": "TimeoutError: page.waitForURL: Timeout 10000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation to \"/\" until \"load\"\n============================================================\n\n\u001b[90m   at \u001b[39mhelpers\\test-helpers.ts:30\n\n\u001b[0m \u001b[90m 28 |\u001b[39m   \n \u001b[90m 29 |\u001b[39m   \u001b[90m// Wait for redirect to home\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 30 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[32m'/'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m10000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 31 |\u001b[39m }\n \u001b[90m 32 |\u001b[39m\n \u001b[90m 33 |\u001b[39m \u001b[90m/**\u001b[39m\u001b[0m\n\u001b[2m    at registerUser (C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts:30:14)\u001b[22m\n\u001b[2m    at C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\decisions.e2e-spec.ts:20:5\u001b[22m"
+                            }
+                          ],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:24.047Z",
+                          "startTime": "2026-03-13T09:46:27.278Z",
                           "annotations": [],
-                          "attachments": []
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\decisions.e2e-spec.ts-Deci-ca82b--decision-without-reasoning-chromium\\test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\decisions.e2e-spec.ts-Deci-ca82b--decision-without-reasoning-chromium\\video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\test-results\\decisions.e2e-spec.ts-Deci-ca82b--decision-without-reasoning-chromium\\error-context.md"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "C:\\Users\\xperi\\WebstormProjects\\AI-Powered-Decision-Journal\\apps\\web\\e2e\\helpers\\test-helpers.ts",
+                            "column": 14,
+                            "line": 30
+                          }
                         }
                       ],
-                      "status": "expected"
+                      "status": "unexpected"
                     }
                   ],
                   "id": "1e97faa217a7a9df25e7-780c108de1f31f530389",
@@ -1173,20 +1927,20 @@
                       "projectName": "chromium",
                       "results": [
                         {
-                          "workerIndex": 0,
+                          "workerIndex": 19,
                           "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1532,
+                          "status": "skipped",
+                          "duration": 0,
                           "errors": [],
                           "stdout": [],
                           "stderr": [],
                           "retry": 0,
-                          "startTime": "2026-02-23T10:56:25.644Z",
+                          "startTime": "2026-03-13T09:46:40.564Z",
                           "annotations": [],
                           "attachments": []
                         }
                       ],
-                      "status": "expected"
+                      "status": "skipped"
                     }
                   ],
                   "id": "1e97faa217a7a9df25e7-8cece17b3a607f96c273",
@@ -1205,22 +1959,8 @@
                       "expectedStatus": "passed",
                       "projectId": "chromium",
                       "projectName": "chromium",
-                      "results": [
-                        {
-                          "workerIndex": 0,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1470,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-02-23T10:56:27.188Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
+                      "results": [],
+                      "status": "skipped"
                     }
                   ],
                   "id": "1e97faa217a7a9df25e7-9381dc13f5100a082217",
@@ -1247,22 +1987,8 @@
                       "expectedStatus": "passed",
                       "projectId": "chromium",
                       "projectName": "chromium",
-                      "results": [
-                        {
-                          "workerIndex": 0,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 2870,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-02-23T10:56:28.669Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
+                      "results": [],
+                      "status": "skipped"
                     }
                   ],
                   "id": "1e97faa217a7a9df25e7-820f87886e1cc91b44f6",
@@ -1281,22 +2007,8 @@
                       "expectedStatus": "passed",
                       "projectId": "chromium",
                       "projectName": "chromium",
-                      "results": [
-                        {
-                          "workerIndex": 0,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1500,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-02-23T10:56:31.552Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
+                      "results": [],
+                      "status": "skipped"
                     }
                   ],
                   "id": "1e97faa217a7a9df25e7-14d32d1656ed3ab1fc83",
@@ -1315,22 +2027,8 @@
                       "expectedStatus": "passed",
                       "projectId": "chromium",
                       "projectName": "chromium",
-                      "results": [
-                        {
-                          "workerIndex": 0,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1982,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-02-23T10:56:33.064Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
+                      "results": [],
+                      "status": "skipped"
                     }
                   ],
                   "id": "1e97faa217a7a9df25e7-99194e058e054def0b84",
@@ -1357,22 +2055,8 @@
                       "expectedStatus": "passed",
                       "projectId": "chromium",
                       "projectName": "chromium",
-                      "results": [
-                        {
-                          "workerIndex": 0,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1572,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-02-23T10:56:35.060Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
+                      "results": [],
+                      "status": "skipped"
                     }
                   ],
                   "id": "1e97faa217a7a9df25e7-6bd520c146043bb202d1",
@@ -1391,22 +2075,8 @@
                       "expectedStatus": "passed",
                       "projectId": "chromium",
                       "projectName": "chromium",
-                      "results": [
-                        {
-                          "workerIndex": 0,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 1680,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-02-23T10:56:36.645Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
+                      "results": [],
+                      "status": "skipped"
                     }
                   ],
                   "id": "1e97faa217a7a9df25e7-fcf05e0558f43d8a866d",
@@ -1433,22 +2103,8 @@
                       "expectedStatus": "passed",
                       "projectId": "chromium",
                       "projectName": "chromium",
-                      "results": [
-                        {
-                          "workerIndex": 0,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 7223,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-02-23T10:56:38.336Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
+                      "results": [],
+                      "status": "skipped"
                     }
                   ],
                   "id": "1e97faa217a7a9df25e7-c397e20186148dc6b942",
@@ -1475,22 +2131,8 @@
                       "expectedStatus": "passed",
                       "projectId": "chromium",
                       "projectName": "chromium",
-                      "results": [
-                        {
-                          "workerIndex": 0,
-                          "parallelIndex": 0,
-                          "status": "passed",
-                          "duration": 3970,
-                          "errors": [],
-                          "stdout": [],
-                          "stderr": [],
-                          "retry": 0,
-                          "startTime": "2026-02-23T10:56:45.574Z",
-                          "annotations": [],
-                          "attachments": []
-                        }
-                      ],
-                      "status": "expected"
+                      "results": [],
+                      "status": "skipped"
                     }
                   ],
                   "id": "1e97faa217a7a9df25e7-ba5610aa94d427ee78ba",
@@ -1507,11 +2149,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-02-23T10:54:45.178Z",
-    "duration": 128541.682,
-    "expected": 36,
-    "skipped": 0,
-    "unexpected": 0,
+    "startTime": "2026-03-13T09:41:28.893Z",
+    "duration": 315255.712,
+    "expected": 8,
+    "skipped": 9,
+    "unexpected": 19,
     "flaky": 0
   }
 }

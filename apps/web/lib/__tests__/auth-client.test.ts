@@ -3,8 +3,6 @@ import { login, register, logout, refreshAccessToken } from '../auth-client';
 // Mock global fetch
 global.fetch = jest.fn();
 
-const API_URL = 'http://localhost:4000';
-
 describe('auth-client', () => {
   beforeEach(() => {
     jest.clearAllMocks();

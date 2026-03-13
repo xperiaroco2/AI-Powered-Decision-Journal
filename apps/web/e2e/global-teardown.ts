@@ -14,7 +14,7 @@ import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
-async function globalTeardown(config: FullConfig) {
+async function globalTeardown(_config: FullConfig) {
   console.log('\n🧹 Cleaning up E2E test infrastructure...\n');
 
   const envFile = path.join(__dirname, '.test-env.json');
@@ -42,7 +42,7 @@ async function globalTeardown(config: FullConfig) {
       }
 
       console.log('✓ API server stopped');
-    } catch (error) {
+    } catch (_error) {
       console.log('⚠ API server may have already stopped or failed to stop');
     }
   }
@@ -60,7 +60,7 @@ async function globalTeardown(config: FullConfig) {
       }
 
       console.log('✓ Worker process stopped');
-    } catch (error) {
+    } catch (_error) {
       console.log('⚠ Worker process may have already stopped or failed to stop');
     }
   }
@@ -78,7 +78,7 @@ async function globalTeardown(config: FullConfig) {
       }
 
       console.log('✓ Web server stopped');
-    } catch (error) {
+    } catch (_error) {
       console.log('⚠ Web server may have already stopped or failed to stop');
     }
   }
@@ -103,7 +103,7 @@ async function globalTeardown(config: FullConfig) {
           console.log(`  Stopping container ${containerId}...`);
           execSync(`docker stop ${containerId}`, { stdio: 'ignore', timeout: 10000 });
           execSync(`docker rm ${containerId}`, { stdio: 'ignore', timeout: 5000 });
-        } catch (error) {
+        } catch (_error) {
           console.log(`  ⚠ Failed to stop container ${containerId}`);
         }
       }

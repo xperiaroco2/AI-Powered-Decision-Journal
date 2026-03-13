@@ -246,7 +246,10 @@ describe('Attachments Integration Tests', () => {
 
       expect(attachment).toBeDefined();
       // Content is stored as base64
-      const decodedContent = Buffer.from(attachment?.content || '', 'base64').toString('utf-8');
+      const decodedContent = Buffer.from(
+        attachment?.content || '',
+        'base64',
+      ).toString('utf-8');
       expect(decodedContent).toBe(fileContent);
     });
 
@@ -325,4 +328,3 @@ describe('Attachments Integration Tests', () => {
     });
   });
 });
-

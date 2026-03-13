@@ -251,7 +251,8 @@ describe('Decisions Integration Tests', () => {
         .post('/decisions')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
-          situation: 'Should I exercise today? I am feeling tired but I know it would be good for my health.',
+          situation:
+            'Should I exercise today? I am feeling tired but I know it would be good for my health.',
           chosenDecision: 'Yes, I will exercise',
         })
         .expect(201);
@@ -373,4 +374,3 @@ describe('Decisions Integration Tests', () => {
     });
   });
 });
-

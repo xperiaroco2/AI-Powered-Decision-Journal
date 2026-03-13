@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   AdvisoryRequest,
@@ -19,6 +20,10 @@ import {
   buildDocumentAdvisoryPrompt,
 } from './advisory-prompt.service';
 import { getEmbeddingProvider } from './embedding.service';
+import {
+  advisoryRequestsTotal,
+  advisoryStageDuration,
+} from '../../observability/metrics';
 
 /**
  * Advisory Service
@@ -153,6 +158,8 @@ Remember, the best decision is one that aligns with your values and circumstance
   }
 }
 
+const advisoryLogger = new Logger('AdvisoryService');
+
 /**
  * Get the appropriate LLM client based on environment configuration
  */
@@ -162,9 +169,7 @@ function getAdvisoryLLMClient(): AdvisoryLLMClient | MockAdvisoryLLMClient {
   if (provider === 'groq') {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      console.warn(
-        '[Advisory] GROQ_API_KEY not set, falling back to mock client',
-      );
+      advisoryLogger.warn('GROQ_API_KEY not set, falling back to mock client');
       return new MockAdvisoryLLMClient();
     }
     return new AdvisoryLLMClient(apiKey);
@@ -176,6 +181,9 @@ function getAdvisoryLLMClient(): AdvisoryLLMClient | MockAdvisoryLLMClient {
 
 @Injectable()
 export class AdvisoryService {
+  private readonly logger = new Logger(AdvisoryService.name);
+  private readonly tracer = trace.getTracer('api');
+
   constructor(
     private prisma: PrismaService,
     private vectorRetrieval: VectorRetrievalService,
@@ -196,6 +204,9 @@ export class AdvisoryService {
     config: AdvisoryConfig = DEFAULT_ADVISORY_CONFIG,
   ): Promise<AdvisoryResponse> {
     const startTime = Date.now();
+    const advisoryType = request.relatedAttachmentId
+      ? 'attachment'
+      : 'decision';
 
     try {
       // 1. Validate input
@@ -214,24 +225,28 @@ export class AdvisoryService {
       }
 
       // 2. Determine retrieval mode: attachment-based or decision-based
+      let response: AdvisoryResponse;
       if (request.relatedAttachmentId) {
-        // ATTACHMENT-BASED RETRIEVAL
-        return await this.generateAttachmentBasedAdvice(
+        response = await this.generateAttachmentBasedAdvice(
           userId,
           request,
           config,
           startTime,
         );
       } else {
-        // DECISION-BASED RETRIEVAL
-        return await this.generateDecisionBasedAdvice(
+        response = await this.generateDecisionBasedAdvice(
           userId,
           request,
           config,
           startTime,
         );
       }
+
+      advisoryRequestsTotal.add(1, { type: advisoryType, status: 'success' });
+      return response;
     } catch (error) {
+      advisoryRequestsTotal.add(1, { type: advisoryType, status: 'failure' });
+
       // Re-throw AdvisoryError as-is
       if (error instanceof AdvisoryError) {
         throw error;
@@ -260,6 +275,8 @@ export class AdvisoryService {
     config: AdvisoryConfig,
     startTime: number,
   ): Promise<AdvisoryResponse> {
+    const type = 'decision';
+
     // 1. Check if user has any embeddings
     const hasEmbeddings =
       await this.vectorRetrieval.hasCompletedEmbeddings(userId);
@@ -269,29 +286,84 @@ export class AdvisoryService {
     if (hasEmbeddings) {
       try {
         // 2. Generate embedding for the question
-        const embeddingProvider = getEmbeddingProvider();
-        const questionEmbedding = await embeddingProvider.generateEmbedding(
-          request.question,
+        const questionEmbedding = await this.tracer.startActiveSpan(
+          'advisory.embed-question',
+          {
+            attributes: {
+              'advisory.type': type,
+              'question.length': request.question.length,
+            },
+          },
+          async (span) => {
+            const t0 = Date.now();
+            try {
+              const embeddingProvider = getEmbeddingProvider();
+              const result = await embeddingProvider.generateEmbedding(
+                request.question,
+              );
+              advisoryStageDuration.record((Date.now() - t0) / 1000, {
+                type,
+                stage: 'embed_question',
+              });
+              return result;
+            } catch (error) {
+              span.recordException(error as Error);
+              span.setStatus({
+                code: SpanStatusCode.ERROR,
+                message: (error as Error).message,
+              });
+              throw error;
+            } finally {
+              span.end();
+            }
+          },
         );
 
         // 3. Retrieve similar decisions
-        retrievedDecisions =
-          await this.vectorRetrieval.retrieveSimilarDecisions(
-            userId,
-            questionEmbedding,
-            {
-              topK: config.topK,
-              similarityThreshold: config.similarityThreshold,
+        await this.tracer.startActiveSpan(
+          'advisory.vector-search',
+          {
+            attributes: {
+              'advisory.type': type,
+              'db.similarity_threshold': config.similarityThreshold,
+              'db.top_k': config.topK,
             },
-          );
-
-        console.log(
-          `[Advisory] Retrieved ${retrievedDecisions.length} decisions for user ${userId}`,
+          },
+          async (span) => {
+            const t0 = Date.now();
+            try {
+              retrievedDecisions =
+                await this.vectorRetrieval.retrieveSimilarDecisions(
+                  userId,
+                  questionEmbedding,
+                  {
+                    topK: config.topK,
+                    similarityThreshold: config.similarityThreshold,
+                  },
+                );
+              span.setAttribute('db.results_count', retrievedDecisions.length);
+              advisoryStageDuration.record((Date.now() - t0) / 1000, {
+                type,
+                stage: 'vector_search',
+              });
+              this.logger.log(
+                `Retrieved ${retrievedDecisions.length} decisions for user ${userId}`,
+              );
+            } catch (error) {
+              span.recordException(error as Error);
+              span.setStatus({
+                code: SpanStatusCode.ERROR,
+                message: (error as Error).message,
+              });
+              throw error;
+            } finally {
+              span.end();
+            }
+          },
         );
       } catch (error) {
         // Log error but don't fail the request
-        // We can still provide advice without retrieval
-        console.error('[Advisory] Retrieval failed:', error);
+        this.logger.error('Retrieval failed', error);
 
         if (error instanceof Error) {
           throw new AdvisoryError(
@@ -302,7 +374,7 @@ export class AdvisoryService {
         }
       }
     } else {
-      console.log(`[Advisory] User ${userId} has no completed embeddings`);
+      this.logger.log(`User ${userId} has no completed embeddings`);
     }
 
     // 4. Build prompt with retrieved context
@@ -312,19 +384,50 @@ export class AdvisoryService {
     });
 
     // 5. Generate advice using LLM
-    const llmClient = getAdvisoryLLMClient();
-    const advice = await llmClient.generateAdvice(
-      systemPrompt,
-      userPrompt,
-      config,
+    const llmProviderName =
+      process.env.AI_PROVIDER?.toLowerCase() === 'groq' ? 'groq' : 'mock';
+
+    const advice = await this.tracer.startActiveSpan(
+      'advisory.llm-generate',
+      {
+        attributes: {
+          'advisory.type': type,
+          'llm.provider': llmProviderName,
+          'llm.model': config.model,
+          'llm.has_context': retrievedDecisions.length > 0,
+          'llm.context_count': retrievedDecisions.length,
+        },
+      },
+      async (span) => {
+        const t0 = Date.now();
+        try {
+          const llmClient = getAdvisoryLLMClient();
+          const result = await llmClient.generateAdvice(
+            systemPrompt,
+            userPrompt,
+            config,
+          );
+          advisoryStageDuration.record((Date.now() - t0) / 1000, {
+            type,
+            stage: 'llm_generate',
+          });
+          return result;
+        } catch (error) {
+          span.recordException(error as Error);
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: (error as Error).message,
+          });
+          throw error;
+        } finally {
+          span.end();
+        }
+      },
     );
 
     // 6. Build response
     const processingTimeMs = Date.now() - startTime;
-
     const embeddingProvider = getEmbeddingProvider();
-    const llmProviderName =
-      process.env.AI_PROVIDER?.toLowerCase() === 'groq' ? 'groq' : 'mock';
 
     return {
       advice,
@@ -351,6 +454,7 @@ export class AdvisoryService {
     config: AdvisoryConfig,
     startTime: number,
   ): Promise<AdvisoryResponse> {
+    const type = 'attachment';
     const attachmentId = request.relatedAttachmentId!;
 
     // 1. Verify attachment exists and belongs to user
@@ -386,25 +490,84 @@ export class AdvisoryService {
 
     try {
       // 3. Generate embedding for the question
-      const embeddingProvider = getEmbeddingProvider();
-      const questionEmbedding = await embeddingProvider.generateEmbedding(
-        request.question,
+      const questionEmbedding = await this.tracer.startActiveSpan(
+        'advisory.embed-question',
+        {
+          attributes: {
+            'advisory.type': type,
+            'question.length': request.question.length,
+            'attachment.id': attachmentId,
+          },
+        },
+        async (span) => {
+          const t0 = Date.now();
+          try {
+            const embeddingProvider = getEmbeddingProvider();
+            const result = await embeddingProvider.generateEmbedding(
+              request.question,
+            );
+            advisoryStageDuration.record((Date.now() - t0) / 1000, {
+              type,
+              stage: 'embed_question',
+            });
+            return result;
+          } catch (error) {
+            span.recordException(error as Error);
+            span.setStatus({
+              code: SpanStatusCode.ERROR,
+              message: (error as Error).message,
+            });
+            throw error;
+          } finally {
+            span.end();
+          }
+        },
       );
 
       // 4. Retrieve similar chunks from the attachment
-      retrievedChunks =
-        await this.vectorRetrieval.retrieveSimilarAttachmentChunks(
-          userId,
-          attachmentId,
-          questionEmbedding,
-          DEFAULT_ATTACHMENT_RETRIEVAL_CONFIG,
-        );
-
-      console.log(
-        `[Advisory] Retrieved ${retrievedChunks.length} chunks from attachment "${attachment.title}" for user ${userId}`,
+      await this.tracer.startActiveSpan(
+        'advisory.vector-search',
+        {
+          attributes: {
+            'advisory.type': type,
+            'attachment.id': attachmentId,
+            'db.similarity_threshold':
+              DEFAULT_ATTACHMENT_RETRIEVAL_CONFIG.similarityThreshold,
+            'db.top_k': DEFAULT_ATTACHMENT_RETRIEVAL_CONFIG.topK,
+          },
+        },
+        async (span) => {
+          const t0 = Date.now();
+          try {
+            retrievedChunks =
+              await this.vectorRetrieval.retrieveSimilarAttachmentChunks(
+                userId,
+                attachmentId,
+                questionEmbedding,
+                DEFAULT_ATTACHMENT_RETRIEVAL_CONFIG,
+              );
+            span.setAttribute('db.results_count', retrievedChunks.length);
+            advisoryStageDuration.record((Date.now() - t0) / 1000, {
+              type,
+              stage: 'vector_search',
+            });
+            this.logger.log(
+              `Retrieved ${retrievedChunks.length} chunks from attachment "${attachment.title}" for user ${userId}`,
+            );
+          } catch (error) {
+            span.recordException(error as Error);
+            span.setStatus({
+              code: SpanStatusCode.ERROR,
+              message: (error as Error).message,
+            });
+            throw error;
+          } finally {
+            span.end();
+          }
+        },
       );
     } catch (error) {
-      console.error('[Advisory] Attachment chunk retrieval failed:', error);
+      this.logger.error('Attachment chunk retrieval failed', error);
 
       if (error instanceof Error) {
         throw new AdvisoryError(
@@ -423,19 +586,51 @@ export class AdvisoryService {
     });
 
     // 6. Generate advice using LLM
-    const llmClient = getAdvisoryLLMClient();
-    const advice = await llmClient.generateAdvice(
-      systemPrompt,
-      userPrompt,
-      config,
+    const llmProviderName =
+      process.env.AI_PROVIDER?.toLowerCase() === 'groq' ? 'groq' : 'mock';
+
+    const advice = await this.tracer.startActiveSpan(
+      'advisory.llm-generate',
+      {
+        attributes: {
+          'advisory.type': type,
+          'llm.provider': llmProviderName,
+          'llm.model': config.model,
+          'llm.has_context': retrievedChunks.length > 0,
+          'llm.context_count': retrievedChunks.length,
+          'attachment.id': attachmentId,
+        },
+      },
+      async (span) => {
+        const t0 = Date.now();
+        try {
+          const llmClient = getAdvisoryLLMClient();
+          const result = await llmClient.generateAdvice(
+            systemPrompt,
+            userPrompt,
+            config,
+          );
+          advisoryStageDuration.record((Date.now() - t0) / 1000, {
+            type,
+            stage: 'llm_generate',
+          });
+          return result;
+        } catch (error) {
+          span.recordException(error as Error);
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: (error as Error).message,
+          });
+          throw error;
+        } finally {
+          span.end();
+        }
+      },
     );
 
     // 7. Build response
     const processingTimeMs = Date.now() - startTime;
-
     const embeddingProvider = getEmbeddingProvider();
-    const llmProviderName =
-      process.env.AI_PROVIDER?.toLowerCase() === 'groq' ? 'groq' : 'mock';
 
     return {
       advice,

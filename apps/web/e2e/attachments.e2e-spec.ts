@@ -8,7 +8,6 @@
 import { test, expect } from './fixtures';
 import {
   registerUser,
-  waitForElement,
   wait,
 } from './helpers/test-helpers';
 import * as path from 'path';

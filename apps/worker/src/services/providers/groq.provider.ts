@@ -2,6 +2,9 @@ import { PrismaClient } from "@prisma/client";
 import { AIProvider, DecisionInput, AnalysisResult } from "./types";
 import { DecisionAnalysisOrchestrator } from "../orchestration/orchestrator";
 import { TelemetryEvent } from "../orchestration/types";
+import { childLogger } from "../../logger";
+
+const log = childLogger('groq-provider');
 
 /**
  * Groq AI Provider
@@ -110,39 +113,35 @@ export class GroqProvider implements AIProvider {
    * Telemetry logger
    */
   private telemetryLogger(event: TelemetryEvent): void {
-    const timestamp = event.timestamp.toISOString();
-    const prefix = `[${timestamp}][${event.runId}][${event.eventType}]`;
+    const base = { runId: event.runId, eventType: event.eventType, stepName: event.stepName };
 
     switch (event.eventType) {
       case "STEP_START":
-        console.log(`${prefix} Starting: ${event.stepName}`);
+        log.info(base, 'Starting step');
         break;
 
       case "STEP_COMPLETE":
-        console.log(
-          `${prefix} Completed: ${event.stepName} (${event.durationMs}ms)`,
-          event.metadata || ""
-        );
+        log.info({ ...base, durationMs: event.durationMs, ...(event.metadata || {}) }, 'Step completed');
         break;
 
       case "STEP_ERROR":
-        console.error(`${prefix} Error in ${event.stepName}: ${event.error}`);
+        log.error({ ...base, err: event.error }, 'Error in step');
         break;
 
       case "LLM_CALL":
-        console.log(`${prefix} LLM call`, event.metadata || "");
+        log.info({ ...base, ...(event.metadata || {}) }, 'LLM call');
         break;
 
       case "RETRY":
-        console.warn(`${prefix} Retry attempt for ${event.stepName}`, event.metadata || "");
+        log.warn({ ...base, ...(event.metadata || {}) }, 'Retry attempt');
         break;
 
       case "VALIDATION_ERROR":
-        console.error(`${prefix} Validation error: ${event.error}`);
+        log.error({ ...base, err: event.error }, 'Validation error');
         break;
 
       default:
-        console.log(`${prefix}`, event.metadata || "");
+        log.info({ ...base, ...(event.metadata || {}) }, 'Telemetry event');
     }
   }
 }

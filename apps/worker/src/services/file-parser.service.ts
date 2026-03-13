@@ -1,5 +1,8 @@
 import pdf from "pdf-parse";
 import mammoth from "mammoth";
+import { childLogger } from "../logger";
+
+const log = childLogger('file-parser');
 
 /**
  * File Parser Service
@@ -49,7 +52,7 @@ export async function parseDOCX(buffer: Buffer): Promise<ParseResult> {
     const result = await mammoth.extractRawText({ buffer });
     
     if (result.messages.length > 0) {
-      console.warn("DOCX parsing warnings:", result.messages);
+      log.warn({ messages: result.messages }, 'DOCX parsing warnings');
     }
     
     return {

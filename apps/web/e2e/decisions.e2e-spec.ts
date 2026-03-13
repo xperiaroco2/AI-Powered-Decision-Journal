@@ -9,10 +9,7 @@ import { test, expect } from './fixtures';
 import {
   registerUser,
   createDecision,
-  waitForText,
-  waitForElement,
   wait,
-  retry,
 } from './helpers/test-helpers';
 
 test.describe('Decisions E2E Tests', () => {

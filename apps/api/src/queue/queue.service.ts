@@ -1,6 +1,17 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { Redis } from 'ioredis';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
+import { injectTraceContext } from '../observability/trace-context.helper';
+import {
+  queueEnqueueTotal,
+  queueEnqueueDuration,
+} from '../observability/metrics';
 
 /**
  * Queue Service
@@ -13,6 +24,8 @@ import { Redis } from 'ioredis';
  */
 @Injectable()
 export class QueueService implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(QueueService.name);
+  private readonly tracer = trace.getTracer('api');
   private redisConnection: Redis;
   private analysisQueue: Queue;
   private embeddingQueue: Queue;
@@ -38,7 +51,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.redisConnection.on('error', (error) => {
-      console.error('Redis connection error:', error);
+      this.logger.error('Redis connection error', error);
     });
 
     // Initialize queues
@@ -54,7 +67,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
       connection: this.redisConnection,
     });
 
-    console.log('✓ BullMQ queues initialized');
+    this.logger.log('BullMQ queues initialized');
   }
 
   /**
@@ -62,26 +75,55 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
    * From: apps/web/lib/queue.ts
    */
   async enqueueAnalysisRun(runId: string): Promise<void> {
-    await this.analysisQueue.add(
-      'analyze-decision',
-      { runId },
+    await this.tracer.startActiveSpan(
+      'queue.enqueue',
       {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
-        },
-        removeOnComplete: {
-          age: 3600, // 1 hour
-          count: 1000,
-        },
-        removeOnFail: {
-          age: 86400, // 24 hours
+        attributes: {
+          'queue.name': this.ANALYSIS_QUEUE_NAME,
+          'messaging.system': 'bullmq',
+          'messaging.operation': 'publish',
+          'run.id': runId,
         },
       },
+      async (span) => {
+        const startMs = Date.now();
+        try {
+          // injectTraceContext propagates W3C traceparent so the worker can
+          // continue the trace as a child span.
+          await this.analysisQueue.add(
+            'analyze-decision',
+            injectTraceContext({ runId }),
+            {
+              attempts: 3,
+              backoff: { type: 'exponential', delay: 2000 },
+              removeOnComplete: { age: 3600, count: 1000 },
+              removeOnFail: { age: 86400 },
+            },
+          );
+          queueEnqueueTotal.add(1, {
+            queue: this.ANALYSIS_QUEUE_NAME,
+            status: 'success',
+          });
+          queueEnqueueDuration.record((Date.now() - startMs) / 1000, {
+            queue: this.ANALYSIS_QUEUE_NAME,
+          });
+          this.logger.log(`Enqueued run ${runId} for analysis`);
+        } catch (error) {
+          span.recordException(error as Error);
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: (error as Error).message,
+          });
+          queueEnqueueTotal.add(1, {
+            queue: this.ANALYSIS_QUEUE_NAME,
+            status: 'failure',
+          });
+          throw error;
+        } finally {
+          span.end();
+        }
+      },
     );
-
-    console.log(`✓ Enqueued run ${runId} for analysis`);
   }
 
   /**
@@ -89,27 +131,54 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
    * From: apps/web/lib/embedding-queue.ts
    */
   async enqueueDecisionEmbedding(decisionId: string): Promise<void> {
-    await this.embeddingQueue.add(
-      'embed-decision',
-      { decisionId },
+    await this.tracer.startActiveSpan(
+      'queue.enqueue',
       {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
+        attributes: {
+          'queue.name': this.EMBEDDING_QUEUE_NAME,
+          'messaging.system': 'bullmq',
+          'messaging.operation': 'publish',
+          'decision.id': decisionId,
         },
-        removeOnComplete: {
-          age: 3600,
-          count: 1000,
-        },
-        removeOnFail: {
-          age: 86400,
-        },
-        jobId: `embed-decision-${decisionId}`, // De-duplicate
+      },
+      async (span) => {
+        const startMs = Date.now();
+        try {
+          await this.embeddingQueue.add(
+            'embed-decision',
+            injectTraceContext({ decisionId }),
+            {
+              attempts: 3,
+              backoff: { type: 'exponential', delay: 2000 },
+              removeOnComplete: { age: 3600, count: 1000 },
+              removeOnFail: { age: 86400 },
+              jobId: `embed-decision-${decisionId}`, // De-duplicate
+            },
+          );
+          queueEnqueueTotal.add(1, {
+            queue: this.EMBEDDING_QUEUE_NAME,
+            status: 'success',
+          });
+          queueEnqueueDuration.record((Date.now() - startMs) / 1000, {
+            queue: this.EMBEDDING_QUEUE_NAME,
+          });
+          this.logger.log(`Enqueued decision ${decisionId} for embedding`);
+        } catch (error) {
+          span.recordException(error as Error);
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: (error as Error).message,
+          });
+          queueEnqueueTotal.add(1, {
+            queue: this.EMBEDDING_QUEUE_NAME,
+            status: 'failure',
+          });
+          throw error;
+        } finally {
+          span.end();
+        }
       },
     );
-
-    console.log(`✓ Enqueued decision ${decisionId} for embedding`);
   }
 
   /**
@@ -120,28 +189,56 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
     attachmentId: string,
     filename?: string,
   ): Promise<void> {
-    await this.attachmentQueue.add(
-      'embed-attachment',
-      { attachmentId, filename },
+    await this.tracer.startActiveSpan(
+      'queue.enqueue',
       {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 2000,
+        attributes: {
+          'queue.name': this.ATTACHMENT_QUEUE_NAME,
+          'messaging.system': 'bullmq',
+          'messaging.operation': 'publish',
+          'attachment.id': attachmentId,
+          ...(filename ? { 'attachment.filename': filename } : {}),
         },
-        removeOnComplete: {
-          age: 3600,
-          count: 1000,
-        },
-        removeOnFail: {
-          age: 86400,
-        },
-        jobId: `embed-attachment-${attachmentId}`, // De-duplicate
       },
-    );
-
-    console.log(
-      `✓ Enqueued attachment ${attachmentId} for chunking and embedding`,
+      async (span) => {
+        const startMs = Date.now();
+        try {
+          await this.attachmentQueue.add(
+            'embed-attachment',
+            injectTraceContext({ attachmentId, filename }),
+            {
+              attempts: 3,
+              backoff: { type: 'exponential', delay: 2000 },
+              removeOnComplete: { age: 3600, count: 1000 },
+              removeOnFail: { age: 86400 },
+              jobId: `embed-attachment-${attachmentId}`, // De-duplicate
+            },
+          );
+          queueEnqueueTotal.add(1, {
+            queue: this.ATTACHMENT_QUEUE_NAME,
+            status: 'success',
+          });
+          queueEnqueueDuration.record((Date.now() - startMs) / 1000, {
+            queue: this.ATTACHMENT_QUEUE_NAME,
+          });
+          this.logger.log(
+            `Enqueued attachment ${attachmentId} for chunking and embedding`,
+          );
+        } catch (error) {
+          span.recordException(error as Error);
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: (error as Error).message,
+          });
+          queueEnqueueTotal.add(1, {
+            queue: this.ATTACHMENT_QUEUE_NAME,
+            status: 'failure',
+          });
+          throw error;
+        } finally {
+          span.end();
+        }
+      },
     );
   }
 
@@ -150,7 +247,7 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
    * This is called when the NestJS module is destroyed
    */
   async onModuleDestroy() {
-    console.log('🧹 Closing BullMQ queues and Redis connection...');
+    this.logger.log('Closing BullMQ queues and Redis connection');
 
     try {
       // Close all queues
@@ -169,9 +266,9 @@ export class QueueService implements OnModuleInit, OnModuleDestroy {
         await this.redisConnection.quit();
       }
 
-      console.log('✓ BullMQ queues and Redis connection closed');
+      this.logger.log('BullMQ queues and Redis connection closed');
     } catch (error) {
-      console.error('Error closing queues:', error);
+      this.logger.error('Error closing queues', error);
     }
   }
 }

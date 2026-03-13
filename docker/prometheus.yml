@@ -1,0 +1,42 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: local
+    env:     dev
+
+# ── Alerting (placeholder) ────────────────────────────────────────────────────
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['alertmanager:9093']
+
+# ── Scrape targets ────────────────────────────────────────────────────────────
+scrape_configs:
+  # OTel Collector Prometheus exporter
+  # All API metrics arrive here (http_requests_total, http_request_duration_seconds, …)
+  - job_name: otel-collector
+    static_configs:
+      - targets: ['otel-collector:9464']
+    # Map service.name OTel resource attribute to a Prometheus label
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+
+  # Self-monitoring: Prometheus scrapes itself
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # OTel Collector internal health metrics
+  - job_name: otel-collector-internal
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['otel-collector:8888']
+
+  # Worker BullMQ metrics (prom-client)
+  # worker_jobs_total{queue, status}, worker_job_duration_seconds{queue}, Node.js runtime metrics
+  - job_name: worker
+    static_configs:
+      - targets: ['worker:9465']
+

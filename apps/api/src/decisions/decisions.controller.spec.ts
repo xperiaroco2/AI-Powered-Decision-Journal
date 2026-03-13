@@ -77,8 +77,8 @@ describe('DecisionsController', () => {
         userId: mockUser.id,
         situation: 'Test situation',
         chosenDecision: 'Test decision',
-        latestRun: { id: 'run-1', status: 'DONE' },
-        runs: [{ id: 'run-1', status: 'DONE' }],
+        latestRun: { id: 'run-1', status: 'COMPLETED' },
+        runs: [{ id: 'run-1', status: 'COMPLETED' }],
       };
 
       mockDecisionsService.findOne.mockResolvedValue(mockDecision);
@@ -142,4 +142,3 @@ describe('DecisionsController', () => {
     });
   });
 });
-

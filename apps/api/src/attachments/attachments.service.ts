@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   ForbiddenException,
   BadRequestException,
@@ -17,6 +18,8 @@ import { QueueService } from '../queue/queue.service';
  */
 @Injectable()
 export class AttachmentsService {
+  private readonly logger = new Logger(AttachmentsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly queueService: QueueService,
@@ -137,8 +140,8 @@ export class AttachmentsService {
       );
     }
 
-    console.log(
-      `[Attachment Service] User ${userId} uploading file for decision ${decisionId}: "${title}" (${file.originalname}, ${file.size} bytes)`,
+    this.logger.log(
+      `User ${userId} uploading file for decision ${decisionId}: "${title}" (${file.originalname}, ${file.size} bytes)`,
     );
 
     // Convert file to base64
@@ -163,8 +166,8 @@ export class AttachmentsService {
       },
     });
 
-    console.log(
-      `[Attachment Service] ✓ Created attachment ${attachment.id} with file ${file.originalname}`,
+    this.logger.log(
+      `Created attachment ${attachment.id} with file ${file.originalname}`,
     );
 
     // Enqueue attachment for chunking and embedding
@@ -173,12 +176,10 @@ export class AttachmentsService {
         attachment.id,
         file.originalname,
       );
-      console.log(
-        `[Attachment Service] ✓ Enqueued attachment ${attachment.id} for processing`,
-      );
+      this.logger.log(`Enqueued attachment ${attachment.id} for processing`);
     } catch (queueError) {
-      console.error(
-        `[Attachment Service] ✗ Failed to enqueue attachment ${attachment.id}:`,
+      this.logger.error(
+        `Failed to enqueue attachment ${attachment.id}`,
         queueError,
       );
 

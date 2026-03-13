@@ -1,6 +1,9 @@
 import { ChatGroq } from "@langchain/groq";
 import { z } from "zod";
 import { LLMCallConfig, LLMCallResult } from "./types";
+import { childLogger } from "../../logger";
+
+const log = childLogger('langchain-client');
 
 /**
  * LangChain-based LLM Client
@@ -102,9 +105,7 @@ export class LangChainLLMClient {
 
         // Wait before retry (exponential backoff)
         const backoffMs = this.calculateBackoff(attempt);
-        console.log(
-          `[LangChainClient] Retry ${attempt + 1}/${config.maxRetries} after ${backoffMs}ms: ${lastError.message}`
-        );
+        log.info({ attempt: attempt + 1, maxRetries: config.maxRetries, backoffMs, err: lastError.message }, 'Retry');
         await this.sleep(backoffMs);
       }
     }

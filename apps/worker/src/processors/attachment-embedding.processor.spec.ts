@@ -67,6 +67,7 @@ describe('Attachment Embedding Processor', () => {
     // Create mock embedding provider
     mockProvider = {
       generateEmbedding: jest.fn(),
+      getModelName: jest.fn().mockReturnValue('mock-embedding'),
     };
 
     (getEmbeddingProvider as jest.Mock).mockReturnValue(mockProvider);

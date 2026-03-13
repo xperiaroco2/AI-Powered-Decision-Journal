@@ -1,6 +1,9 @@
 import Groq from "groq-sdk";
 import { z } from "zod";
 import { LLMCallConfig, LLMCallResult } from "./types";
+import { childLogger } from "../../logger";
+
+const log = childLogger('llm-client');
 
 /**
  * LLM Client with Retry Logic
@@ -67,9 +70,7 @@ export class LLMClient {
 
         // Wait before retry (exponential backoff)
         const backoffMs = this.calculateBackoff(attempt);
-        console.log(
-          `[LLMClient] Retry ${attempt + 1}/${config.maxRetries} after ${backoffMs}ms: ${lastError.message}`
-        );
+        log.info({ attempt: attempt + 1, maxRetries: config.maxRetries, backoffMs, err: lastError.message }, 'Retry');
         await this.sleep(backoffMs);
       }
     }

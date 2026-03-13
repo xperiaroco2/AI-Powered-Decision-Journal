@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       return true;
-    } catch (error) {
+    } catch (_error) {
       setAccessToken(null);
       setUser(null);
       return false;

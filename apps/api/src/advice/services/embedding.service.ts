@@ -4,6 +4,9 @@
  * Generates vector embeddings using OpenAI-compatible embedding API.
  * Supports cost tracking and retry logic.
  */
+import { Logger } from '@nestjs/common';
+
+const embeddingLogger = new Logger('EmbeddingService');
 
 export interface EmbeddingProvider {
   /**
@@ -132,16 +135,15 @@ export function getEmbeddingProvider(): EmbeddingProvider {
   if (!providerInstance) {
     const embeddingProvider = process.env.EMBEDDING_PROVIDER || 'mock';
 
-    console.log(`🔢 Embedding Provider: ${embeddingProvider}`);
+    embeddingLogger.log(`Embedding Provider: ${embeddingProvider}`);
 
     switch (embeddingProvider) {
       case 'openai': {
         const apiKey = process.env.OPENAI_API_KEY;
         if (!apiKey) {
-          console.error(
-            '❌ OPENAI_API_KEY is required when EMBEDDING_PROVIDER=openai',
+          embeddingLogger.error(
+            'OPENAI_API_KEY is required when EMBEDDING_PROVIDER=openai, falling back to mock provider',
           );
-          console.error('Falling back to mock provider');
           providerInstance = new MockEmbeddingProvider();
         } else {
           providerInstance = new OpenAIEmbeddingProvider(apiKey);

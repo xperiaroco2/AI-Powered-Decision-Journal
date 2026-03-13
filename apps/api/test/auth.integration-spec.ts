@@ -131,13 +131,11 @@ describe('Auth Integration Tests', () => {
   describe('POST /auth/login', () => {
     beforeEach(async () => {
       // Create a test user
-      await request(app.getHttpServer())
-        .post('/auth/register')
-        .send({
-          email: 'test@example.com',
-          password: 'password123',
-          name: 'Test User',
-        });
+      await request(app.getHttpServer()).post('/auth/register').send({
+        email: 'test@example.com',
+        password: 'password123',
+        name: 'Test User',
+      });
     });
 
     it('should login successfully with valid credentials', async () => {
@@ -161,7 +159,9 @@ describe('Auth Integration Tests', () => {
       expect(response.body.user.passwordHash).toBeUndefined();
 
       // Check that refresh token cookie was set
-      const cookies = (response.headers['set-cookie'] as unknown) as string[] | undefined;
+      const cookies = response.headers['set-cookie'] as unknown as
+        | string[]
+        | undefined;
       expect(cookies).toBeDefined();
       expect(cookies?.some((c: string) => c.startsWith('refreshToken='))).toBe(
         true,
@@ -201,7 +201,9 @@ describe('Auth Integration Tests', () => {
         })
         .expect(200);
 
-      const cookies = (response.headers['set-cookie'] as unknown) as string[] | undefined;
+      const cookies = response.headers['set-cookie'] as unknown as
+        | string[]
+        | undefined;
       const refreshTokenCookie = cookies?.find((c: string) =>
         c.startsWith('refreshToken='),
       );
@@ -217,12 +219,10 @@ describe('Auth Integration Tests', () => {
 
     beforeEach(async () => {
       // Register and login to get refresh token
-      await request(app.getHttpServer())
-        .post('/auth/register')
-        .send({
-          email: 'test@example.com',
-          password: 'password123',
-        });
+      await request(app.getHttpServer()).post('/auth/register').send({
+        email: 'test@example.com',
+        password: 'password123',
+      });
 
       const loginResponse = await request(app.getHttpServer())
         .post('/auth/login')
@@ -261,12 +261,10 @@ describe('Auth Integration Tests', () => {
 
     beforeEach(async () => {
       // Register and login
-      await request(app.getHttpServer())
-        .post('/auth/register')
-        .send({
-          email: 'test@example.com',
-          password: 'password123',
-        });
+      await request(app.getHttpServer()).post('/auth/register').send({
+        email: 'test@example.com',
+        password: 'password123',
+      });
 
       const loginResponse = await request(app.getHttpServer())
         .post('/auth/login')
@@ -286,7 +284,9 @@ describe('Auth Integration Tests', () => {
       expect(response.body.message).toBe('Logged out successfully');
 
       // Check that refresh token cookie was cleared
-      const cookies = (response.headers['set-cookie'] as unknown) as string[] | undefined;
+      const cookies = response.headers['set-cookie'] as unknown as
+        | string[]
+        | undefined;
       expect(cookies).toBeDefined();
 
       const refreshTokenCookie = cookies?.find((c: string) =>
@@ -344,4 +344,3 @@ describe('Auth Integration Tests', () => {
     });
   });
 });
-

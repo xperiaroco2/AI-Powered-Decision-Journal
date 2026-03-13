@@ -2,6 +2,9 @@ import { PrismaClient } from "@prisma/client";
 import { AIProvider, DecisionInput, AnalysisResult } from "./providers/types";
 import { MockProvider } from "./providers/mock.provider";
 import { GroqProvider } from "./providers/groq.provider";
+import { childLogger } from "../logger";
+
+const log = childLogger('ai-service');
 
 /**
  * AI Service Factory
@@ -31,14 +34,14 @@ function getProviderType(): ProviderType {
 function createProvider(): AIProvider {
   const providerType = getProviderType();
 
-  console.log(`🤖 AI Provider: ${providerType}`);
+  log.info({ providerType }, 'AI Provider');
 
   switch (providerType) {
     case "groq": {
       const apiKey = process.env.GROQ_API_KEY;
       if (!apiKey) {
-        console.error("❌ GROQ_API_KEY is required when AI_PROVIDER=groq");
-        console.error("Falling back to mock provider");
+        log.error('GROQ_API_KEY is required when AI_PROVIDER=groq');
+        log.error('Falling back to mock provider');
         return new MockProvider();
       }
       return new GroqProvider(apiKey, prisma);

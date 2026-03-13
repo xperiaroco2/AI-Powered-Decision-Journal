@@ -1,0 +1,74 @@
+# OpenTelemetry Collector Contrib configuration
+#
+# Pipeline:
+#   API → OTLP/HTTP (4318) → Collector
+#   Collector → traces:  logging exporter (stdout, dev-friendly)
+#   Collector → metrics: Prometheus exporter (scrape at :9464)
+#
+# To add Grafana Tempo for real trace storage, add a `otlp` exporter
+# targeting tempo:4317 and append it to the traces pipeline exporters list.
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  pprof:
+    endpoint: 0.0.0.0:1777
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  # Safety valve: drop data if memory spikes
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+    spike_limit_mib: 64
+
+  # Batch to reduce export overhead
+  batch:
+    timeout: 5s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+  # Add collector-level resource attributes
+  resource:
+    attributes:
+      - action: insert
+        key: collector.name
+        value: otel-collector
+
+exporters:
+  # Traces → stdout (human-readable in dev; swap for tempo/jaeger in prod)
+  debug:
+    verbosity: normal
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+  # Metrics → Prometheus scrape endpoint (Prometheus scrapes :9464)
+  prometheus:
+    endpoint: "0.0.0.0:9464"
+    namespace: ""
+    send_timestamps: true
+    metric_expiration: 3m
+    resource_to_telemetry_conversion:
+      enabled: true   # promote service.name etc. to Prometheus labels
+
+service:
+  extensions: [health_check, pprof]
+
+  pipelines:
+    traces:
+      receivers:  [otlp]
+      processors: [memory_limiter, batch]
+      exporters:  [debug]
+
+    metrics:
+      receivers:  [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters:  [prometheus]
+

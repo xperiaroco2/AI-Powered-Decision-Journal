@@ -70,7 +70,7 @@ describe('DecisionsService', () => {
           createdAt: new Date(),
           latestRun: {
             id: 'run-1',
-            status: 'DONE',
+            status: 'COMPLETED',
             categoryText: 'CAREER',
           },
         },
@@ -115,9 +115,9 @@ describe('DecisionsService', () => {
         userId,
         situation: 'Test situation',
         chosenDecision: 'Test decision',
-        latestRun: { id: 'run-1', status: 'DONE' },
+        latestRun: { id: 'run-1', status: 'COMPLETED' },
         runs: [
-          { id: 'run-1', status: 'DONE', createdAt: new Date() },
+          { id: 'run-1', status: 'COMPLETED', createdAt: new Date() },
           { id: 'run-2', status: 'FAILED', createdAt: new Date() },
         ],
       };
@@ -412,4 +412,3 @@ describe('DecisionsService', () => {
     });
   });
 });
-

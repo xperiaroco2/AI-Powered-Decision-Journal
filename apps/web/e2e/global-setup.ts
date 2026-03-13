@@ -5,7 +5,7 @@
  * It starts Testcontainers (PostgreSQL + Redis) and the API/Web servers.
  */
 
-import { chromium, FullConfig } from '@playwright/test';
+import { FullConfig } from '@playwright/test';
 import { execSync, spawn, ChildProcess } from 'child_process';
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { GenericContainer, StartedTestContainer } from 'testcontainers';
@@ -18,7 +18,7 @@ let apiProcess: ChildProcess;
 let workerProcess: ChildProcess;
 let webProcess: ChildProcess;
 
-async function globalSetup(config: FullConfig) {
+async function globalSetup(_config: FullConfig) {
   console.log('\n🚀 Starting E2E test infrastructure...\n');
 
   // 0. Pre-cleanup: Kill any existing processes and containers from previous runs
@@ -89,7 +89,7 @@ async function globalSetup(config: FullConfig) {
     } catch {}
 
     console.log('✓ Pre-cleanup complete');
-  } catch (error) {
+  } catch (_error) {
     console.log('⚠ Pre-cleanup had some issues, continuing anyway...');
   }
 
@@ -256,7 +256,7 @@ async function globalSetup(config: FullConfig) {
         execSync(`rm -rf "${nextDir}"`, { stdio: 'ignore' });
       }
       console.log('✓ .next directory cleaned');
-    } catch (error) {
+    } catch (_error) {
       console.log('⚠ Failed to clean .next directory, continuing anyway...');
     }
   }
@@ -322,7 +322,7 @@ async function waitForServer(url: string, timeout: number): Promise<void> {
       await fetch(url);
       // If we get here, the server responded (even if with an error)
       return;
-    } catch (error) {
+    } catch (_error) {
       // Server not ready yet (connection refused), continue polling
     }
 

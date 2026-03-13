@@ -25,19 +25,19 @@ This isn't a simple CRUD app with an AI wrapper. Key technical challenges addres
 - **Anti-Hallucination Design**: Document-grounded prompting with strict constraints to prevent LLM from inventing facts
 - **Denormalized Aggregations**: Dashboard queries optimized with denormalized fields to avoid parsing JSONB in aggregations
 - **Server-Side Filtering**: Complex filtering and sorting logic (including custom "needs attention" and "most biases" sorts)
-- **Production-Ready Architecture**: Monorepo with separate web and worker apps, designed for Vercel + background worker deployment
+- **Production Observability**: OpenTelemetry traces + metrics exported to Prometheus/Grafana
 
 ---
 
 ## Implemented Features
 
 ### Core Functionality
-- ✅ **User Authentication**: Email/password auth with NextAuth v5, user-scoped data
+- ✅ **User Authentication**: Email/password auth with JWT (access + refresh tokens), user-scoped data
 - ✅ **Decision CRUD**: Create, read, update, delete decisions with situation context and personal reasoning
 - ✅ **Asynchronous AI Analysis**: Background processing via BullMQ + Redis queue
 - ✅ **Structured AI Output**: Category classification, cognitive bias detection, missed alternatives, strategic insights
 
-### RAG Advisory System (NEW)
+### RAG Advisory System
 - ✅ **Decision-Based Advice**: Ask questions and receive advice grounded in past decision patterns
 - ✅ **Document-Based Advice**: Upload attachments and ask questions about specific documents
 - ✅ **Vector Similarity Search**: pgvector-powered semantic search over decisions and document chunks
@@ -56,10 +56,11 @@ This isn't a simple CRUD app with an AI wrapper. Key technical challenges addres
 ### Technical Features
 - ✅ **AI Provider Abstraction**: Pluggable providers (mock for dev, Groq for production)
 - ✅ **Embedding Provider Abstraction**: Pluggable embedding providers (mock, OpenAI)
-- ✅ **Worker-Only AI Execution**: AI calls isolated to worker process, never in web server
+- ✅ **Worker-Only AI Execution**: AI calls isolated to worker process, never in web or API server
 - ✅ **Denormalized Fields**: Optimized dashboard queries with `categoryText` and `biasesText` fields
 - ✅ **Type-Safe Schema**: Prisma ORM with PostgreSQL + pgvector extension, full TypeScript coverage
-- ✅ **Monorepo Structure**: pnpm workspaces with `apps/web` and `apps/worker`
+- ✅ **Monorepo Structure**: pnpm workspaces with `apps/web`, `apps/api`, and `apps/worker`
+- ✅ **Observability**: OpenTelemetry → Prometheus → Grafana with distributed tracing and custom metrics
 
 ---
 
@@ -77,75 +78,96 @@ This isn't a simple CRUD app with an AI wrapper. Key technical challenges addres
           │                  │                       │
           ▼                  ▼                       ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    Next.js Web Server (apps/web)                │
+│              Next.js Web Server — apps/web (port 80)            │
 │  ┌────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
 │  │  API Routes    │  │  Socket.IO      │  │  Server         │  │
-│  │  (REST)        │  │  Server         │  │  Components     │  │
+│  │ (thin proxies) │  │  Server         │  │  Components     │  │
 │  └────────┬───────┘  └────────┬────────┘  └─────────────────┘  │
 └───────────┼──────────────────┼─────────────────────────────────┘
-            │                  │
-            │ Enqueue Job      │ Subscribe to Events
+            │ Proxy (JWT)      │ Subscribe to Events (Redis)
             ▼                  ▼
-┌─────────────────────┐  ┌─────────────────────────────────────┐
-│   Redis (Queue)     │  │   Redis (Pub/Sub)                   │
-│   - BullMQ Jobs     │  │   - decision-events channel         │
-└─────────┬───────────┘  └─────────────┬───────────────────────┘
-          │                            │
-          │ Process Job                │ Publish Events
-          ▼                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                  Worker Process (apps/worker)                   │
+┌──────────────────────────────────────────────────────────────────┐
+│            NestJS API — apps/api (port 4000)                     │
+│  ┌──────────┐ ┌───────────┐ ┌────────────┐ ┌────────────────┐   │
+│  │  auth/   │ │decisions/ │ │attachments/│ │    advice/     │   │
+│  │  (JWT)   │ │  (CRUD)   │ │ (upload)   │ │    (RAG)       │   │
+│  └──────────┘ └───────────┘ └────────────┘ └────────────────┘   │
+│  ┌──────────┐ ┌────────────────────────────────────────────────┐ │
+│  │dashboard/│ │  observability/ (OTel traces + metrics)        │ │
+│  └──────────┘ └────────────────────────────────────────────────┘ │
+└────────────────────────┬─────────────────────────────────────────┘
+                         │ Enqueue Jobs / Write DB
+            ┌────────────┴────────────┐
+            ▼                         ▼
+┌─────────────────────┐  ┌────────────────────────────────────────┐
+│   Redis (BullMQ)    │  │   PostgreSQL (pgvector/pg15)           │
+│   3 queues:         │  │   - Users, Decisions, Attachments      │
+│   - decision-       │  │   - DecisionAnalysisRuns               │
+│     analysis        │  │   - DecisionEmbeddings                 │
+│   - decision-       │  │   - AttachmentChunks + Embeddings      │
+│     embedding       │  └────────────────────────────────────────┘
+│   - attachment-     │               ▲
+│     embedding       │               │ Read/Write
+└─────────┬───────────┘               │
+          │ Process Jobs              │
+          ▼                           │
+┌─────────────────────────────────────┴───────────────────────────┐
+│                  Worker Process — apps/worker                    │
 │  ┌────────────────────────────────────────────────────────────┐ │
-│  │  BullMQ Worker                                             │ │
-│  │  1. Fetch decision from DB                                 │ │
-│  │  2. Call AI provider (mock | groq)                         │ │
-│  │  3. Parse structured JSON response                         │ │
-│  │  4. Update DecisionAnalysisRun in DB                       │ │
-│  │  5. Publish event to Redis Pub/Sub                         │ │
+│  │  BullMQ Worker (3 concurrent queues)                       │ │
+│  │  - decision-analysis  (×5): AI analysis via Groq/mock      │ │
+│  │  - decision-embedding (×10): OpenAI/mock embeddings        │ │
+│  │  - attachment-embedding (×3): Chunk + embed documents      │ │
 │  └────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
-            │
-            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    PostgreSQL Database                          │
-│  - Users                                                        │
-│  - Decisions                                                    │
-│  - DecisionAnalysisRuns (with denormalized fields)              │
-└─────────────────────────────────────────────────────────────────┘
+│                     │ Publish Events                             │
+└─────────────────────┼───────────────────────────────────────────┘
+                      │
+                      ▼
+          Redis Pub/Sub → Socket.IO → Browser (real-time updates)
+```
+
+### Observability Stack
+
+```
+apps/api (OTel SDK)
+  └─► otel-collector (port 4317/4318)
+        ├─► Prometheus (port 9090)   ← metrics scrape
+        └─► Grafana   (port 3001)    ← dashboards (admin/admin)
 ```
 
 ### Tech Stack
 
-**Frontend:**
-- Next.js 16 (App Router)
+**Frontend (`apps/web`):**
+- Next.js 15 (App Router, custom `server.ts` for Socket.IO)
 - React 19
 - Tailwind CSS v4
 - Socket.IO Client (real-time updates)
 - next-themes (dark mode)
 
-**Backend:**
-- Next.js API Routes
-- NextAuth v5 (authentication)
-- Socket.IO Server (WebSocket)
-- Custom Next.js server (server.ts)
+**API (`apps/api`):**
+- NestJS 10
+- JWT authentication (custom — access + refresh tokens, no NextAuth)
+- class-validator DTOs with strict whitelist validation
+- Prisma ORM 5 + PostgreSQL
 
-**Worker:**
+**Worker (`apps/worker`):**
+- Plain Node.js / TypeScript
 - BullMQ (job queue)
 - Groq SDK (AI provider)
-- Redis (queue + pub/sub)
+- OpenAI SDK (embeddings)
 
 **Database:**
 - PostgreSQL 15 with pgvector extension
-- Prisma ORM v6
+- Prisma ORM (two schemas: `apps/api/prisma/schema.prisma` + `prisma/schema.prisma` for worker)
+
+**Infrastructure:**
+- Docker Compose (all services — web, api, worker, postgres, redis, otel-collector, prometheus, grafana)
+- pnpm workspaces (monorepo)
 
 **AI/ML:**
 - OpenAI Embeddings API (text-embedding-3-small, 1536 dimensions)
 - Groq LLM API (llama-3.3-70b-versatile)
-- pgvector (IVFFlat index with cosine similarity)
-
-**Infrastructure:**
-- Docker Compose (local dev)
-- pnpm workspaces (monorepo)
+- pgvector cosine similarity search
 
 ---
 
@@ -153,16 +175,16 @@ This isn't a simple CRUD app with an AI wrapper. Key technical challenges addres
 
 ### 1. Asynchronous Processing (Worker-Only)
 
-**Decision:** AI analysis runs exclusively in a separate worker process, never in the web server.
+**Decision:** AI analysis runs exclusively in a separate worker process, never in the web or API server.
 
 **Why:**
 - AI calls can take 5-30 seconds (unacceptable for HTTP request/response)
-- Prevents web server timeouts and poor UX
+- Prevents web/API server timeouts and poor UX
 - Allows horizontal scaling of workers independently
 - Enables retry logic without blocking user requests
 
 **Implementation:**
-- Web server enqueues job to BullMQ → returns immediately
+- API server enqueues job to BullMQ → returns immediately
 - Worker picks up job → calls AI → updates database
 - WebSocket notifies user of completion in real-time
 
@@ -193,36 +215,26 @@ This isn't a simple CRUD app with an AI wrapper. Key technical challenges addres
 - Supports retry on failure
 - Allows re-analysis with different prompts or providers
 - Maintains history of all attempts
-- Enables A/B testing of AI providers
 
 **Implementation:**
 - `DecisionAnalysisRun` model (many-to-one with Decision)
 - `Decision.latestRunId` points to most recent run for quick UI access
-- Previous runs displayed in collapsible section on detail page
 
 ---
 
 ### 4. Provider Abstraction
 
-**Decision:** AI provider is swappable via environment variable.
+**Decision:** AI and embedding providers are swappable via environment variable.
 
 **Why:**
 - Development without API keys (mock provider)
-- Easy migration between providers (Groq, OpenAI, Anthropic)
+- Easy migration between providers
 - Testing without API costs
-- Graceful degradation if provider is down
-
-**Implementation:**
-```typescript
-// AI_PROVIDER=mock | groq
-const provider = process.env.AI_PROVIDER === 'groq'
-  ? new GroqProvider()
-  : new MockProvider();
-```
 
 **Providers:**
 - **Mock**: Returns realistic fake data instantly, no API key needed
 - **Groq**: Free-tier LLaMA 3.3 70B with structured JSON output
+- **OpenAI**: text-embedding-3-small (1536 dimensions)
 
 ---
 
@@ -232,7 +244,6 @@ const provider = process.env.AI_PROVIDER === 'groq'
 
 **Why:**
 - Enables programmatic use (filtering, aggregations, visualizations)
-- Prevents hallucinated or malformed responses
 - Type-safe frontend rendering
 - Supports dashboard analytics
 
@@ -263,10 +274,9 @@ const provider = process.env.AI_PROVIDER === 'groq'
 **Why:**
 - Dashboard queries need to aggregate by category and bias
 - Parsing JSONB in SQL is slow and complex
-- Enables efficient filtering (indexed `categoryText`, PostgreSQL array `has` operator)
-- Simplifies Prisma queries
+- Enables efficient filtering
 
-**Trade-off:** Data duplication (category stored in both `resultJson` and `categoryText`), but worth it for query performance.
+**Trade-off:** Data duplication, but worth it for query performance.
 
 ---
 
@@ -274,7 +284,7 @@ const provider = process.env.AI_PROVIDER === 'groq'
 
 ### Overview
 
-The RAG (Retrieval-Augmented Generation) Advisory System enables users to ask questions and receive personalized advice grounded in their past decisions or specific documents. This is a complete production-ready implementation with 4 stages:
+The RAG (Retrieval-Augmented Generation) Advisory System enables users to ask questions and receive personalized advice grounded in their past decisions or specific documents.
 
 **Stage 1: Decision Embeddings (Ingestion)**
 - Automatically generate vector embeddings for every decision
@@ -296,54 +306,16 @@ The RAG (Retrieval-Augmented Generation) Advisory System enables users to ask qu
 - Semantic search over document chunks
 - Document-grounded advice with anti-hallucination constraints
 
-### Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     RAG Advisory System                          │
-└─────────────────────────────────────────────────────────────────┘
-
-INGESTION (Background)              RETRIEVAL (Online)
-─────────────────────              ──────────────────
-
-Stage 1: Decision Embeddings       Stage 2: Decision-Based Advice
-  User creates decision              User asks question
-       ↓                                  ↓
-  Enqueue embedding job              Generate question embedding
-       ↓                                  ↓
-  Worker generates embedding         Vector search (pgvector)
-       ↓                                  ↓
-  Store in DecisionEmbedding         Retrieve top-3 decisions
-                                          ↓
-                                     Build advisory prompt
-                                          ↓
-                                     Generate advice (LLM)
-
-Stage 3: Attachment Embeddings     Stage 4: Attachment-Based Advice
-  User uploads attachment            User asks question + attachmentId
-       ↓                                  ↓
-  Enqueue embedding job              Generate question embedding
-       ↓                                  ↓
-  Worker chunks content              Vector search (pgvector)
-       ↓                                  ↓
-  Worker generates embeddings        Retrieve top-5 chunks
-       ↓                                  ↓
-  Store in AttachmentChunkEmbedding  Build document-grounded prompt
-                                          ↓
-                                     Generate advice (LLM)
-```
-
 ### Key Features
 
 **Vector Similarity Search:**
 - PostgreSQL with pgvector extension
-- IVFFlat index with cosine similarity
+- Cosine similarity via `<=>` operator
 - User-scoped queries (no data leakage)
-- Configurable similarity thresholds
+- Configurable similarity thresholds (0.70 for decisions, 0.65 for chunks)
 
 **Document Chunking:**
-- Fixed-size chunking (500 tokens per chunk)
-- 100 token overlap for context preservation
+- Fixed-size chunking (500 tokens per chunk, 100 token overlap)
 - Cost control (max 50 chunks per attachment)
 - Preserves chunk order in retrieval
 
@@ -351,7 +323,6 @@ Stage 3: Attachment Embeddings     Stage 4: Attachment-Based Advice
 - Strict constraints: "Answer ONLY based on document excerpts"
 - Explicit prohibition of inventing facts
 - Graceful degradation when context is missing
-- Labeled inferences vs. direct quotes
 
 **Cost Efficiency:**
 - ~$0.000002 per decision embedding
@@ -364,90 +335,21 @@ Stage 3: Attachment Embeddings     Stage 4: Attachment-Based Advice
 **Decision-Based Advice:**
 ```bash
 POST /api/advice
+Authorization: Bearer <token>
 {
   "question": "Should I take this new job offer?"
-}
-
-Response:
-{
-  "advice": "Based on your past decisions...",
-  "retrievedDecisions": [
-    {
-      "decisionId": "...",
-      "situation": "Considering a job change",
-      "similarity": 0.85
-    }
-  ],
-  "metadata": {
-    "retrievalType": "decisions",
-    "retrievalCount": 3,
-    "hasContext": true
-  }
 }
 ```
 
 **Attachment-Based Advice:**
 ```bash
 POST /api/advice
+Authorization: Bearer <token>
 {
   "question": "What should I know about the salary in this contract?",
   "relatedAttachmentId": "clxxx..."
 }
-
-Response:
-{
-  "advice": "Based on the document excerpts...",
-  "retrievedChunks": [
-    {
-      "chunkId": "...",
-      "attachmentTitle": "Employment Contract",
-      "content": "The base salary is $120,000...",
-      "similarity": 0.87
-    }
-  ],
-  "metadata": {
-    "retrievalType": "attachment",
-    "attachmentTitle": "Employment Contract",
-    "retrievalCount": 5
-  }
-}
 ```
-
-### Design Decisions
-
-**1. Separate Ingestion and Retrieval**
-- Ingestion runs asynchronously in worker (Stage 1, 3)
-- Retrieval runs synchronously in web server (Stage 2, 4)
-- Prevents blocking user requests during embedding generation
-
-**2. Single Attachment Scope**
-- Retrieve from ONE attachment at a time
-- Simpler mental model for users
-- Easier source attribution
-- Future: Hybrid retrieval across multiple sources
-
-**3. Chunk Order Preservation**
-- Sort retrieved chunks by `chunkIndex` after similarity ranking
-- Maintains document narrative flow
-- Better context for LLM understanding
-
-**4. Lower Threshold for Chunks (0.65 vs 0.70)**
-- Chunks are smaller and more granular than full decisions
-- Better to include borderline chunks than miss context
-- Still high enough to filter noise
-
-**5. Graceful Degradation**
-- Return advice even if no context found
-- Helpful messages: "Document doesn't cover this topic"
-- Better UX than error messages
-
-### Documentation
-
-- **Complete Overview**: `docs/RAG_COMPLETE_OVERVIEW.md`
-- **Stage 1**: `docs/RAG_STAGE_1_DECISION_EMBEDDINGS.md`
-- **Stage 2**: `docs/RAG_STAGE_2_ADVISORY_RETRIEVAL.md`
-- **Stage 3**: `docs/RAG_STAGE_3_ATTACHMENT_INGESTION.md`
-- **Stage 4**: `docs/RAG_STAGE_4_ATTACHMENT_RETRIEVAL.md`
 
 ---
 
@@ -471,90 +373,110 @@ Response:
    pnpm install
    ```
 
-3. **Start infrastructure (PostgreSQL with pgvector + Redis)**
+3. **Set up environment variables**
    ```bash
-   docker-compose up -d
-   ```
-
-   **Note:** The PostgreSQL container uses the `pgvector/pgvector:pg15` image which includes the pgvector extension required for the RAG Advisory System.
-
-4. **Set up environment variables**
-   ```bash
-   # Create .env file in project root
    cp .env.example .env
-
-   # Edit .env with your configuration:
-   # - DATABASE_URL (default: postgresql://app:app@localhost:5432/app)
-   # - REDIS_URL (default: redis://localhost:6379)
-   # - AI_PROVIDER (mock | groq)
-   # - GROQ_API_KEY (only if AI_PROVIDER=groq)
-   # - EMBEDDING_PROVIDER (mock | openai)
-   # - OPENAI_API_KEY (only if EMBEDDING_PROVIDER=openai)
-   # - NEXTAUTH_SECRET (generate with: openssl rand -base64 32)
+   # Edit .env — see Environment Variables section below
    ```
 
-5. **Run database migrations**
+4. **Start all services (Docker Compose)**
    ```bash
-   pnpm prisma migrate dev
+   docker-compose up -d --build
    ```
 
-6. **Start development servers**
-   ```bash
-   # Terminal 1: Web server
-   pnpm dev:web
+   This starts: PostgreSQL, Redis, NestJS API, Next.js web, worker, otel-collector, Prometheus, Grafana.
 
-   # Terminal 2: Worker
-   pnpm dev:worker
+5. **Open the app**
+   ```
+   http://localhost:80       # Web UI
+   http://localhost:4000     # NestJS API
+   http://localhost:3001     # Grafana (admin/admin)
+   http://localhost:9090     # Prometheus
    ```
 
-7. **Open the app**
-   ```
-   http://localhost:3000
-   ```
+### Common Docker Commands
 
-### Development Workflow
+```bash
+docker-compose up -d           # Start all services (detached)
+docker-compose up -d --build   # Rebuild images after code changes
+docker-compose down            # Stop all services
+docker-compose logs -f api     # Tail logs (api | worker | web)
+```
 
-- **Web server** runs on `http://localhost:3000` (Next.js with custom server for Socket.IO)
-- **Worker** runs in background, processing jobs from Redis queue
-- **Hot reload** enabled for both web and worker (tsx watch mode)
-- **Database changes**: Run `pnpm prisma migrate dev` and restart servers
+### Running Tests (without Docker)
+
+```bash
+# API unit tests
+cd apps/api && pnpm test
+
+# API integration tests (Testcontainers — real Postgres + Redis)
+cd apps/api && pnpm test:integration
+
+# Worker tests
+cd apps/worker && pnpm test
+
+# Web unit tests
+cd apps/web && pnpm test
+
+# Web E2E (Playwright)
+cd apps/web && pnpm test:e2e
+```
+
+### Database Migrations
+
+```bash
+cd apps/api && pnpm exec prisma migrate dev   # Create + apply migration (dev)
+pnpm db:migrate                               # Deploy migrations (production)
+pnpm db:generate                              # Regenerate Prisma client
+```
+
+> **Note:** There are two Prisma schemas: `apps/api/prisma/schema.prisma` (used by the API) and `prisma/schema.prisma` (used by the worker). Keep both in sync when making schema changes.
+
+---
+
+## Environment Variables
+
+`.env` lives at the repository root. All services load it from there (web and worker via relative path `../../.env`).
+
+```bash
+# Database
+DATABASE_URL=postgresql://app:app@localhost:5432/app
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# AI Providers
+AI_PROVIDER=mock              # mock (no key needed) | groq
+GROQ_API_KEY=                 # required if AI_PROVIDER=groq
+EMBEDDING_PROVIDER=mock       # mock (no key needed) | openai
+OPENAI_API_KEY=               # required if EMBEDDING_PROVIDER=openai
+
+# Service URLs (overridden in Docker to use container names)
+API_URL=http://localhost:4000  # web → NestJS
+WEB_URL=http://localhost:3000  # NestJS CORS origin
+```
 
 ---
 
 ## Deployment
 
-### Recommended Architecture
+### Architecture
 
-**Web App:** Deploy to Vercel (or any Node.js host)
-- Supports Next.js App Router
-- Handles WebSocket connections (custom server.ts)
-- Requires Redis connection for Socket.IO adapter
+| Service | Platform | Notes |
+|---|---|---|
+| `apps/web` | Vercel or any Node.js host | Custom server.ts — not a standard Next.js deploy |
+| `apps/api` | Railway, Render, Fly.io | Long-running NestJS process |
+| `apps/worker` | Railway, Render, Fly.io | Long-running Node.js process |
+| PostgreSQL | Neon, Supabase, Railway | Must have pgvector extension |
+| Redis | Upstash, Redis Cloud | TLS-enabled for production |
 
-**Worker:** Deploy separately (Railway, Render, DigitalOcean, AWS ECS)
-- Long-running process (not serverless)
-- Needs access to same PostgreSQL and Redis instances
-- Can scale horizontally (multiple worker instances)
+### Production Environment Variables
 
-**Database:** Managed PostgreSQL (Vercel Postgres, Supabase, Neon)
-
-**Redis:** Managed Redis (Upstash, Redis Cloud, AWS ElastiCache)
-
-### Environment Variables (Production)
-
-**Web App:**
-```
+```bash
 DATABASE_URL=<postgres-connection-string>
 REDIS_URL=<redis-connection-string>
-NEXTAUTH_SECRET=<random-secret>
-NEXTAUTH_URL=<production-url>
-AI_PROVIDER=groq
-EMBEDDING_PROVIDER=openai
-```
-
-**Worker:**
-```
-DATABASE_URL=<postgres-connection-string>
-REDIS_URL=<redis-connection-string>
+API_URL=<nestjs-api-url>
+WEB_URL=<web-app-url>
 AI_PROVIDER=groq
 GROQ_API_KEY=<your-api-key>
 EMBEDDING_PROVIDER=openai
@@ -563,30 +485,23 @@ OPENAI_API_KEY=<your-api-key>
 
 ### Build Commands
 
-**Web:**
 ```bash
-pnpm install
-pnpm prisma generate
-cd apps/web && pnpm build
-```
+# API
+cd apps/api && pnpm build
 
-**Worker:**
-```bash
-pnpm install
-pnpm prisma generate
+# Worker
 cd apps/worker && pnpm build
+
+# Web
+cd apps/web && pnpm build
 ```
 
 ### Start Commands
 
-**Web:**
 ```bash
-cd apps/web && pnpm start
-```
-
-**Worker:**
-```bash
+cd apps/api && pnpm start:prod
 cd apps/worker && pnpm start
+cd apps/web && pnpm start
 ```
 
 ---
@@ -600,160 +515,77 @@ cd apps/worker && pnpm start
 
 ### 2. In-Memory Sorting for Complex Cases
 **Current:** "Needs attention" and "most biases" sorts happen in-memory after database fetch.
-**Impact:** Acceptable for user-scoped data (< 100 decisions), not ideal for large datasets.
+**Impact:** Acceptable for user-scoped data (< 100 decisions).
 **Future:** Use raw SQL with custom ORDER BY expressions.
 
 ### 3. Single Redis Instance
 **Current:** Redis used for both BullMQ queue and Socket.IO pub/sub.
 **Impact:** Single point of failure, no high availability.
-**Future:** Use Redis Cluster or separate instances for queue vs pub/sub.
+**Future:** Separate instances for queue vs pub/sub, or Redis Cluster.
 
-### 4. No Real-Time Collaboration
-**Current:** WebSocket updates are user-scoped (user only sees their own decision updates).
-**Impact:** Can't share decisions or see team activity in real-time.
-**Future:** Add room-based WebSocket channels for shared decisions.
-
-### 5. AI Provider Lock-In (Groq)
-**Current:** Only mock and Groq providers implemented.
-**Impact:** Switching to OpenAI/Anthropic requires writing new provider adapter.
-**Future:** Add more providers or use LangChain for abstraction.
-
-### 6. No Rate Limiting
+### 4. No Rate Limiting
 **Current:** No rate limiting on API routes or job enqueuing.
 **Impact:** User could spam decision creation and exhaust API quota.
-**Future:** Add rate limiting middleware (e.g., upstash/ratelimit).
+**Future:** Add rate limiting middleware (e.g., NestJS throttler).
 
-### 7. Basic Error Handling
-**Current:** Failed jobs store error message but don't distinguish error types (timeout vs rate limit vs invalid response).
-**Impact:** User sees generic "Analysis failed" message.
+### 5. Basic Error Handling
+**Current:** Failed jobs store error message but don't distinguish error types.
+**Impact:** User sees a generic error message.
 **Future:** Add error categorization and user-friendly messages.
 
----
+### 6. No Vector Index
+**Current:** Cosine similarity queries use sequential scan.
+**Impact:** Performance degrades linearly with number of embeddings.
+**Future:** Add `IVFFlat` index on embedding columns in Prisma migration.
 
-## How to Discuss This Project in an Interview
+---
 
 ### Key Talking Points
 
 **1. Architecture Decisions**
-- "I separated the AI processing into a worker to avoid blocking HTTP requests. This is critical because AI calls can take 30+ seconds."
+- "I separated the AI processing into a worker to avoid blocking HTTP requests. AI calls can take 30+ seconds, which would timeout any HTTP request."
+- "I added a dedicated NestJS API layer so all business logic, auth, and validation live in one place — the Next.js frontend is purely a thin proxy and UI."
 - "I used Redis Pub/Sub to bridge the worker and web server for real-time updates without polling."
-- "I implemented a complete RAG pipeline with separate ingestion and retrieval stages to optimize for both cost and latency."
+- "I implemented full OpenTelemetry observability: distributed traces across the API and exported metrics to Prometheus/Grafana."
 
 **2. RAG System Design**
 - "I built a 4-stage RAG system: decision embeddings, decision-based advice, attachment chunking, and document-based advice."
 - "I used pgvector for semantic search because it's production-ready, cost-effective, and integrates seamlessly with PostgreSQL."
 - "I implemented anti-hallucination prompting with strict constraints to prevent the LLM from inventing facts not in the document."
-- "I preserve chunk order after retrieval to maintain document narrative flow, which improves LLM understanding."
+- "I use different similarity thresholds for decisions (0.70) vs chunks (0.65) because chunks are smaller and more granular."
 
 **3. Failure Handling**
-- "I made failures explicit with a FAILED state and retry button because AI APIs are unreliable. Silent failures would be a terrible UX."
+- "I made failures explicit with a FAILED state and retry button because AI APIs are unreliable. Silent failures would be terrible UX."
 - "I support multiple analysis runs per decision so users can retry without losing history."
-- "Embedding generation happens asynchronously so failures don't block the user experience."
 
 **4. Performance Optimizations**
-- "I denormalized category and bias data to avoid parsing JSONB in aggregation queries. This made the dashboard 10x faster."
-- "I added IVFFlat indexes on embedding vectors for sub-50ms similarity search even with thousands of embeddings."
-- "I use different similarity thresholds for decisions (0.70) vs chunks (0.65) because chunks are more granular."
+- "I denormalized category and bias data to avoid parsing JSONB in aggregation queries. This makes dashboard queries simpler and faster."
+- "Worker queues have tuned concurrency: 5 for analysis (CPU/API bound), 10 for embeddings (IO bound), 3 for attachment processing."
 
 **5. Real-World Constraints**
-- "I built mock providers for both LLM and embeddings so the app works without API keys in development."
-- "I designed the worker to be horizontally scalable—you can run multiple instances processing the same queue."
-- "I implemented cost controls: max 50 chunks per attachment, which caps embedding costs at $0.0005 per document."
+- "I built mock providers for both LLM and embeddings so the app works without any API keys in development."
+- "I designed the worker to be horizontally scalable — you can run multiple instances processing the same BullMQ queues."
 
 **6. Trade-Offs**
 - "I chose fixed-size chunking over semantic chunking because it's simpler, more predictable, and good enough for most documents."
 - "I scope retrieval to a single attachment at a time for simplicity, but the architecture supports hybrid retrieval in the future."
-- "I chose in-memory sorting for complex cases because the dataset is small (user-scoped). If this were multi-tenant, I'd use raw SQL."
 
 ### Questions You Might Get
 
+**Q: Why a separate NestJS API instead of Next.js API routes?**
+A: Next.js API routes are designed for lightweight BFF logic. Having all business logic, auth guards, validation, and DB access in NestJS gives better separation of concerns, testability (unit + integration tests with Testcontainers), and a clear server-side architecture. The Next.js layer stays as a pure UI host.
+
 **Q: Why not use serverless functions for the worker?**
-A: AI calls take 5-30 seconds, which exceeds most serverless timeouts (10s on Vercel). A long-running worker process is more reliable.
+A: AI calls take 5-30 seconds, which exceeds most serverless timeouts. A long-running worker process with BullMQ also gives us retry logic, job prioritization, and horizontal scaling.
 
 **Q: Why pgvector instead of Pinecone or Weaviate?**
-A: pgvector keeps everything in PostgreSQL, eliminating the need for a separate vector database. It's simpler, cheaper, and performs well for user-scoped queries (< 10K embeddings per user). For multi-tenant scale, I'd consider dedicated vector DBs.
-
-**Q: Why fixed-size chunking instead of semantic chunking?**
-A: Fixed-size chunking is deterministic, fast, and works well for most documents. Semantic chunking adds complexity and cost (LLM calls to determine boundaries) without significant quality improvement for this use case.
+A: pgvector keeps everything in PostgreSQL, eliminating a separate vector database. It's simpler, cheaper, and performs well for user-scoped queries (< 10K embeddings per user). For multi-tenant scale, I'd consider dedicated vector DBs.
 
 **Q: How do you prevent hallucination in document-based advice?**
-A: I use strict prompting constraints: "Answer ONLY based on provided excerpts," "Do NOT invent facts," and "Say so if information is missing." I also include similarity scores in the response for transparency.
+A: Strict prompting constraints: "Answer ONLY based on provided excerpts," "Do NOT invent facts," and "Say so if information is missing." Similarity scores are also included in the response for transparency.
 
 **Q: Why WebSockets instead of polling?**
-A: Polling creates unnecessary database load and has poor UX (1-5 second delay). WebSockets give instant updates with minimal overhead.
-
-**Q: Why Prisma instead of raw SQL?**
-A: Type safety and developer experience. Prisma generates TypeScript types from the schema, preventing runtime errors. For complex queries like vector similarity search, I use raw SQL via `$queryRawUnsafe`.
+A: Polling creates unnecessary load and has 1-5 second delay. WebSockets give instant updates with minimal overhead, and the Redis adapter makes it work across multiple web server instances.
 
 **Q: How would you scale this to 10,000 concurrent users?**
-A: Horizontally scale workers (add more instances), use Redis Cluster for high availability, add database read replicas, implement rate limiting, add pagination, and consider sharding embeddings by userId.
-
-**Q: What would you do differently if you had more time?**
-A: Add hybrid retrieval (combine decisions + attachments), implement re-ranking of chunks, add comprehensive error categorization, implement rate limiting, add unit tests for critical paths, and optimize with materialized views for dashboard queries.
-
----
-
-## Production Deployment
-
-This project is production-ready and can be deployed to:
-- **Web App**: Vercel (Node.js runtime with WebSocket support)
-- **Worker**: Railway, Render, or Fly.io (long-running process)
-- **Database**: Neon, Supabase, or Railway (managed PostgreSQL)
-- **Redis**: Upstash or Redis Cloud (managed Redis with TLS)
-
-### Quick Deploy
-
-**Prerequisites:**
-- Managed PostgreSQL instance
-- Managed Redis instance (TLS-enabled)
-- Vercel account
-- Railway/Render account
-
-**Steps:**
-
-1. **Run Database Migrations**
-   ```bash
-   DATABASE_URL="postgresql://..." pnpm db:migrate
-   ```
-
-2. **Deploy Web App (Vercel)**
-   ```bash
-   cd apps/web
-   vercel --prod
-   ```
-   Set environment variables in Vercel dashboard:
-   - `DATABASE_URL`, `REDIS_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
-
-3. **Deploy Worker (Railway)**
-   ```bash
-   cd apps/worker
-   railway up
-   ```
-   Set environment variables:
-   - `DATABASE_URL`, `REDIS_URL`, `AI_PROVIDER`, `GROQ_API_KEY`
-
-### Build Commands
-
-**Web:**
-```bash
-pnpm install && pnpm build
-```
-
-**Worker:**
-```bash
-cd apps/worker && pnpm install && pnpm build
-```
-
-### Start Commands
-
-**Web:**
-```bash
-pnpm start
-```
-
-**Worker:**
-```bash
-cd apps/worker && pnpm start
-```
-
----
+A: Horizontally scale workers (multiple instances on same BullMQ queue), use Redis Cluster for HA, add DB read replicas, implement rate limiting, add pagination, and consider sharding embeddings by userId for vector queries.

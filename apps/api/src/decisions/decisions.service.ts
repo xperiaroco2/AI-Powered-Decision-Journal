@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   ForbiddenException,
   ConflictException,
@@ -19,6 +20,8 @@ import { CreateDecisionDto } from './dto/create-decision.dto';
  */
 @Injectable()
 export class DecisionsService {
+  private readonly logger = new Logger(DecisionsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly queueService: QueueService,
@@ -115,7 +118,7 @@ export class DecisionsService {
     try {
       await this.queueService.enqueueAnalysisRun(result.run.id);
     } catch (queueError) {
-      console.error('Failed to enqueue run for analysis:', queueError);
+      this.logger.error('Failed to enqueue run for analysis', queueError);
       // Don't fail the request if queueing fails - decision is still created
     }
 
@@ -123,7 +126,7 @@ export class DecisionsService {
     try {
       await this.queueService.enqueueDecisionEmbedding(result.decision.id);
     } catch (queueError) {
-      console.error('Failed to enqueue decision for embedding:', queueError);
+      this.logger.error('Failed to enqueue decision for embedding', queueError);
       // Don't fail the request if queueing fails - embedding is optional
     }
 
@@ -192,7 +195,7 @@ export class DecisionsService {
     try {
       await this.queueService.enqueueAnalysisRun(result.run.id);
     } catch (queueError) {
-      console.error('Failed to enqueue run for analysis:', queueError);
+      this.logger.error('Failed to enqueue run for analysis', queueError);
       throw new Error('Failed to enqueue analysis');
     }
 

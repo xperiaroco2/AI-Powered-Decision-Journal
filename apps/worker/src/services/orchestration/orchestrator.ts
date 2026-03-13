@@ -1,6 +1,11 @@
 import { PrismaClient } from "@prisma/client";
+import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { LLMClient } from "./llm-client";
 import { LangChainLLMClient } from "./langchain-client";
+import { childLogger } from "../../logger";
+
+const log = childLogger('orchestrator');
+const tracer = trace.getTracer('worker');
 import { UserContextManager } from "./user-context";
 import { InputValidator } from "./input-validator";
 import { PromptBuilder } from "./prompts";
@@ -80,7 +85,7 @@ export class DecisionAnalysisOrchestrator {
 
     // Log warnings if any
     if (validationResult.warnings.length > 0) {
-      console.log(`[Orchestrator] Input warnings: ${validationResult.warnings.join(", ")}`);
+      log.info({ warnings: validationResult.warnings }, 'Input warnings');
     }
 
     // Step 1: Load User Context
@@ -95,10 +100,10 @@ export class DecisionAnalysisOrchestrator {
 
     // Choose execution path based on feature flag
     if (this.useLangChain) {
-      console.log(`[Orchestrator] Using LangChain-based workflow for run ${runId}`);
+      log.info({ runId }, 'Using LangChain-based workflow');
       return await this.executeLangChainWorkflow(context);
     } else {
-      console.log(`[Orchestrator] Using legacy Groq SDK workflow for run ${runId}`);
+      log.info({ runId }, 'Using legacy Groq SDK workflow');
       return await this.executeLegacyWorkflow(context);
     }
   }
@@ -123,7 +128,9 @@ export class DecisionAnalysisOrchestrator {
 
     try {
       // Step 2: Initial Analysis using LangChain
-      const initialResult = await this.executeInitialAnalysisLangChain(context);
+      const initialResult = await this.runStep('orchestration.initial-analysis', context.runId, () =>
+        this.executeInitialAnalysisLangChain(context)
+      );
       if (!initialResult.success || !initialResult.data) {
         throw new Error(`Initial analysis failed: ${initialResult.error}`);
       }
@@ -131,7 +138,9 @@ export class DecisionAnalysisOrchestrator {
       totalRetries += initialResult.retryCount;
 
       // Step 3: Reflection using LangChain
-      const reflectionResult = await this.executeReflectionLangChain(context, initialResult.data);
+      const reflectionResult = await this.runStep('orchestration.reflection', context.runId, () =>
+        this.executeReflectionLangChain(context, initialResult.data)
+      );
       if (!reflectionResult.success || !reflectionResult.data) {
         throw new Error(`Reflection failed: ${reflectionResult.error}`);
       }
@@ -139,10 +148,8 @@ export class DecisionAnalysisOrchestrator {
       totalRetries += reflectionResult.retryCount;
 
       // Step 4: Final Synthesis using LangChain
-      const finalResult = await this.executeFinalSynthesisLangChain(
-        context,
-        initialResult.data,
-        reflectionResult.data
+      const finalResult = await this.runStep('orchestration.final-synthesis', context.runId, () =>
+        this.executeFinalSynthesisLangChain(context, initialResult.data, reflectionResult.data)
       );
       if (!finalResult.success || !finalResult.data) {
         throw new Error(`Final synthesis failed: ${finalResult.error}`);
@@ -215,7 +222,9 @@ export class DecisionAnalysisOrchestrator {
 
     try {
       // Step 2: Initial Analysis
-      const initialResult = await this.executeInitialAnalysis(context);
+      const initialResult = await this.runStep('orchestration.initial-analysis', context.runId, () =>
+        this.executeInitialAnalysis(context)
+      );
       if (!initialResult.success || !initialResult.data) {
         throw new Error(`Initial analysis failed: ${initialResult.error}`);
       }
@@ -223,7 +232,9 @@ export class DecisionAnalysisOrchestrator {
       totalRetries += initialResult.retryCount;
 
       // Step 3: Reflection
-      const reflectionResult = await this.executeReflection(context, initialResult.data);
+      const reflectionResult = await this.runStep('orchestration.reflection', context.runId, () =>
+        this.executeReflection(context, initialResult.data)
+      );
       if (!reflectionResult.success || !reflectionResult.data) {
         throw new Error(`Reflection failed: ${reflectionResult.error}`);
       }
@@ -231,10 +242,8 @@ export class DecisionAnalysisOrchestrator {
       totalRetries += reflectionResult.retryCount;
 
       // Step 4: Final Synthesis
-      const finalResult = await this.executeFinalSynthesis(
-        context,
-        initialResult.data,
-        reflectionResult.data
+      const finalResult = await this.runStep('orchestration.final-synthesis', context.runId, () =>
+        this.executeFinalSynthesis(context, initialResult.data, reflectionResult.data)
       );
       if (!finalResult.success || !finalResult.data) {
         throw new Error(`Final synthesis failed: ${finalResult.error}`);
@@ -686,6 +695,38 @@ export class DecisionAnalysisOrchestrator {
   }
 
   /**
+   * Wraps an orchestration step in an OTel span.
+   * Records retry count, duration, and error status from the StepResult.
+   */
+  private async runStep<T>(
+    spanName: string,
+    runId: string,
+    fn: () => Promise<StepResult<T>>,
+  ): Promise<StepResult<T>> {
+    return tracer.startActiveSpan(
+      spanName,
+      { attributes: { 'run.id': runId } },
+      async (span) => {
+        try {
+          const result = await fn();
+          span.setAttribute('llm.retry_count', result.retryCount);
+          span.setAttribute('llm.duration_ms', result.durationMs);
+          if (!result.success) {
+            span.setStatus({ code: SpanStatusCode.ERROR, message: result.error ?? 'step failed' });
+          }
+          return result;
+        } catch (err) {
+          span.recordException(err as Error);
+          span.setStatus({ code: SpanStatusCode.ERROR, message: (err as Error).message });
+          throw err;
+        } finally {
+          span.end();
+        }
+      },
+    );
+  }
+
+  /**
    * Log telemetry event
    */
   private logEvent(event: TelemetryEvent): void {
@@ -696,11 +737,10 @@ export class DecisionAnalysisOrchestrator {
    * Default telemetry logger (console)
    */
   private defaultTelemetryLogger(event: TelemetryEvent): void {
-    const prefix = `[Orchestrator][${event.eventType}]`;
     if (event.eventType === "STEP_ERROR") {
-      console.error(`${prefix} ${event.stepName}: ${event.error}`);
+      log.error({ stepName: event.stepName, err: event.error }, 'Step error');
     } else {
-      console.log(`${prefix} ${event.stepName}`, event.metadata || "");
+      log.info({ eventType: event.eventType, stepName: event.stepName, ...(event.metadata || {}) }, 'Step event');
     }
   }
 }

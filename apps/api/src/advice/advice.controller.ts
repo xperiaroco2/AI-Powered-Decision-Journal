@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Body,
+  Logger,
   UseGuards,
   HttpCode,
   HttpException,
@@ -21,6 +22,8 @@ import {
 @Controller('advice')
 @UseGuards(JwtAuthGuard)
 export class AdviceController {
+  private readonly logger = new Logger(AdviceController.name);
+
   constructor(private advisoryService: AdvisoryService) {}
 
   /**
@@ -32,7 +35,7 @@ export class AdviceController {
     try {
       return await this.advisoryService.getAdvisoryStatus(user.id);
     } catch (error) {
-      console.error('[Advisory API] Error getting status:', error);
+      this.logger.error('Error getting status', error);
 
       throw new HttpException(
         {
@@ -60,8 +63,8 @@ export class AdviceController {
       const retrievalMode = dto.relatedAttachmentId
         ? 'attachment'
         : 'decisions';
-      console.log(
-        `[Advisory API] User ${user.id} asked: "${dto.question.substring(0, 100)}..." (mode: ${retrievalMode})`,
+      this.logger.log(
+        `User ${user.id} asked: "${dto.question.substring(0, 100)}..." (mode: ${retrievalMode})`,
       );
 
       // Generate advice
@@ -81,18 +84,15 @@ export class AdviceController {
           ? response.retrievedChunks?.length || 0
           : response.retrievedDecisions.length;
 
-      console.log(
-        `[Advisory API] ✓ Generated advice for user ${user.id} in ${totalTime}ms (retrieved ${retrievalCount} ${response.metadata.retrievalType})`,
+      this.logger.log(
+        `Generated advice for user ${user.id} in ${totalTime}ms (retrieved ${retrievalCount} ${response.metadata.retrievalType})`,
       );
 
       return response;
     } catch (error) {
       // Handle AdvisoryError with specific error codes
       if (error instanceof AdvisoryError) {
-        console.error(
-          `[Advisory API] AdvisoryError (${error.code}):`,
-          error.message,
-        );
+        this.logger.error(`AdvisoryError (${error.code}): ${error.message}`);
 
         switch (error.code) {
           case AdvisoryErrorCode.INVALID_INPUT:
@@ -119,8 +119,8 @@ export class AdviceController {
           case AdvisoryErrorCode.EMBEDDING_FAILED:
           case AdvisoryErrorCode.RETRIEVAL_FAILED:
             // These are recoverable - we can still provide advice without retrieval
-            console.warn(
-              `[Advisory API] Retrieval failed but continuing: ${error.message}`,
+            this.logger.warn(
+              `Retrieval failed but continuing: ${error.message}`,
             );
             return {
               error:
@@ -148,7 +148,7 @@ export class AdviceController {
       }
 
       // Handle unexpected errors
-      console.error('[Advisory API] Unexpected error:', error);
+      this.logger.error('Unexpected error', error);
 
       throw new HttpException(
         {

@@ -7,9 +7,11 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { DecisionsModule } from './decisions/decisions.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { AdviceModule } from './advice/advice.module';
+import { ObservabilityModule } from './observability/observability.module';
 
 @Module({
   imports: [
+    ObservabilityModule, // ← first: sets up logging, metrics, tracing middleware
     PrismaModule, // Global: Database access
     QueueModule, // Global: BullMQ client
     AuthModule, // JWT validation + registration

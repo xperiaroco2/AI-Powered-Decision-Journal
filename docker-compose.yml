@@ -1,6 +1,73 @@
 version: "3.9"
 
+# ── Observability stack ────────────────────────────────────────────────────────
+# otel-collector  → receives OTLP from api/worker (HTTP :4318, gRPC :4317)
+#                   exports traces to stdout, metrics to Prometheus endpoint :9464
+# prometheus      → scrapes otel-collector:9464 every 15 s
+# grafana         → http://localhost:3001  admin/admin
+#                   auto-provisioned with Prometheus datasource + golden-signals dashboard
+# ──────────────────────────────────────────────────────────────────────────────
+
 services:
+  # ── OTel Collector ──────────────────────────────────────────────────────────
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.119.0
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./docker/otel-collector-config.yaml:/etc/otel/config.yaml:ro
+    ports:
+      - "4317:4317"    # OTLP gRPC
+      - "4318:4318"    # OTLP HTTP
+      - "9464:9464"    # Prometheus scrape endpoint
+      - "13133:13133"  # Health check
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # ── Prometheus ──────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"
+      - "--web.enable-lifecycle"
+    ports:
+      - "9090:9090"
+    depends_on:
+      - otel-collector
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ── Grafana ─────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.5.2
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
   postgres:
     image: pgvector/pgvector:pg15
     env_file: .env
@@ -40,11 +107,20 @@ services:
     environment:
       DATABASE_URL: "postgresql://app:app@postgres:5432/app"
       REDIS_URL: "redis://redis:6379"
+      # ── OpenTelemetry ──────────────────────────────────────────────────
+      OTEL_SERVICE_NAME: "api"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_LOG_LEVEL: "info"
+      OTEL_RESOURCE_ATTRIBUTES: "service.version=0.0.1,deployment.environment=local"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     restart: unless-stopped
     deploy:
       resources:
@@ -55,15 +131,26 @@ services:
     build:
       context: .
       dockerfile: apps/worker/Dockerfile
+    ports:
+      - "9465:9465"    # Prometheus metrics scrape endpoint
     env_file: .env
     environment:
       DATABASE_URL: "postgresql://app:app@postgres:5432/app"
       REDIS_URL: "redis://redis:6379"
+      # ── OpenTelemetry ──────────────────────────────────────────────────
+      OTEL_SERVICE_NAME: "worker"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_LOG_LEVEL: "info"
+      OTEL_RESOURCE_ATTRIBUTES: "service.version=0.0.1,deployment.environment=local"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     restart: unless-stopped
     deploy:
       resources:
@@ -91,3 +178,5 @@ services:
 
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:

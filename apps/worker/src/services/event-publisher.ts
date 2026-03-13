@@ -1,4 +1,7 @@
 import { Redis } from "ioredis";
+import { childLogger } from "../logger";
+
+const log = childLogger("event-publisher");
 
 // Event types
 export interface DecisionUpdateEvent {
@@ -30,7 +33,7 @@ function getPublisher(): Redis {
     }
     publisher = new Redis(redisUrl);
     publisher.on("error", (error) => {
-      console.error("Redis publisher error:", error);
+      log.error({ err: error }, "Redis publisher error");
     });
   }
   return publisher;
@@ -53,9 +56,9 @@ export async function publishRunUpdate(
     const redis = getPublisher();
     await redis.publish(EVENTS_CHANNEL, JSON.stringify(event));
 
-    console.log(`📡 Published event: ${status} for run ${runId} (decision ${decisionId})`);
+    log.info({ decisionId, runId, status }, "Published decision event");
   } catch (error) {
-    console.error("Failed to publish event:", error);
+    log.error({ err: error }, "Failed to publish event");
     // Don't throw - event publishing should not break the main flow
   }
 }
@@ -79,9 +82,9 @@ export async function publishAttachmentUpdate(
     const redis = getPublisher();
     await redis.publish(EVENTS_CHANNEL, JSON.stringify(event));
 
-    console.log(`📡 Published attachment event: ${status} for attachment ${attachmentId} (decision ${decisionId})`);
+    log.info({ attachmentId, decisionId, status }, "Published attachment event");
   } catch (error) {
-    console.error("Failed to publish attachment event:", error);
+    log.error({ err: error }, "Failed to publish attachment event");
     // Don't throw - event publishing should not break the main flow
   }
 }

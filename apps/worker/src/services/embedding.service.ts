@@ -124,6 +124,10 @@ export class MockEmbeddingProvider implements EmbeddingProvider {
   }
 }
 
+import { childLogger } from "../logger";
+
+const log = childLogger('embedding-service');
+
 // Singleton provider instance
 let providerInstance: EmbeddingProvider | null = null;
 
@@ -134,16 +138,14 @@ export function getEmbeddingProvider(): EmbeddingProvider {
   if (!providerInstance) {
     const embeddingProvider = process.env.EMBEDDING_PROVIDER || "mock";
 
-    console.log(`🔢 Embedding Provider: ${embeddingProvider}`);
+    log.info({ embeddingProvider }, 'Embedding Provider');
 
     switch (embeddingProvider) {
       case "openai": {
         const apiKey = process.env.OPENAI_API_KEY;
         if (!apiKey) {
-          console.error(
-            "❌ OPENAI_API_KEY is required when EMBEDDING_PROVIDER=openai"
-          );
-          console.error("Falling back to mock provider");
+          log.error('OPENAI_API_KEY is required when EMBEDDING_PROVIDER=openai');
+          log.error('Falling back to mock provider');
           providerInstance = new MockEmbeddingProvider();
         } else {
           providerInstance = new OpenAIEmbeddingProvider(apiKey);

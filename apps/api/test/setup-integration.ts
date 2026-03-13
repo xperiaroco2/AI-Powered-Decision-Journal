@@ -21,7 +21,9 @@ beforeAll(async () => {
 
   // Log test environment
   console.log('📋 Test Environment Variables:');
-  console.log(`  DATABASE_URL: ${process.env.DATABASE_URL?.replace(/:[^:@]+@/, ':***@')}`);
+  console.log(
+    `  DATABASE_URL: ${process.env.DATABASE_URL?.replace(/:[^:@]+@/, ':***@')}`,
+  );
   console.log(`  REDIS_URL: ${process.env.REDIS_URL}`);
   console.log(`  AI_PROVIDER: ${process.env.AI_PROVIDER}`);
   console.log(`  EMBEDDING_PROVIDER: ${process.env.EMBEDDING_PROVIDER}`);

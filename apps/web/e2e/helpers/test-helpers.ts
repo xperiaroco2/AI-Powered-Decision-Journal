@@ -4,7 +4,7 @@
  * Utility functions for Playwright E2E tests.
  */
 
-import { Page, expect } from '@playwright/test';
+import { Page } from '@playwright/test';
 
 /**
  * Register a new user via the UI

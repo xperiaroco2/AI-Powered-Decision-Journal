@@ -2,13 +2,14 @@ import { Server as SocketIOServer } from "socket.io";
 import { Server as HTTPServer } from "http";
 import { Redis } from "ioredis";
 import { createAdapter } from "@socket.io/redis-adapter";
+import { logger } from "./logger";
 
 // Event types
 export interface DecisionUpdateEvent {
   type: "decision:update";
   decisionId: string;
-  runId: string; // Added runId for multi-run support
-  status: "PROCESSING" | "COMPLETED" | "FAILED"; // Changed DONE to COMPLETED
+  runId: string;
+  status: "PROCESSING" | "COMPLETED" | "FAILED";
 }
 
 export interface AttachmentUpdateEvent {
@@ -30,7 +31,6 @@ export function initSocketServer(httpServer: HTTPServer): SocketIOServer {
     return io;
   }
 
-  // Create Socket.IO server
   io = new SocketIOServer(httpServer, {
     cors: {
       origin: process.env.NEXTAUTH_URL || "http://localhost:3000",
@@ -44,61 +44,59 @@ export function initSocketServer(httpServer: HTTPServer): SocketIOServer {
     throw new Error("REDIS_URL environment variable is not set");
   }
 
-  // Parse URL to check for TLS
   const isTLS = redisUrl.startsWith("rediss://");
   const redisOptions = {
-    // Enable TLS for production Redis (Upstash, Redis Cloud, etc.)
     tls: isTLS ? { rejectUnauthorized: false } : undefined,
   };
 
-  // Create Redis clients for adapter
   const pubClient = new Redis(redisUrl, redisOptions);
   const subClient = pubClient.duplicate();
 
-  // Set up Redis adapter for Socket.IO
   io.adapter(createAdapter(pubClient, subClient));
 
-  // Subscribe to Redis Pub/Sub channel
   const subscriber = new Redis(redisUrl, redisOptions);
-  
+
   subscriber.subscribe(EVENTS_CHANNEL, (err) => {
     if (err) {
-      console.error("Failed to subscribe to Redis channel:", err);
+      logger.error({ err, channel: EVENTS_CHANNEL }, "Failed to subscribe to Redis channel");
     } else {
-      console.log(`✓ Subscribed to Redis channel: ${EVENTS_CHANNEL}`);
+      logger.info({ channel: EVENTS_CHANNEL }, "Subscribed to Redis channel");
     }
   });
 
-  // Handle incoming Redis messages
   subscriber.on("message", (channel, message) => {
     if (channel === EVENTS_CHANNEL) {
       try {
         const event: WebSocketEvent = JSON.parse(message);
 
-        // Emit to all connected clients based on event type
         if (event.type === "decision:update") {
           io?.emit("decision:update", event);
-          console.log(`📤 Broadcasted decision event: ${event.status} for decision ${event.decisionId}`);
+          logger.info(
+            { decisionId: event.decisionId, status: event.status },
+            "Broadcasted decision event"
+          );
         } else if (event.type === "attachment:update") {
           io?.emit("attachment:update", event);
-          console.log(`📤 Broadcasted attachment event: ${event.status} for attachment ${event.attachmentId}`);
+          logger.info(
+            { attachmentId: event.attachmentId, status: event.status },
+            "Broadcasted attachment event"
+          );
         }
       } catch (error) {
-        console.error("Failed to parse Redis message:", error);
+        logger.error({ err: error }, "Failed to parse Redis message");
       }
     }
   });
 
-  // Connection handler
   io.on("connection", (socket) => {
-    console.log(`🔌 Client connected: ${socket.id}`);
+    logger.info({ socketId: socket.id }, "Client connected");
 
     socket.on("disconnect", () => {
-      console.log(`🔌 Client disconnected: ${socket.id}`);
+      logger.info({ socketId: socket.id }, "Client disconnected");
     });
   });
 
-  console.log("✓ Socket.IO server initialized");
+  logger.info("Socket.IO server initialized");
 
   return io;
 }
@@ -106,4 +104,3 @@ export function initSocketServer(httpServer: HTTPServer): SocketIOServer {
 export function getSocketServer(): SocketIOServer | null {
   return io;
 }
-

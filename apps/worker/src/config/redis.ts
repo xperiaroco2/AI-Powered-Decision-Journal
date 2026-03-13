@@ -1,4 +1,7 @@
 import { Redis } from "ioredis";
+import { childLogger } from "../logger";
+
+const log = childLogger("redis");
 
 // Redis connection configuration
 export function createRedisConnection(): Redis {
@@ -19,11 +22,11 @@ export function createRedisConnection(): Redis {
   });
 
   redis.on("error", (error) => {
-    console.error("Redis connection error:", error);
+    log.error({ err: error }, "Redis connection error");
   });
 
   redis.on("connect", () => {
-    console.log("✓ Connected to Redis");
+    log.info("Connected to Redis");
   });
 
   return redis;

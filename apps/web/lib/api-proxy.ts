@@ -89,7 +89,7 @@ export async function proxyPOST(
     if (contentType?.includes('application/json')) {
       try {
         requestBody = await request.json();
-      } catch (error) {
+      } catch (_error) {
         // If JSON parsing fails (empty body), use undefined
         requestBody = undefined;
       }
