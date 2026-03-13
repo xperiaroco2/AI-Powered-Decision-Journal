@@ -6,19 +6,21 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
+import * as bcryptModule from 'bcryptjs';
+
 // Mock bcrypt module
 jest.mock('bcryptjs', () => ({
   hash: jest.fn(),
   compare: jest.fn(),
 }));
 
-// Import bcrypt to access the mocked functions
-const bcrypt = require('bcryptjs');
+const bcrypt = bcryptModule as unknown as {
+  hash: jest.Mock;
+  compare: jest.Mock;
+};
 
 describe('AuthService', () => {
   let service: AuthService;
-  let prismaService: PrismaService;
-  let jwtService: JwtService;
 
   const mockPrismaService = {
     user: {
@@ -48,8 +50,6 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    prismaService = module.get<PrismaService>(PrismaService);
-    jwtService = module.get<JwtService>(JwtService);
 
     // Clear all mocks before each test
     jest.clearAllMocks();

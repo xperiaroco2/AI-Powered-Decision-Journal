@@ -11,6 +11,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import cookieParser from 'cookie-parser';
+import type { Response } from 'supertest';
 
 /**
  * Create a test Prisma client connected to the test database
@@ -114,15 +115,17 @@ export async function createTestApp(): Promise<INestApplication> {
 /**
  * Extract access token from login response
  */
-export function extractAccessToken(response: any): string {
+export function extractAccessToken(response: Response): string {
   return response.body.accessToken;
 }
 
 /**
  * Extract refresh token from cookies
  */
-export function extractRefreshToken(response: any): string {
-  const cookies = response.headers['set-cookie'];
+export function extractRefreshToken(response: Response): string {
+  const cookies = response.headers['set-cookie'] as unknown as
+    | string[]
+    | undefined;
   if (!cookies) {
     throw new Error('No cookies in response');
   }

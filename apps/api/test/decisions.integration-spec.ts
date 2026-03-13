@@ -15,7 +15,6 @@ import {
   createTestUser,
   createTestDecision,
   extractAccessToken,
-  waitFor,
 } from './helpers/test-helpers';
 import * as bcrypt from 'bcryptjs';
 
