@@ -73,7 +73,10 @@ export async function startContainers(): Promise<void> {
 
     // Push Prisma schema to database (no migrations needed)
     console.log('  📦 Pushing Prisma schema to database...');
-    const prismaSchemaPath = path.resolve(__dirname, '../../../prisma/schema.prisma');
+    const prismaSchemaPath = path.resolve(
+      __dirname,
+      '../../../prisma/schema.prisma',
+    );
 
     try {
       execSync(
@@ -149,4 +152,3 @@ export function getPostgresContainer(): StartedPostgreSqlContainer | null {
 export function getRedisContainer(): StartedRedisContainer | null {
   return redisContainer;
 }
-

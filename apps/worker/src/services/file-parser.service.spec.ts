@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * File Parser Service Unit Tests
  *
@@ -56,7 +57,9 @@ describe('File Parser Service', () => {
         },
       };
 
-      (pdf as jest.MockedFunction<typeof pdf>).mockResolvedValue(mockPdfData as any);
+      (pdf as jest.MockedFunction<typeof pdf>).mockResolvedValue(
+        mockPdfData as any,
+      );
 
       const buffer = Buffer.from('fake pdf data');
       const result = await parsePDF(buffer);
@@ -74,7 +77,9 @@ describe('File Parser Service', () => {
 
       const buffer = Buffer.from('invalid pdf');
 
-      await expect(parsePDF(buffer)).rejects.toThrow('Failed to parse PDF: Invalid PDF');
+      await expect(parsePDF(buffer)).rejects.toThrow(
+        'Failed to parse PDF: Invalid PDF',
+      );
     });
   });
 
@@ -122,7 +127,9 @@ describe('File Parser Service', () => {
 
       const buffer = Buffer.from('invalid docx');
 
-      await expect(parseDOCX(buffer)).rejects.toThrow('Failed to parse DOCX: Invalid DOCX');
+      await expect(parseDOCX(buffer)).rejects.toThrow(
+        'Failed to parse DOCX: Invalid DOCX',
+      );
     });
   });
 
@@ -235,4 +242,3 @@ describe('File Parser Service', () => {
     });
   });
 });
-

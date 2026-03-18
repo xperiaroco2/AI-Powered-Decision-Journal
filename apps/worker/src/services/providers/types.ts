@@ -1,18 +1,18 @@
-import { Category } from "@prisma/client";
+import { Category } from '@prisma/client';
 
 // Valid category values from Prisma enum
 export const VALID_CATEGORIES: Category[] = [
-  "CAREER",
-  "FINANCIAL",
-  "RELATIONSHIPS",
-  "HEALTH",
-  "EDUCATION",
-  "BUSINESS",
-  "LIFESTYLE",
-  "ETHICAL",
-  "CREATIVE",
-  "TECHNICAL",
-  "OTHER",
+  'CAREER',
+  'FINANCIAL',
+  'RELATIONSHIPS',
+  'HEALTH',
+  'EDUCATION',
+  'BUSINESS',
+  'LIFESTYLE',
+  'ETHICAL',
+  'CREATIVE',
+  'TECHNICAL',
+  'OTHER',
 ];
 
 // Type definitions for analysis response
@@ -39,4 +39,3 @@ export interface DecisionInput {
 export interface AIProvider {
   analyze(input: DecisionInput): Promise<AnalysisResult>;
 }
-

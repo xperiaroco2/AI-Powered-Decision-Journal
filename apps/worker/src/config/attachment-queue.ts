@@ -1,8 +1,8 @@
-import { Queue, QueueOptions } from "bullmq";
-import { createRedisConnection } from "./redis";
+import { Queue, QueueOptions } from 'bullmq';
+import { createRedisConnection } from './redis';
 
 // Queue name constant
-export const ATTACHMENT_QUEUE_NAME = "attachment-embedding";
+export const ATTACHMENT_QUEUE_NAME = 'attachment-embedding';
 
 // Job data interface
 export interface AttachmentEmbeddingJobData {
@@ -21,7 +21,6 @@ function getQueueOptions(): QueueOptions {
 export function createAttachmentEmbeddingQueue(): Queue<AttachmentEmbeddingJobData> {
   return new Queue<AttachmentEmbeddingJobData>(
     ATTACHMENT_QUEUE_NAME,
-    getQueueOptions()
+    getQueueOptions(),
   );
 }
-

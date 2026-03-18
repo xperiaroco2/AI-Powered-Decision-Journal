@@ -5,7 +5,12 @@
  * Records job counts and processing durations per queue.
  */
 import { createServer } from 'http';
-import { Registry, Counter, Histogram, collectDefaultMetrics } from 'prom-client';
+import {
+  Registry,
+  Counter,
+  Histogram,
+  collectDefaultMetrics,
+} from 'prom-client';
 import { childLogger } from './logger';
 
 const log = childLogger('metrics');
@@ -30,6 +35,7 @@ export const jobDurationSeconds = new Histogram({
 });
 
 export function startMetricsServer(port: number): void {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   const server = createServer(async (req, res) => {
     if (req.url === '/metrics') {
       try {

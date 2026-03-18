@@ -162,10 +162,13 @@ describe('MockProvider', () => {
 
       // Structure should be the same
       expect(Object.keys(result1).sort()).toEqual(Object.keys(result2).sort());
-      expect(result1.cognitiveBiases.length).toBe(result2.cognitiveBiases.length);
-      expect(result1.missedAlternatives.length).toBe(result2.missedAlternatives.length);
+      expect(result1.cognitiveBiases.length).toBe(
+        result2.cognitiveBiases.length,
+      );
+      expect(result1.missedAlternatives.length).toBe(
+        result2.missedAlternatives.length,
+      );
       expect(result1.insights.length).toBe(result2.insights.length);
     }, 10000); // Increase test timeout
   });
 });
-

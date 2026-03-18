@@ -7,7 +7,7 @@
  */
 
 import { PrismaClient, AnalysisRunStatus } from '@prisma/client';
-import { Queue, Worker } from 'bullmq';
+import { Queue } from 'bullmq';
 import { Redis } from 'ioredis';
 
 /**
@@ -166,4 +166,3 @@ export async function waitFor(
 
   throw new Error('Timeout waiting for condition');
 }
-

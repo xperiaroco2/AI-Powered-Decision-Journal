@@ -1,37 +1,36 @@
-import { ChatGroq } from "@langchain/groq";
-import { z } from "zod";
-import { LLMCallConfig, LLMCallResult } from "./types";
-import { childLogger } from "../../logger";
+import { ChatGroq } from '@langchain/groq';
+import { LLMCallConfig, LLMCallResult } from './types';
+import { childLogger } from '../../logger';
 
 const log = childLogger('langchain-client');
 
 /**
  * LangChain-based LLM Client
- * 
+ *
  * This replaces the direct Groq SDK implementation with LangChain abstractions.
- * 
+ *
  * Key LangChain Concepts Used:
- * 
+ *
  * 1. **ChatGroq**: LangChain's wrapper around Groq's API
  *    - Provides consistent interface across different LLM providers
  *    - Built-in retry logic and error handling
  *    - Streaming support (not used here but available)
- * 
+ *
  * 2. **ChatPromptTemplate**: Structured prompt management
  *    - Type-safe prompt construction
  *    - Variable interpolation
  *    - Reusable prompt templates
- * 
+ *
  * 3. **StructuredOutputParser**: Automatic JSON parsing and validation
  *    - Converts Zod schemas to JSON Schema for the LLM
  *    - Validates and parses LLM responses
  *    - Provides format instructions to the LLM
- * 
+ *
  * 4. **RunnableSequence**: Chain multiple operations
  *    - Compose prompt → LLM → parser into a single pipeline
  *    - Type-safe data flow
  *    - Easy to extend with additional steps
- * 
+ *
  * Benefits over direct SDK:
  * - Provider-agnostic (easy to switch from Groq to OpenAI/Anthropic)
  * - Built-in retry and error handling
@@ -43,7 +42,7 @@ const log = childLogger('langchain-client');
 export class LangChainLLMClient {
   private model: ChatGroq;
 
-  constructor(apiKey: string, modelName: string = "llama-3.1-8b-instant") {
+  constructor(apiKey: string, modelName: string = 'llama-3.1-8b-instant') {
     // Initialize ChatGroq with configuration
     this.model = new ChatGroq({
       apiKey,
@@ -56,11 +55,11 @@ export class LangChainLLMClient {
 
   /**
    * Execute LLM call with retry logic
-   * 
+   *
    * This maintains the same interface as the original LLMClient
    * but uses LangChain under the hood.
    */
-  async call<T = any>(config: LLMCallConfig): Promise<LLMCallResult<T>> {
+  async call<T = unknown>(config: LLMCallConfig): Promise<LLMCallResult<T>> {
     const startTime = Date.now();
     let lastError: Error | null = null;
     let retryCount = 0;
@@ -76,8 +75,11 @@ export class LangChainLLMClient {
           if (!validationResult.success) {
             throw new Error(
               `Schema validation failed: ${validationResult.error.issues
-                .map((e: any) => `${e.path.join(".")}: ${e.message}`)
-                .join(", ")}`
+                .map(
+                  (e: { path: Array<string | number>; message: string }) =>
+                    `${e.path.join('.')}: ${e.message}`,
+                )
+                .join(', ')}`,
             );
           }
           result.data = validationResult.data;
@@ -105,7 +107,15 @@ export class LangChainLLMClient {
 
         // Wait before retry (exponential backoff)
         const backoffMs = this.calculateBackoff(attempt);
-        log.info({ attempt: attempt + 1, maxRetries: config.maxRetries, backoffMs, err: lastError.message }, 'Retry');
+        log.info(
+          {
+            attempt: attempt + 1,
+            maxRetries: config.maxRetries,
+            backoffMs,
+            err: lastError.message,
+          },
+          'Retry',
+        );
         await this.sleep(backoffMs);
       }
     }
@@ -113,7 +123,7 @@ export class LangChainLLMClient {
     // All retries failed
     return {
       success: false,
-      error: lastError?.message || "Unknown error",
+      error: lastError?.message || 'Unknown error',
       retryCount,
       durationMs: Date.now() - startTime,
     };
@@ -124,10 +134,13 @@ export class LangChainLLMClient {
    */
   private async executeWithTimeout(
     config: LLMCallConfig,
-    timeoutMs: number
-  ): Promise<{ data: any; rawResponse: string; tokensUsed?: number }> {
+    timeoutMs: number,
+  ): Promise<{ data: unknown; rawResponse: string; tokensUsed?: number }> {
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error(`LLM call timeout after ${timeoutMs}ms`)), timeoutMs);
+      setTimeout(
+        () => reject(new Error(`LLM call timeout after ${timeoutMs}ms`)),
+        timeoutMs,
+      );
     });
 
     const callPromise = this.executeSingleCall(config);
@@ -147,8 +160,8 @@ export class LangChainLLMClient {
    * JSON examples with curly braces {}, which would be interpreted as template variables.
    */
   private async executeSingleCall(
-    config: LLMCallConfig
-  ): Promise<{ data: any; rawResponse: string; tokensUsed?: number }> {
+    config: LLMCallConfig,
+  ): Promise<{ data: unknown; rawResponse: string; tokensUsed?: number }> {
     // Create a ChatGroq instance with specific configuration for this call
     const model = new ChatGroq({
       apiKey: this.model.apiKey,
@@ -156,31 +169,32 @@ export class LangChainLLMClient {
       temperature: config.temperature,
       maxTokens: config.maxTokens,
       timeout: config.timeoutMs,
-      ...(config.responseFormat === "json_object" && {
+      ...(config.responseFormat === 'json_object' && {
         modelKwargs: {
-          response_format: { type: "json_object" },
+          response_format: { type: 'json_object' },
         },
       }),
     });
 
     // Create messages array directly (no template to avoid {} conflicts)
     const messages = [
-      { role: "system" as const, content: config.systemPrompt },
-      { role: "user" as const, content: config.userPrompt },
+      { role: 'system' as const, content: config.systemPrompt },
+      { role: 'user' as const, content: config.userPrompt },
     ];
 
     // Invoke the model directly with messages
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response: any = await model.invoke(messages);
 
     const rawResponse = response.content as string;
 
     if (!rawResponse) {
-      throw new Error("Empty response from LLM");
+      throw new Error('Empty response from LLM');
     }
 
     // Parse JSON if expected
-    let data: any = rawResponse;
-    if (config.responseFormat === "json_object") {
+    let data: unknown = rawResponse;
+    if (config.responseFormat === 'json_object') {
       try {
         data = JSON.parse(rawResponse);
       } catch (error) {
@@ -207,31 +221,39 @@ export class LangChainLLMClient {
 
     // Network errors - retryable
     if (
-      message.includes("timeout") ||
-      message.includes("network") ||
-      message.includes("econnreset") ||
-      message.includes("enotfound")
+      message.includes('timeout') ||
+      message.includes('network') ||
+      message.includes('econnreset') ||
+      message.includes('enotfound')
     ) {
       return true;
     }
 
     // Rate limit errors - retryable
-    if (message.includes("rate limit") || message.includes("429")) {
+    if (message.includes('rate limit') || message.includes('429')) {
       return true;
     }
 
     // Server errors (5xx) - retryable
-    if (message.includes("500") || message.includes("502") || message.includes("503")) {
+    if (
+      message.includes('500') ||
+      message.includes('502') ||
+      message.includes('503')
+    ) {
       return true;
     }
 
     // Validation errors - NOT retryable
-    if (message.includes("validation failed") || message.includes("schema")) {
+    if (message.includes('validation failed') || message.includes('schema')) {
       return false;
     }
 
     // Auth errors - NOT retryable
-    if (message.includes("unauthorized") || message.includes("401") || message.includes("403")) {
+    if (
+      message.includes('unauthorized') ||
+      message.includes('401') ||
+      message.includes('403')
+    ) {
       return false;
     }
 
@@ -265,4 +287,3 @@ export class LangChainLLMClient {
     return this.model;
   }
 }
-

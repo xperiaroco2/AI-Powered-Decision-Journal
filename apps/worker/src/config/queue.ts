@@ -1,8 +1,8 @@
-import { Queue, QueueOptions } from "bullmq";
-import { createRedisConnection } from "./redis";
+import { Queue, QueueOptions } from 'bullmq';
+import { createRedisConnection } from './redis';
 
 // Queue name constant
-export const QUEUE_NAME = "decision-analysis";
+export const QUEUE_NAME = 'decision-analysis';
 
 // Job data interface
 export interface DecisionAnalysisJobData {
@@ -20,4 +20,3 @@ function getQueueOptions(): QueueOptions {
 export function createDecisionAnalysisQueue(): Queue<DecisionAnalysisJobData> {
   return new Queue<DecisionAnalysisJobData>(QUEUE_NAME, getQueueOptions());
 }
-

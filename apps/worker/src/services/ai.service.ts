@@ -1,8 +1,8 @@
-import { PrismaClient } from "@prisma/client";
-import { AIProvider, DecisionInput, AnalysisResult } from "./providers/types";
-import { MockProvider } from "./providers/mock.provider";
-import { GroqProvider } from "./providers/groq.provider";
-import { childLogger } from "../logger";
+import { PrismaClient } from '@prisma/client';
+import { AIProvider, DecisionInput, AnalysisResult } from './providers/types';
+import { MockProvider } from './providers/mock.provider';
+import { GroqProvider } from './providers/groq.provider';
+import { childLogger } from '../logger';
 
 const log = childLogger('ai-service');
 
@@ -16,19 +16,19 @@ const log = childLogger('ai-service');
  * - groq: Production-grade orchestration with multi-step workflow
  */
 
-type ProviderType = "mock" | "groq";
+type ProviderType = 'mock' | 'groq';
 
 const prisma = new PrismaClient();
 
 function getProviderType(): ProviderType {
   const provider = process.env.AI_PROVIDER?.toLowerCase();
 
-  if (provider === "groq") {
-    return "groq";
+  if (provider === 'groq') {
+    return 'groq';
   }
 
   // Default to mock
-  return "mock";
+  return 'mock';
 }
 
 function createProvider(): AIProvider {
@@ -37,7 +37,7 @@ function createProvider(): AIProvider {
   log.info({ providerType }, 'AI Provider');
 
   switch (providerType) {
-    case "groq": {
+    case 'groq': {
       const apiKey = process.env.GROQ_API_KEY;
       if (!apiKey) {
         log.error('GROQ_API_KEY is required when AI_PROVIDER=groq');
@@ -47,7 +47,7 @@ function createProvider(): AIProvider {
       return new GroqProvider(apiKey, prisma);
     }
 
-    case "mock":
+    case 'mock':
     default:
       return new MockProvider();
   }
@@ -66,8 +66,9 @@ export function getAIProvider(): AIProvider {
 /**
  * Analyze a decision using the configured AI provider
  */
-export async function analyzeDecision(input: DecisionInput): Promise<AnalysisResult> {
+export async function analyzeDecision(
+  input: DecisionInput,
+): Promise<AnalysisResult> {
   const provider = getAIProvider();
   return provider.analyze(input);
 }
-

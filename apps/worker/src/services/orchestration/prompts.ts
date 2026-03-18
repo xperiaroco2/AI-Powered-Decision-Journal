@@ -1,9 +1,9 @@
-import { VALID_CATEGORIES } from "../providers/types";
-import { UserContext } from "./types";
+import { VALID_CATEGORIES } from '../providers/types';
+import { UserContext } from './types';
 
 /**
  * Prompt Templates
- * 
+ *
  * Centralized prompt management with clear separation between:
  * - Deterministic steps (low temperature)
  * - Creative steps (higher temperature)
@@ -18,7 +18,7 @@ export class PromptBuilder {
     situation: string,
     decision: string,
     reasoning: string | null,
-    userContext: UserContext | null
+    userContext: UserContext | null,
   ): { system: string; user: string } {
     const system = `You are an expert decision analyst specializing in cognitive bias detection and strategic thinking.
 
@@ -28,7 +28,7 @@ CRITICAL: Respond with ONLY valid JSON. No markdown, no code blocks, no extra te
 
 Required JSON structure:
 {
-  "category": "<one of: ${VALID_CATEGORIES.join(", ")}>",
+  "category": "<one of: ${VALID_CATEGORIES.join(', ')}>",
   "cognitiveBiases": [
     {
       "name": "<bias name>",
@@ -77,9 +77,9 @@ Guidelines:
    * Temperature: 0.7
    */
   buildReflectionPrompt(
-    initialAnalysis: any,
-    situation: string,
-    decision: string
+    initialAnalysis: unknown,
+    _situation: string,
+    decision: string,
   ): { system: string; user: string } {
     const system = `You are a meta-analyst reviewing decision analysis quality.
 
@@ -128,9 +128,9 @@ Guidelines:
     situation: string,
     decision: string,
     reasoning: string | null,
-    initialAnalysis: any,
-    reflection: any,
-    userContext: UserContext | null
+    initialAnalysis: unknown,
+    reflection: unknown,
+    userContext: UserContext | null,
   ): { system: string; user: string } {
     const system = `You are an expert decision analyst producing a final comprehensive analysis.
 
@@ -140,7 +140,7 @@ CRITICAL: Respond with ONLY valid JSON. No markdown, no code blocks, no extra te
 
 Required JSON structure:
 {
-  "category": "<one of: ${VALID_CATEGORIES.join(", ")}>",
+  "category": "<one of: ${VALID_CATEGORIES.join(', ')}>",
   "cognitiveBiases": [
     {
       "name": "<bias name>",
@@ -203,11 +203,11 @@ Guidelines:
     prompt += `- Total decisions analyzed: ${patterns.decisionCount}\n`;
 
     if (patterns.commonCategories.length > 0) {
-      prompt += `- Common decision areas: ${patterns.commonCategories.join(", ")}\n`;
+      prompt += `- Common decision areas: ${patterns.commonCategories.join(', ')}\n`;
     }
 
     if (patterns.frequentBiases.length > 0) {
-      prompt += `- Recurring cognitive biases: ${patterns.frequentBiases.join(", ")}\n`;
+      prompt += `- Recurring cognitive biases: ${patterns.frequentBiases.join(', ')}\n`;
       prompt += `  → Pay special attention to these patterns\n`;
     }
 
@@ -216,7 +216,7 @@ Guidelines:
       recentDecisions.slice(0, 3).forEach((d, i) => {
         prompt += `${i + 1}. ${d.category} decision`;
         if (d.biases.length > 0) {
-          prompt += ` (biases: ${d.biases.slice(0, 2).join(", ")})`;
+          prompt += ` (biases: ${d.biases.slice(0, 2).join(', ')})`;
         }
         prompt += `\n`;
       });
@@ -225,4 +225,3 @@ Guidelines:
     return prompt;
   }
 }
-

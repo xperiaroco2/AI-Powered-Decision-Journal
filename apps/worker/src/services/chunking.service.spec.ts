@@ -11,7 +11,7 @@ import {
   validateAttachmentContent,
   estimateEmbeddingCost,
   getChunkingStats,
-  DEFAULT_CHUNK_CONFIG,
+  DEFAULT_CHUNK_CONFIG as _DEFAULT_CHUNK_CONFIG,
 } from './chunking.service';
 
 describe('Chunking Service', () => {
@@ -195,4 +195,3 @@ describe('Chunking Service', () => {
     });
   });
 });
-

@@ -1,6 +1,6 @@
 /**
  * Embedding Service
- * 
+ *
  * Generates vector embeddings using OpenAI-compatible embedding API.
  * Supports cost tracking and retry logic.
  */
@@ -25,8 +25,8 @@ export interface EmbeddingProvider {
  */
 export class OpenAIEmbeddingProvider implements EmbeddingProvider {
   private apiKey: string;
-  private model = "text-embedding-3-small";
-  private apiUrl = "https://api.openai.com/v1/embeddings";
+  private model = 'text-embedding-3-small';
+  private apiUrl = 'https://api.openai.com/v1/embeddings';
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
@@ -34,43 +34,41 @@ export class OpenAIEmbeddingProvider implements EmbeddingProvider {
 
   async generateEmbedding(text: string): Promise<number[]> {
     if (!text || text.trim().length === 0) {
-      throw new Error("Cannot generate embedding for empty text");
+      throw new Error('Cannot generate embedding for empty text');
     }
 
     try {
       const response = await fetch(this.apiUrl, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
           model: this.model,
           input: text,
-          encoding_format: "float",
+          encoding_format: 'float',
         }),
       });
 
       if (!response.ok) {
         const errorBody = await response.text();
-        throw new Error(
-          `OpenAI API error (${response.status}): ${errorBody}`
-        );
+        throw new Error(`OpenAI API error (${response.status}): ${errorBody}`);
       }
 
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as {
+        data: Array<{ embedding: number[] }>;
+      };
 
       if (!data.data || !data.data[0] || !data.data[0].embedding) {
-        throw new Error("Invalid response format from OpenAI API");
+        throw new Error('Invalid response format from OpenAI API');
       }
 
       const embedding = data.data[0].embedding as number[];
 
       // Validate dimension
       if (embedding.length !== 1536) {
-        throw new Error(
-          `Expected 1536 dimensions, got ${embedding.length}`
-        );
+        throw new Error(`Expected 1536 dimensions, got ${embedding.length}`);
       }
 
       return embedding;
@@ -94,7 +92,7 @@ export class OpenAIEmbeddingProvider implements EmbeddingProvider {
 export class MockEmbeddingProvider implements EmbeddingProvider {
   async generateEmbedding(text: string): Promise<number[]> {
     if (!text || text.trim().length === 0) {
-      throw new Error("Cannot generate embedding for empty text");
+      throw new Error('Cannot generate embedding for empty text');
     }
 
     // Generate deterministic fake embedding based on text hash
@@ -110,7 +108,7 @@ export class MockEmbeddingProvider implements EmbeddingProvider {
   }
 
   getModelName(): string {
-    return "mock-embedding";
+    return 'mock-embedding';
   }
 
   private simpleHash(str: string): number {
@@ -124,7 +122,7 @@ export class MockEmbeddingProvider implements EmbeddingProvider {
   }
 }
 
-import { childLogger } from "../logger";
+import { childLogger } from '../logger';
 
 const log = childLogger('embedding-service');
 
@@ -136,15 +134,17 @@ let providerInstance: EmbeddingProvider | null = null;
  */
 export function getEmbeddingProvider(): EmbeddingProvider {
   if (!providerInstance) {
-    const embeddingProvider = process.env.EMBEDDING_PROVIDER || "mock";
+    const embeddingProvider = process.env.EMBEDDING_PROVIDER || 'mock';
 
     log.info({ embeddingProvider }, 'Embedding Provider');
 
     switch (embeddingProvider) {
-      case "openai": {
+      case 'openai': {
         const apiKey = process.env.OPENAI_API_KEY;
         if (!apiKey) {
-          log.error('OPENAI_API_KEY is required when EMBEDDING_PROVIDER=openai');
+          log.error(
+            'OPENAI_API_KEY is required when EMBEDDING_PROVIDER=openai',
+          );
           log.error('Falling back to mock provider');
           providerInstance = new MockEmbeddingProvider();
         } else {
@@ -153,7 +153,7 @@ export function getEmbeddingProvider(): EmbeddingProvider {
         break;
       }
 
-      case "mock":
+      case 'mock':
       default:
         providerInstance = new MockEmbeddingProvider();
         break;
@@ -189,6 +189,5 @@ export function prepareDecisionTextForEmbedding(decision: {
     parts.push(`Reasoning: ${decision.personalReasoning}`);
   }
 
-  return parts.join("\n\n");
+  return parts.join('\n\n');
 }
-

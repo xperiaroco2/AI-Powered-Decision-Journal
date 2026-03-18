@@ -1,14 +1,14 @@
-import { PrismaClient } from "@prisma/client";
-import { AIProvider, DecisionInput, AnalysisResult } from "./types";
-import { DecisionAnalysisOrchestrator } from "../orchestration/orchestrator";
-import { TelemetryEvent } from "../orchestration/types";
-import { childLogger } from "../../logger";
+import { PrismaClient } from '@prisma/client';
+import { AIProvider, DecisionInput, AnalysisResult } from './types';
+import { DecisionAnalysisOrchestrator } from '../orchestration/orchestrator';
+import { TelemetryEvent } from '../orchestration/types';
+import { childLogger } from '../../logger';
 
 const log = childLogger('groq-provider');
 
 /**
  * Groq AI Provider
- * 
+ *
  * Production-grade orchestration with:
  * - Multi-step LLM workflow (analyze → reflect → synthesize)
  * - Retry logic with exponential backoff
@@ -27,7 +27,7 @@ export class GroqProvider implements AIProvider {
     this.orchestrator = new DecisionAnalysisOrchestrator(
       apiKey,
       prisma,
-      this.telemetryLogger.bind(this)
+      this.telemetryLogger.bind(this),
     );
   }
 
@@ -45,12 +45,16 @@ export class GroqProvider implements AIProvider {
    */
   async analyze(input: DecisionInput): Promise<AnalysisResult> {
     if (!this.userId || !this.runId) {
-      throw new Error("Context not set. Call setContext() before analyze()");
+      throw new Error('Context not set. Call setContext() before analyze()');
     }
 
     try {
       // Execute orchestration
-      const result = await this.orchestrator.execute(input, this.userId, this.runId);
+      const result = await this.orchestrator.execute(
+        input,
+        this.userId,
+        this.runId,
+      );
 
       // Transform orchestration result to AnalysisResult format
       return this.transformResult(result);
@@ -65,22 +69,26 @@ export class GroqProvider implements AIProvider {
   /**
    * Transform orchestration result to AnalysisResult format
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private transformResult(result: any): AnalysisResult {
     const { analysis } = result;
 
     // Transform structured insights back to simple strings for backward compatibility
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const insights = analysis.insights.map((insight: any) => {
       const prefix = this.getInsightPrefix(insight.type);
       return `${prefix}${insight.content}`;
     });
 
     // Transform missed alternatives
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const missedAlternatives = analysis.missedAlternatives.map((alt: any) => {
-      return `${alt.alternative} (Feasibility: ${alt.feasibility || "MEDIUM"})`;
+      return `${alt.alternative} (Feasibility: ${alt.feasibility || 'MEDIUM'})`;
     });
 
     return {
       category: analysis.category,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cognitiveBiases: analysis.cognitiveBiases.map((bias: any) => ({
         name: bias.name,
         description: bias.description,
@@ -96,16 +104,16 @@ export class GroqProvider implements AIProvider {
    */
   private getInsightPrefix(type: string): string {
     switch (type) {
-      case "STRENGTH":
-        return "✓ ";
-      case "WEAKNESS":
-        return "⚠ ";
-      case "RECOMMENDATION":
-        return "→ ";
-      case "RISK":
-        return "⚡ ";
+      case 'STRENGTH':
+        return '✓ ';
+      case 'WEAKNESS':
+        return '⚠ ';
+      case 'RECOMMENDATION':
+        return '→ ';
+      case 'RISK':
+        return '⚡ ';
       default:
-        return "";
+        return '';
     }
   }
 
@@ -113,30 +121,37 @@ export class GroqProvider implements AIProvider {
    * Telemetry logger
    */
   private telemetryLogger(event: TelemetryEvent): void {
-    const base = { runId: event.runId, eventType: event.eventType, stepName: event.stepName };
+    const base = {
+      runId: event.runId,
+      eventType: event.eventType,
+      stepName: event.stepName,
+    };
 
     switch (event.eventType) {
-      case "STEP_START":
+      case 'STEP_START':
         log.info(base, 'Starting step');
         break;
 
-      case "STEP_COMPLETE":
-        log.info({ ...base, durationMs: event.durationMs, ...(event.metadata || {}) }, 'Step completed');
+      case 'STEP_COMPLETE':
+        log.info(
+          { ...base, durationMs: event.durationMs, ...(event.metadata || {}) },
+          'Step completed',
+        );
         break;
 
-      case "STEP_ERROR":
+      case 'STEP_ERROR':
         log.error({ ...base, err: event.error }, 'Error in step');
         break;
 
-      case "LLM_CALL":
+      case 'LLM_CALL':
         log.info({ ...base, ...(event.metadata || {}) }, 'LLM call');
         break;
 
-      case "RETRY":
+      case 'RETRY':
         log.warn({ ...base, ...(event.metadata || {}) }, 'Retry attempt');
         break;
 
-      case "VALIDATION_ERROR":
+      case 'VALIDATION_ERROR':
         log.error({ ...base, err: event.error }, 'Validation error');
         break;
 
@@ -145,5 +160,3 @@ export class GroqProvider implements AIProvider {
     }
   }
 }
-
-

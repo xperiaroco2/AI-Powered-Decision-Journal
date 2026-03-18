@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Attachment Embedding Processor Unit Tests
  *
@@ -16,14 +17,24 @@ jest.mock('@prisma/client', () => {
   return {
     PrismaClient: jest.fn().mockImplementation(() => ({
       attachment: {
-        get findUnique() { return mockFindUnique; },
-        get update() { return mockUpdate; },
+        get findUnique() {
+          return mockFindUnique;
+        },
+        get update() {
+          return mockUpdate;
+        },
       },
       attachmentChunk: {
-        get deleteMany() { return mockDeleteMany; },
-        get create() { return mockCreate; },
+        get deleteMany() {
+          return mockDeleteMany;
+        },
+        get create() {
+          return mockCreate;
+        },
       },
-      get $executeRaw() { return mockExecuteRaw; },
+      get $executeRaw() {
+        return mockExecuteRaw;
+      },
     })),
     Category: {
       CAREER: 'CAREER',
@@ -46,9 +57,11 @@ jest.mock('../services/event-publisher');
 jest.mock('../services/file-parser.service');
 
 import { processAttachmentEmbedding } from './attachment-embedding.processor';
-import { PrismaClient } from '@prisma/client';
 import { getEmbeddingProvider } from '../services/embedding.service';
-import { chunkText, validateAttachmentContent } from '../services/chunking.service';
+import {
+  chunkText,
+  validateAttachmentContent,
+} from '../services/chunking.service';
 import { publishAttachmentUpdate } from '../services/event-publisher';
 import { parseFile, validateParsedText } from '../services/file-parser.service';
 
@@ -130,7 +143,10 @@ describe('Attachment Embedding Processor', () => {
       mockUpdate.mockResolvedValue({} as any);
       mockDeleteMany.mockResolvedValue({ count: 0 });
       mockCreate.mockImplementation((args: any) =>
-        Promise.resolve({ id: `chunk-${args.data.chunkIndex}`, ...args.data } as any),
+        Promise.resolve({
+          id: `chunk-${args.data.chunkIndex}`,
+          ...args.data,
+        } as any),
       );
       (chunkText as jest.Mock).mockReturnValue(mockChunkingResult);
       mockProvider.generateEmbedding.mockResolvedValue(mockEmbedding);
@@ -152,7 +168,9 @@ describe('Attachment Embedding Processor', () => {
       });
 
       // Verify content was validated
-      expect(validateAttachmentContent).toHaveBeenCalledWith(mockAttachment.content);
+      expect(validateAttachmentContent).toHaveBeenCalledWith(
+        mockAttachment.content,
+      );
 
       // Verify status updated to PROCESSING
       expect(mockUpdate).toHaveBeenCalledWith({
@@ -257,7 +275,10 @@ describe('Attachment Embedding Processor', () => {
       await processAttachmentEmbedding(mockJob);
 
       // Verify file was parsed
-      expect(parseFile).toHaveBeenCalledWith(expect.any(Buffer), 'document.pdf');
+      expect(parseFile).toHaveBeenCalledWith(
+        expect.any(Buffer),
+        'document.pdf',
+      );
 
       // Verify parsed text was validated
       expect(validateParsedText).toHaveBeenCalledWith(
@@ -292,7 +313,9 @@ describe('Attachment Embedding Processor', () => {
       mockUpdate.mockResolvedValue({} as any);
       (parseFile as jest.Mock).mockRejectedValue(new Error('Invalid PDF'));
 
-      await expect(processAttachmentEmbedding(mockJob)).rejects.toThrow('Invalid PDF');
+      await expect(processAttachmentEmbedding(mockJob)).rejects.toThrow(
+        'Invalid PDF',
+      );
 
       // Verify status updated to FAILED
       expect(mockUpdate).toHaveBeenCalledWith({
@@ -356,8 +379,20 @@ describe('Attachment Embedding Processor', () => {
 
       const mockChunkingResult = {
         chunks: [
-          { chunkIndex: 0, content: 'Chunk 1', startOffset: 0, endOffset: 7, estimatedTokens: 2 },
-          { chunkIndex: 1, content: 'Chunk 2', startOffset: 8, endOffset: 15, estimatedTokens: 2 },
+          {
+            chunkIndex: 0,
+            content: 'Chunk 1',
+            startOffset: 0,
+            endOffset: 7,
+            estimatedTokens: 2,
+          },
+          {
+            chunkIndex: 1,
+            content: 'Chunk 2',
+            startOffset: 8,
+            endOffset: 15,
+            estimatedTokens: 2,
+          },
         ],
         totalCharacters: 15,
         totalEstimatedTokens: 4,
@@ -370,7 +405,10 @@ describe('Attachment Embedding Processor', () => {
       mockUpdate.mockResolvedValue({} as any);
       mockDeleteMany.mockResolvedValue({ count: 0 });
       mockCreate.mockImplementation((args: any) =>
-        Promise.resolve({ id: `chunk-${args.data.chunkIndex}`, ...args.data } as any),
+        Promise.resolve({
+          id: `chunk-${args.data.chunkIndex}`,
+          ...args.data,
+        } as any),
       );
       (chunkText as jest.Mock).mockReturnValue(mockChunkingResult);
 
@@ -403,4 +441,3 @@ describe('Attachment Embedding Processor', () => {
     });
   });
 });
-

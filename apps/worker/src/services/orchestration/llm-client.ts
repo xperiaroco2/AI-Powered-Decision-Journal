@@ -1,13 +1,12 @@
-import Groq from "groq-sdk";
-import { z } from "zod";
-import { LLMCallConfig, LLMCallResult } from "./types";
-import { childLogger } from "../../logger";
+import Groq from 'groq-sdk';
+import { LLMCallConfig, LLMCallResult } from './types';
+import { childLogger } from '../../logger';
 
 const log = childLogger('llm-client');
 
 /**
  * LLM Client with Retry Logic
- * 
+ *
  * Handles all LLM API calls with:
  * - Exponential backoff retry
  * - Structured output validation
@@ -25,7 +24,7 @@ export class LLMClient {
   /**
    * Execute LLM call with retry logic
    */
-  async call<T = any>(config: LLMCallConfig): Promise<LLMCallResult<T>> {
+  async call<T = unknown>(config: LLMCallConfig): Promise<LLMCallResult<T>> {
     const startTime = Date.now();
     let lastError: Error | null = null;
     let retryCount = 0;
@@ -41,8 +40,11 @@ export class LLMClient {
           if (!validationResult.success) {
             throw new Error(
               `Schema validation failed: ${validationResult.error.issues
-                .map((e: any) => `${e.path.join(".")}: ${e.message}`)
-                .join(", ")}`
+                .map(
+                  (e: { path: Array<string | number>; message: string }) =>
+                    `${e.path.join('.')}: ${e.message}`,
+                )
+                .join(', ')}`,
             );
           }
           result.data = validationResult.data;
@@ -70,7 +72,15 @@ export class LLMClient {
 
         // Wait before retry (exponential backoff)
         const backoffMs = this.calculateBackoff(attempt);
-        log.info({ attempt: attempt + 1, maxRetries: config.maxRetries, backoffMs, err: lastError.message }, 'Retry');
+        log.info(
+          {
+            attempt: attempt + 1,
+            maxRetries: config.maxRetries,
+            backoffMs,
+            err: lastError.message,
+          },
+          'Retry',
+        );
         await this.sleep(backoffMs);
       }
     }
@@ -78,7 +88,7 @@ export class LLMClient {
     // All retries failed
     return {
       success: false,
-      error: lastError?.message || "Unknown error",
+      error: lastError?.message || 'Unknown error',
       retryCount,
       durationMs: Date.now() - startTime,
     };
@@ -89,10 +99,13 @@ export class LLMClient {
    */
   private async executeWithTimeout(
     config: LLMCallConfig,
-    timeoutMs: number
-  ): Promise<{ data: any; rawResponse: string; tokensUsed?: number }> {
+    timeoutMs: number,
+  ): Promise<{ data: unknown; rawResponse: string; tokensUsed?: number }> {
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error(`LLM call timeout after ${timeoutMs}ms`)), timeoutMs);
+      setTimeout(
+        () => reject(new Error(`LLM call timeout after ${timeoutMs}ms`)),
+        timeoutMs,
+      );
     });
 
     const callPromise = this.executeSingleCall(config);
@@ -104,28 +117,31 @@ export class LLMClient {
    * Execute single LLM API call
    */
   private async executeSingleCall(
-    config: LLMCallConfig
-  ): Promise<{ data: any; rawResponse: string; tokensUsed?: number }> {
+    config: LLMCallConfig,
+  ): Promise<{ data: unknown; rawResponse: string; tokensUsed?: number }> {
     const completion = await this.client.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+      model: 'llama-3.1-8b-instant',
       messages: [
-        { role: "system", content: config.systemPrompt },
-        { role: "user", content: config.userPrompt },
+        { role: 'system', content: config.systemPrompt },
+        { role: 'user', content: config.userPrompt },
       ],
       temperature: config.temperature,
       max_tokens: config.maxTokens,
-      response_format: config.responseFormat === "json_object" ? { type: "json_object" } : undefined,
+      response_format:
+        config.responseFormat === 'json_object'
+          ? { type: 'json_object' }
+          : undefined,
     });
 
     const rawResponse = completion.choices[0]?.message?.content;
 
     if (!rawResponse) {
-      throw new Error("Empty response from LLM");
+      throw new Error('Empty response from LLM');
     }
 
     // Parse JSON if expected
-    let data: any = rawResponse;
-    if (config.responseFormat === "json_object") {
+    let data: unknown = rawResponse;
+    if (config.responseFormat === 'json_object') {
       try {
         data = JSON.parse(rawResponse);
       } catch (error) {
@@ -148,31 +164,39 @@ export class LLMClient {
 
     // Network errors - retryable
     if (
-      message.includes("timeout") ||
-      message.includes("network") ||
-      message.includes("econnreset") ||
-      message.includes("enotfound")
+      message.includes('timeout') ||
+      message.includes('network') ||
+      message.includes('econnreset') ||
+      message.includes('enotfound')
     ) {
       return true;
     }
 
     // Rate limit errors - retryable
-    if (message.includes("rate limit") || message.includes("429")) {
+    if (message.includes('rate limit') || message.includes('429')) {
       return true;
     }
 
     // Server errors (5xx) - retryable
-    if (message.includes("500") || message.includes("502") || message.includes("503")) {
+    if (
+      message.includes('500') ||
+      message.includes('502') ||
+      message.includes('503')
+    ) {
       return true;
     }
 
     // Validation errors - NOT retryable
-    if (message.includes("validation failed") || message.includes("schema")) {
+    if (message.includes('validation failed') || message.includes('schema')) {
       return false;
     }
 
     // Auth errors - NOT retryable
-    if (message.includes("unauthorized") || message.includes("401") || message.includes("403")) {
+    if (
+      message.includes('unauthorized') ||
+      message.includes('401') ||
+      message.includes('403')
+    ) {
       return false;
     }
 
@@ -203,4 +227,3 @@ export class LLMClient {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
-

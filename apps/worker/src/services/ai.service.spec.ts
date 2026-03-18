@@ -1,11 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * AI Service Unit Tests
  *
  * Tests the AI provider factory and singleton pattern.
  */
-
-import { MockProvider } from './providers/mock.provider';
-import { GroqProvider } from './providers/groq.provider';
 
 // Mock the providers
 jest.mock('./providers/mock.provider');
@@ -14,7 +12,7 @@ jest.mock('./providers/groq.provider');
 describe('AI Service', () => {
   let originalEnv: NodeJS.ProcessEnv;
   let getAIProvider: any;
-  let analyzeDecision: any;
+  let _analyzeDecision: any;
 
   beforeEach(async () => {
     // Save original environment
@@ -29,7 +27,7 @@ describe('AI Service', () => {
     // Dynamically import the module to get fresh instance
     const aiService = await import('./ai.service');
     getAIProvider = aiService.getAIProvider;
-    analyzeDecision = aiService.analyzeDecision;
+    _analyzeDecision = aiService.analyzeDecision;
   });
 
   afterEach(() => {
@@ -113,11 +111,17 @@ describe('AI Service', () => {
       jest.resetModules();
 
       // Mock the MockProvider constructor AFTER resetting modules
-      const { MockProvider: MockProviderFresh } = await import('./providers/mock.provider');
-      (MockProviderFresh as jest.MockedClass<typeof MockProviderFresh>).mockImplementation(() => ({
-        analyze: mockAnalyze,
-        setContext: jest.fn(),
-      } as any));
+      const { MockProvider: MockProviderFresh } =
+        await import('./providers/mock.provider');
+      (
+        MockProviderFresh as jest.MockedClass<typeof MockProviderFresh>
+      ).mockImplementation(
+        () =>
+          ({
+            analyze: mockAnalyze,
+            setContext: jest.fn(),
+          }) as any,
+      );
 
       const aiService = await import('./ai.service');
       const analyzeDecisionFresh = aiService.analyzeDecision;
@@ -150,11 +154,17 @@ describe('AI Service', () => {
       jest.resetModules();
 
       // Mock the MockProvider constructor AFTER resetting modules
-      const { MockProvider: MockProviderFresh } = await import('./providers/mock.provider');
-      (MockProviderFresh as jest.MockedClass<typeof MockProviderFresh>).mockImplementation(() => ({
-        analyze: mockAnalyze,
-        setContext: jest.fn(),
-      } as any));
+      const { MockProvider: MockProviderFresh } =
+        await import('./providers/mock.provider');
+      (
+        MockProviderFresh as jest.MockedClass<typeof MockProviderFresh>
+      ).mockImplementation(
+        () =>
+          ({
+            analyze: mockAnalyze,
+            setContext: jest.fn(),
+          }) as any,
+      );
 
       const aiService = await import('./ai.service');
       const analyzeDecisionFresh = aiService.analyzeDecision;
@@ -171,4 +181,3 @@ describe('AI Service', () => {
     });
   });
 });
-

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Decision Analysis Processor Unit Tests
  *
@@ -14,11 +15,17 @@ jest.mock('@prisma/client', () => {
   return {
     PrismaClient: jest.fn().mockImplementation(() => ({
       decisionAnalysisRun: {
-        get findUnique() { return mockFindUnique; },
-        get update() { return mockUpdateRun; },
+        get findUnique() {
+          return mockFindUnique;
+        },
+        get update() {
+          return mockUpdateRun;
+        },
       },
       decision: {
-        get update() { return mockUpdateDecision; },
+        get update() {
+          return mockUpdateDecision;
+        },
       },
     })),
     Category: {
@@ -41,7 +48,6 @@ jest.mock('../services/event-publisher');
 jest.mock('../services/providers/groq.provider');
 
 import { processDecisionAnalysis } from './decision-analysis.processor';
-import { PrismaClient } from '@prisma/client';
 import { getAIProvider } from '../services/ai.service';
 import { publishRunUpdate } from '../services/event-publisher';
 import { GroqProvider } from '../services/providers/groq.provider';
@@ -211,7 +217,10 @@ describe('Decision Analysis Processor', () => {
 
       await processDecisionAnalysis(mockJob);
 
-      expect(mockProvider.setContext).toHaveBeenCalledWith('user-123', 'run-456');
+      expect(mockProvider.setContext).toHaveBeenCalledWith(
+        'user-123',
+        'run-456',
+      );
     });
   });
 
@@ -243,7 +252,9 @@ describe('Decision Analysis Processor', () => {
       mockUpdateDecision.mockResolvedValue({} as any);
       mockProvider.analyze.mockRejectedValue(new Error('AI API error'));
 
-      await expect(processDecisionAnalysis(mockJob)).rejects.toThrow('AI API error');
+      await expect(processDecisionAnalysis(mockJob)).rejects.toThrow(
+        'AI API error',
+      );
 
       // Verify run status updated to FAILED
       expect(mockUpdateRun).toHaveBeenCalledWith({
@@ -273,4 +284,3 @@ describe('Decision Analysis Processor', () => {
     });
   });
 });
-

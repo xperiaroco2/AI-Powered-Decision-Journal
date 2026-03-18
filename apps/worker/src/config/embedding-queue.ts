@@ -1,8 +1,8 @@
-import { Queue, QueueOptions } from "bullmq";
-import { createRedisConnection } from "./redis";
+import { Queue, QueueOptions } from 'bullmq';
+import { createRedisConnection } from './redis';
 
 // Queue name constant
-export const EMBEDDING_QUEUE_NAME = "decision-embedding";
+export const EMBEDDING_QUEUE_NAME = 'decision-embedding';
 
 // Job data interface
 export interface DecisionEmbeddingJobData {
@@ -18,6 +18,8 @@ function getQueueOptions(): QueueOptions {
 
 // Create and export the queue
 export function createDecisionEmbeddingQueue(): Queue<DecisionEmbeddingJobData> {
-  return new Queue<DecisionEmbeddingJobData>(EMBEDDING_QUEUE_NAME, getQueueOptions());
+  return new Queue<DecisionEmbeddingJobData>(
+    EMBEDDING_QUEUE_NAME,
+    getQueueOptions(),
+  );
 }
-

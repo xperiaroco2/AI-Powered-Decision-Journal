@@ -1,26 +1,26 @@
-import { Redis } from "ioredis";
-import { childLogger } from "../logger";
+import { Redis } from 'ioredis';
+import { childLogger } from '../logger';
 
-const log = childLogger("event-publisher");
+const log = childLogger('event-publisher');
 
 // Event types
 export interface DecisionUpdateEvent {
-  type: "decision:update";
+  type: 'decision:update';
   decisionId: string;
   runId: string; // Added runId for multi-run support
-  status: "PROCESSING" | "COMPLETED" | "FAILED"; // Changed DONE to COMPLETED to match AnalysisRunStatus
+  status: 'PROCESSING' | 'COMPLETED' | 'FAILED'; // Changed DONE to COMPLETED to match AnalysisRunStatus
 }
 
 export interface AttachmentUpdateEvent {
-  type: "attachment:update";
+  type: 'attachment:update';
   attachmentId: string;
   decisionId: string;
-  status: "PENDING" | "PROCESSING" | "READY" | "FAILED";
+  status: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED';
   error?: string;
 }
 
 // Redis Pub/Sub channel
-const EVENTS_CHANNEL = "decision-events";
+const EVENTS_CHANNEL = 'decision-events';
 
 // Singleton Redis publisher
 let publisher: Redis | null = null;
@@ -29,11 +29,11 @@ function getPublisher(): Redis {
   if (!publisher) {
     const redisUrl = process.env.REDIS_URL;
     if (!redisUrl) {
-      throw new Error("REDIS_URL environment variable is not set");
+      throw new Error('REDIS_URL environment variable is not set');
     }
     publisher = new Redis(redisUrl);
-    publisher.on("error", (error) => {
-      log.error({ err: error }, "Redis publisher error");
+    publisher.on('error', (error) => {
+      log.error({ err: error }, 'Redis publisher error');
     });
   }
   return publisher;
@@ -43,11 +43,11 @@ function getPublisher(): Redis {
 export async function publishRunUpdate(
   decisionId: string,
   runId: string,
-  status: "PROCESSING" | "COMPLETED" | "FAILED"
+  status: 'PROCESSING' | 'COMPLETED' | 'FAILED',
 ): Promise<void> {
   try {
     const event: DecisionUpdateEvent = {
-      type: "decision:update",
+      type: 'decision:update',
       decisionId,
       runId,
       status,
@@ -56,9 +56,9 @@ export async function publishRunUpdate(
     const redis = getPublisher();
     await redis.publish(EVENTS_CHANNEL, JSON.stringify(event));
 
-    log.info({ decisionId, runId, status }, "Published decision event");
+    log.info({ decisionId, runId, status }, 'Published decision event');
   } catch (error) {
-    log.error({ err: error }, "Failed to publish event");
+    log.error({ err: error }, 'Failed to publish event');
     // Don't throw - event publishing should not break the main flow
   }
 }
@@ -67,12 +67,12 @@ export async function publishRunUpdate(
 export async function publishAttachmentUpdate(
   attachmentId: string,
   decisionId: string,
-  status: "PENDING" | "PROCESSING" | "READY" | "FAILED",
-  error?: string
+  status: 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED',
+  error?: string,
 ): Promise<void> {
   try {
     const event: AttachmentUpdateEvent = {
-      type: "attachment:update",
+      type: 'attachment:update',
       attachmentId,
       decisionId,
       status,
@@ -82,13 +82,15 @@ export async function publishAttachmentUpdate(
     const redis = getPublisher();
     await redis.publish(EVENTS_CHANNEL, JSON.stringify(event));
 
-    log.info({ attachmentId, decisionId, status }, "Published attachment event");
+    log.info(
+      { attachmentId, decisionId, status },
+      'Published attachment event',
+    );
   } catch (error) {
-    log.error({ err: error }, "Failed to publish attachment event");
+    log.error({ err: error }, 'Failed to publish attachment event');
     // Don't throw - event publishing should not break the main flow
   }
 }
 
 // Export channel name for subscribers
 export { EVENTS_CHANNEL };
-

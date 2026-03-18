@@ -1,14 +1,14 @@
-import { Job } from "bullmq";
-import { PrismaClient } from "@prisma/client";
-import { context, trace, SpanStatusCode } from "@opentelemetry/api";
-import { DecisionEmbeddingJobData } from "../config/embedding-queue";
+import { Job } from 'bullmq';
+import { PrismaClient } from '@prisma/client';
+import { context, trace, SpanStatusCode } from '@opentelemetry/api';
+import { DecisionEmbeddingJobData } from '../config/embedding-queue';
 import {
   getEmbeddingProvider,
   prepareDecisionTextForEmbedding,
-} from "../services/embedding.service";
-import { childLogger } from "../logger";
-import { extractTraceContext } from "../trace-context.helper";
-import { jobsTotal, jobDurationSeconds } from "../metrics";
+} from '../services/embedding.service';
+import { childLogger } from '../logger';
+import { extractTraceContext } from '../trace-context.helper';
+import { jobsTotal, jobDurationSeconds } from '../metrics';
 
 const log = childLogger('embedding-processor');
 const tracer = trace.getTracer('worker');
@@ -26,19 +26,23 @@ const prisma = new Proxy({} as PrismaClient, {
     if (!_prismaClient) {
       _prismaClient = new PrismaClient();
     }
-    const value = (_prismaClient as any)[prop];
+    const value = (
+      _prismaClient as unknown as Record<string | symbol, unknown>
+    )[prop];
     return typeof value === 'function' ? value.bind(_prismaClient) : value;
   },
 });
 
 export async function processDecisionEmbedding(
-  job: Job<DecisionEmbeddingJobData>
+  job: Job<DecisionEmbeddingJobData>,
 ): Promise<void> {
   const { decisionId } = job.data;
   const QUEUE = 'decision-embedding';
   const jobStartMs = Date.now();
 
-  const parentCtx = extractTraceContext(job.data as unknown as Record<string, unknown>);
+  const parentCtx = extractTraceContext(
+    job.data as unknown as Record<string, unknown>,
+  );
 
   return context.with(parentCtx, () =>
     tracer.startActiveSpan(
@@ -69,10 +73,15 @@ export async function processDecisionEmbedding(
           const text = prepareDecisionTextForEmbedding(decision);
 
           if (!text || text.trim().length === 0) {
-            throw new Error("Cannot generate embedding for empty decision text");
+            throw new Error(
+              'Cannot generate embedding for empty decision text',
+            );
           }
 
-          log.info({ jobId: job.id, textLength: text.length }, 'Text prepared, generating embedding');
+          log.info(
+            { jobId: job.id, textLength: text.length },
+            'Text prepared, generating embedding',
+          );
 
           // 3. Generate embedding
           const provider = getEmbeddingProvider();
@@ -92,7 +101,10 @@ export async function processDecisionEmbedding(
                 return vec;
               } catch (err) {
                 embSpan.recordException(err as Error);
-                embSpan.setStatus({ code: SpanStatusCode.ERROR, message: (err as Error).message });
+                embSpan.setStatus({
+                  code: SpanStatusCode.ERROR,
+                  message: (err as Error).message,
+                });
                 throw err;
               } finally {
                 embSpan.end();
@@ -100,7 +112,10 @@ export async function processDecisionEmbedding(
             },
           );
 
-          log.info({ jobId: job.id, dimensions: embeddingVector.length }, 'Embedding generated');
+          log.info(
+            { jobId: job.id, dimensions: embeddingVector.length },
+            'Embedding generated',
+          );
 
           // 4. Store DecisionEmbedding record (idempotent)
           const existingEmbedding = await prisma.decisionEmbedding.findUnique({
@@ -126,7 +141,10 @@ export async function processDecisionEmbedding(
           log.info({ jobId: job.id }, 'Decision embedding stored successfully');
 
           jobsTotal.inc({ queue: QUEUE, status: 'success' });
-          jobDurationSeconds.observe({ queue: QUEUE }, (Date.now() - jobStartMs) / 1000);
+          jobDurationSeconds.observe(
+            { queue: QUEUE },
+            (Date.now() - jobStartMs) / 1000,
+          );
         } catch (error) {
           span.recordException(error as Error);
           span.setStatus({
@@ -135,19 +153,24 @@ export async function processDecisionEmbedding(
           });
 
           jobsTotal.inc({ queue: QUEUE, status: 'failed' });
-          jobDurationSeconds.observe({ queue: QUEUE }, (Date.now() - jobStartMs) / 1000);
+          jobDurationSeconds.observe(
+            { queue: QUEUE },
+            (Date.now() - jobStartMs) / 1000,
+          );
 
           log.error({ jobId: job.id, err: error }, 'Error');
 
           const errorMessage =
             error instanceof Error
               ? error.message
-              : "Unknown error occurred during embedding generation";
+              : 'Unknown error occurred during embedding generation';
 
           try {
-            const existingEmbedding = await prisma.decisionEmbedding.findUnique({
-              where: { decisionId },
-            });
+            const existingEmbedding = await prisma.decisionEmbedding.findUnique(
+              {
+                where: { decisionId },
+              },
+            );
 
             if (existingEmbedding) {
               await prisma.$executeRaw`
@@ -165,16 +188,22 @@ export async function processDecisionEmbedding(
               `;
             }
 
-            log.info({ jobId: job.id, errorMessage }, 'DecisionEmbedding status updated to FAILED');
+            log.info(
+              { jobId: job.id, errorMessage },
+              'DecisionEmbedding status updated to FAILED',
+            );
           } catch (dbError) {
-            log.error({ jobId: job.id, err: dbError }, 'Failed to update DecisionEmbedding status');
+            log.error(
+              { jobId: job.id, err: dbError },
+              'Failed to update DecisionEmbedding status',
+            );
           }
 
           throw error;
         } finally {
           span.end();
         }
-      }
-    )
+      },
+    ),
   );
 }

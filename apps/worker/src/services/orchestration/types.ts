@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { Category } from "@prisma/client";
+import { z } from 'zod';
+import { Category } from '@prisma/client';
 
 // ============================================================================
 // Zod Schemas for Structured Output Enforcement
@@ -8,19 +8,19 @@ import { Category } from "@prisma/client";
 export const CognitiveBiasSchema = z.object({
   name: z.string().min(3).max(100),
   description: z.string().min(10).max(500),
-  severity: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
+  severity: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
 });
 
 export const MissedAlternativeSchema = z.object({
   alternative: z.string().min(10).max(300),
   reasoning: z.string().min(10).max(500),
-  feasibility: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
+  feasibility: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
 });
 
 export const InsightSchema = z.object({
-  type: z.enum(["STRENGTH", "WEAKNESS", "RECOMMENDATION", "RISK"]),
+  type: z.enum(['STRENGTH', 'WEAKNESS', 'RECOMMENDATION', 'RISK']),
   content: z.string().min(10).max(500),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
 });
 
 // Step 1: Initial Analysis Output
@@ -33,7 +33,7 @@ export const InitialAnalysisSchema = z.object({
 
 // Step 2: Reflection Output
 export const ReflectionSchema = z.object({
-  analysisQuality: z.enum(["POOR", "FAIR", "GOOD", "EXCELLENT"]),
+  analysisQuality: z.enum(['POOR', 'FAIR', 'GOOD', 'EXCELLENT']),
   missingPerspectives: z.array(z.string()).max(3),
   additionalBiases: z.array(CognitiveBiasSchema).max(3),
   refinementSuggestions: z.array(z.string()).max(3),
@@ -107,9 +107,9 @@ export interface OrchestrationResult {
     userContextUsed: boolean;
   };
   rawOutputs: {
-    initial?: any;
-    reflection?: any;
-    final?: any;
+    initial?: unknown;
+    reflection?: unknown;
+    final?: unknown;
   };
 }
 
@@ -120,7 +120,7 @@ export interface OrchestrationResult {
 export interface LLMCallConfig {
   temperature: number;
   maxTokens: number;
-  responseFormat: "json_object" | "text";
+  responseFormat: 'json_object' | 'text';
   systemPrompt: string;
   userPrompt: string;
   schema?: z.ZodSchema;
@@ -129,7 +129,7 @@ export interface LLMCallConfig {
   timeoutMs: number;
 }
 
-export interface LLMCallResult<T = any> {
+export interface LLMCallResult<T = unknown> {
   success: boolean;
   data?: T;
   rawResponse?: string;
@@ -146,12 +146,17 @@ export interface LLMCallResult<T = any> {
 export interface TelemetryEvent {
   timestamp: Date;
   runId: string;
-  eventType: "STEP_START" | "STEP_COMPLETE" | "STEP_ERROR" | "LLM_CALL" | "RETRY" | "VALIDATION_ERROR";
+  eventType:
+    | 'STEP_START'
+    | 'STEP_COMPLETE'
+    | 'STEP_ERROR'
+    | 'LLM_CALL'
+    | 'RETRY'
+    | 'VALIDATION_ERROR';
   stepName?: string;
   durationMs?: number;
   error?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export type TelemetryLogger = (event: TelemetryEvent) => void;
-

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Decision Analysis Integration Tests
  *
@@ -143,7 +144,7 @@ describe('Decision Analysis Integration', () => {
         passwordHash: 'hash',
       });
 
-      const decision = await createTestDecision(prisma, {
+      const _decision = await createTestDecision(prisma, {
         userId: user.id,
         situation: 'Test',
         chosenDecision: 'Test',
@@ -236,4 +237,3 @@ describe('Decision Analysis Integration', () => {
     }, 15000);
   });
 });
-

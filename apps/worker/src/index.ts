@@ -1,35 +1,31 @@
-import { config } from "dotenv";
-import { resolve } from "path";
+import { config } from 'dotenv';
+import { resolve } from 'path';
 
 // Load .env from repository root (two levels up from src/)
-config({ path: resolve(__dirname, "../../../.env") });
+config({ path: resolve(__dirname, '../../../.env') });
 
 // OTel SDK must start after env vars are loaded but before any instrumented modules
 // are first used. OTEL_* env vars come from Docker/system env, not .env.
-import { shutdownOtel } from "./otel";
+import { shutdownOtel } from './otel';
 
-import { Worker } from "bullmq";
-import { createRedisConnection } from "./config/redis";
-import { QUEUE_NAME, DecisionAnalysisJobData } from "./config/queue";
+import { Worker } from 'bullmq';
+import { createRedisConnection } from './config/redis';
+import { QUEUE_NAME, DecisionAnalysisJobData } from './config/queue';
 import {
   EMBEDDING_QUEUE_NAME,
   DecisionEmbeddingJobData,
-} from "./config/embedding-queue";
+} from './config/embedding-queue';
 import {
   ATTACHMENT_QUEUE_NAME,
   AttachmentEmbeddingJobData,
-} from "./config/attachment-queue";
-import { processDecisionAnalysis } from "./processors/decision-analysis.processor";
-import { processDecisionEmbedding } from "./processors/decision-embedding.processor";
-import { processAttachmentEmbedding } from "./processors/attachment-embedding.processor";
-import { getAIProvider } from "./services/ai.service";
-import { getEmbeddingProvider } from "./services/embedding.service";
-import { logger } from "./logger";
-import {
-  jobsTotal,
-  jobDurationSeconds,
-  startMetricsServer,
-} from "./metrics";
+} from './config/attachment-queue';
+import { processDecisionAnalysis } from './processors/decision-analysis.processor';
+import { processDecisionEmbedding } from './processors/decision-embedding.processor';
+import { processAttachmentEmbedding } from './processors/attachment-embedding.processor';
+import { getAIProvider } from './services/ai.service';
+import { getEmbeddingProvider } from './services/embedding.service';
+import { logger } from './logger';
+import { jobsTotal, jobDurationSeconds, startMetricsServer } from './metrics';
 
 // Initialize providers (logs which providers are being used)
 getAIProvider();
@@ -48,7 +44,7 @@ const analysisWorker = new Worker<DecisionAnalysisJobData>(
   {
     connection: createRedisConnection(),
     concurrency: 5,
-  }
+  },
 );
 
 // Create the decision embedding worker
@@ -60,7 +56,7 @@ const embeddingWorker = new Worker<DecisionEmbeddingJobData>(
   {
     connection: createRedisConnection(),
     concurrency: 10,
-  }
+  },
 );
 
 // Create the attachment embedding worker
@@ -72,90 +68,99 @@ const attachmentWorker = new Worker<AttachmentEmbeddingJobData>(
   {
     connection: createRedisConnection(),
     concurrency: 3,
-  }
+  },
 );
 
 // ── Analysis worker event handlers ────────────────────────────────────────────
-analysisWorker.on("ready", () => {
-  logger.info("Analysis worker ready");
+analysisWorker.on('ready', () => {
+  logger.info('Analysis worker ready');
 });
 
-analysisWorker.on("active", (job) => {
-  logger.info({ jobId: job.id }, "Analysis job started");
+analysisWorker.on('active', (job) => {
+  logger.info({ jobId: job.id }, 'Analysis job started');
 });
 
-analysisWorker.on("completed", (job) => {
+analysisWorker.on('completed', (job) => {
   const durationMs =
     job.finishedOn && job.processedOn ? job.finishedOn - job.processedOn : 0;
   jobsTotal.inc({ queue: QUEUE_NAME, status: 'completed' });
-  if (durationMs > 0) jobDurationSeconds.observe({ queue: QUEUE_NAME }, durationMs / 1000);
-  logger.info({ jobId: job.id }, "Analysis job completed");
+  if (durationMs > 0)
+    jobDurationSeconds.observe({ queue: QUEUE_NAME }, durationMs / 1000);
+  logger.info({ jobId: job.id }, 'Analysis job completed');
 });
 
-analysisWorker.on("failed", (job, err) => {
+analysisWorker.on('failed', (job, err) => {
   jobsTotal.inc({ queue: QUEUE_NAME, status: 'failed' });
-  logger.error({ jobId: job?.id, err: err.message }, "Analysis job failed");
+  logger.error({ jobId: job?.id, err: err.message }, 'Analysis job failed');
 });
 
-analysisWorker.on("error", (err) => {
-  logger.error({ err }, "Analysis worker error");
+analysisWorker.on('error', (err) => {
+  logger.error({ err }, 'Analysis worker error');
 });
 
 // ── Embedding worker event handlers ───────────────────────────────────────────
-embeddingWorker.on("ready", () => {
-  logger.info("Embedding worker ready");
+embeddingWorker.on('ready', () => {
+  logger.info('Embedding worker ready');
 });
 
-embeddingWorker.on("active", (job) => {
-  logger.info({ jobId: job.id }, "Embedding job started");
+embeddingWorker.on('active', (job) => {
+  logger.info({ jobId: job.id }, 'Embedding job started');
 });
 
-embeddingWorker.on("completed", (job) => {
+embeddingWorker.on('completed', (job) => {
   const durationMs =
     job.finishedOn && job.processedOn ? job.finishedOn - job.processedOn : 0;
   jobsTotal.inc({ queue: EMBEDDING_QUEUE_NAME, status: 'completed' });
-  if (durationMs > 0) jobDurationSeconds.observe({ queue: EMBEDDING_QUEUE_NAME }, durationMs / 1000);
-  logger.info({ jobId: job.id }, "Embedding job completed");
+  if (durationMs > 0)
+    jobDurationSeconds.observe(
+      { queue: EMBEDDING_QUEUE_NAME },
+      durationMs / 1000,
+    );
+  logger.info({ jobId: job.id }, 'Embedding job completed');
 });
 
-embeddingWorker.on("failed", (job, err) => {
+embeddingWorker.on('failed', (job, err) => {
   jobsTotal.inc({ queue: EMBEDDING_QUEUE_NAME, status: 'failed' });
-  logger.error({ jobId: job?.id, err: err.message }, "Embedding job failed");
+  logger.error({ jobId: job?.id, err: err.message }, 'Embedding job failed');
 });
 
-embeddingWorker.on("error", (err) => {
-  logger.error({ err }, "Embedding worker error");
+embeddingWorker.on('error', (err) => {
+  logger.error({ err }, 'Embedding worker error');
 });
 
 // ── Attachment worker event handlers ──────────────────────────────────────────
-attachmentWorker.on("ready", () => {
-  logger.info("Attachment worker ready");
+attachmentWorker.on('ready', () => {
+  logger.info('Attachment worker ready');
 });
 
-attachmentWorker.on("active", (job) => {
-  logger.info({ jobId: job.id }, "Attachment job started");
+attachmentWorker.on('active', (job) => {
+  logger.info({ jobId: job.id }, 'Attachment job started');
 });
 
-attachmentWorker.on("completed", (job) => {
+attachmentWorker.on('completed', (job) => {
   const durationMs =
     job.finishedOn && job.processedOn ? job.finishedOn - job.processedOn : 0;
   jobsTotal.inc({ queue: ATTACHMENT_QUEUE_NAME, status: 'completed' });
-  if (durationMs > 0) jobDurationSeconds.observe({ queue: ATTACHMENT_QUEUE_NAME }, durationMs / 1000);
-  logger.info({ jobId: job.id }, "Attachment job completed");
+  if (durationMs > 0)
+    jobDurationSeconds.observe(
+      { queue: ATTACHMENT_QUEUE_NAME },
+      durationMs / 1000,
+    );
+  logger.info({ jobId: job.id }, 'Attachment job completed');
 });
 
-attachmentWorker.on("failed", (job, err) => {
+attachmentWorker.on('failed', (job, err) => {
   jobsTotal.inc({ queue: ATTACHMENT_QUEUE_NAME, status: 'failed' });
-  logger.error({ jobId: job?.id, err: err.message }, "Attachment job failed");
+  logger.error({ jobId: job?.id, err: err.message }, 'Attachment job failed');
 });
 
-attachmentWorker.on("error", (err) => {
-  logger.error({ err }, "Attachment worker error");
+attachmentWorker.on('error', (err) => {
+  logger.error({ err }, 'Attachment worker error');
 });
 
 // ── Graceful shutdown ─────────────────────────────────────────────────────────
 const shutdown = async (signal: string) => {
-  logger.info({ signal }, "Shutdown signal received, closing workers");
+  logger.info({ signal }, 'Shutdown signal received, closing workers');
   try {
     await Promise.all([
       analysisWorker.close(),
@@ -163,28 +168,36 @@ const shutdown = async (signal: string) => {
       attachmentWorker.close(),
     ]);
     await shutdownOtel();
-    logger.info("Workers closed successfully");
+    logger.info('Workers closed successfully');
     process.exit(0);
   } catch (err) {
-    logger.error({ err }, "Error during shutdown");
+    logger.error({ err }, 'Error during shutdown');
     process.exit(1);
   }
 };
 
-process.on("SIGTERM", () => shutdown("SIGTERM"));
-process.on("SIGINT", () => shutdown("SIGINT"));
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+process.on('SIGINT', () => shutdown('SIGINT'));
 
-process.on("uncaughtException", (err) => {
-  logger.error({ err }, "Uncaught exception");
-  shutdown("UNCAUGHT_EXCEPTION");
+process.on('uncaughtException', (err) => {
+  logger.error({ err }, 'Uncaught exception');
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  shutdown('UNCAUGHT_EXCEPTION');
 });
 
-process.on("unhandledRejection", (reason, promise) => {
-  logger.error({ reason, promise }, "Unhandled rejection");
-  shutdown("UNHANDLED_REJECTION");
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error({ reason, promise }, 'Unhandled rejection');
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  shutdown('UNHANDLED_REJECTION');
 });
 
 logger.info(
-  { analysisQueue: QUEUE_NAME, embeddingQueue: EMBEDDING_QUEUE_NAME, attachmentQueue: ATTACHMENT_QUEUE_NAME },
-  "Workers started"
+  {
+    analysisQueue: QUEUE_NAME,
+    embeddingQueue: EMBEDDING_QUEUE_NAME,
+    attachmentQueue: ATTACHMENT_QUEUE_NAME,
+  },
+  'Workers started',
 );
