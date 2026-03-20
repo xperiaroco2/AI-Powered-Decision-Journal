@@ -69,6 +69,8 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Generate Prisma client (API)
+        run: pnpm --filter "@ai-decision-journal/api" exec prisma generate
       - run: pnpm --filter "@ai-decision-journal/api" test
 
   test-worker:
@@ -84,6 +86,8 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Generate Prisma client (Worker)
+        run: pnpm exec prisma generate --schema=prisma/schema.prisma
       - run: pnpm --filter "worker" test
 
   test-web:
@@ -116,6 +120,8 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Generate Prisma client (API)
+        run: pnpm --filter "@ai-decision-journal/api" exec prisma generate
       - run: pnpm --filter "@ai-decision-journal/api" build
 
   build-worker:

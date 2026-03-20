@@ -41,8 +41,7 @@ export class LLMClient {
             throw new Error(
               `Schema validation failed: ${validationResult.error.issues
                 .map(
-                  (e: { path: Array<string | number>; message: string }) =>
-                    `${e.path.join('.')}: ${e.message}`,
+                  (e) => `${e.path.map(String).join('.')}: ${e.message}`,
                 )
                 .join(', ')}`,
             );
@@ -52,7 +51,7 @@ export class LLMClient {
 
         return {
           success: true,
-          data: result.data,
+          data: result.data as T,
           rawResponse: result.rawResponse,
           retryCount,
           durationMs: Date.now() - startTime,

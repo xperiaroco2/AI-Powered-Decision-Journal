@@ -5,6 +5,10 @@
  * Tests the embedding provider factory, singleton pattern, and text preparation.
  */
 
+// Mock logger
+const mockLog = { info: jest.fn(), error: jest.fn(), warn: jest.fn() };
+jest.mock('../logger', () => ({ childLogger: jest.fn().mockReturnValue(mockLog) }));
+
 describe('Embedding Service', () => {
   let originalEnv: NodeJS.ProcessEnv;
   let getEmbeddingProvider: any;
@@ -63,16 +67,12 @@ describe('Embedding Service', () => {
       process.env.EMBEDDING_PROVIDER = 'openai';
       delete process.env.OPENAI_API_KEY;
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
       const provider = getEmbeddingProvider();
 
       expect(provider).toBeInstanceOf(MockEmbeddingProvider);
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(mockLog.error).toHaveBeenCalledWith(
         expect.stringContaining('OPENAI_API_KEY is required'),
       );
-
-      consoleSpy.mockRestore();
     });
 
     it('should return the same instance on multiple calls (singleton)', () => {

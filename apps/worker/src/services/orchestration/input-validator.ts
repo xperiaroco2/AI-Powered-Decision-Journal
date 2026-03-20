@@ -32,8 +32,7 @@ export class InputValidator {
       return {
         valid: false,
         errors: schemaResult.error.issues.map(
-          (e: { path: Array<string | number>; message: string }) =>
-            `${e.path.join('.')}: ${e.message}`,
+          (e) => `${e.path.map(String).join('.')}: ${e.message}`,
         ),
         warnings: [],
         quality: 'LOW',

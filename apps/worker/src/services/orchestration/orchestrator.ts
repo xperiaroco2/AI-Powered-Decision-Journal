@@ -509,7 +509,7 @@ export class DecisionAnalysisOrchestrator {
         durationMs,
         metadata: {
           retryCount: result.retryCount,
-          confidence: result.data?.confidence,
+          confidence: (result.data as Record<string, unknown>)?.confidence,
         },
       });
     } else {
@@ -717,7 +717,7 @@ export class DecisionAnalysisOrchestrator {
         durationMs,
         metadata: {
           retryCount: result.retryCount,
-          confidence: result.data?.confidence,
+          confidence: (result.data as Record<string, unknown>)?.confidence,
         },
       });
     } else {

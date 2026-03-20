@@ -13,6 +13,10 @@ import {
   validateParsedText,
 } from './file-parser.service';
 
+// Mock logger
+const mockLog = { info: jest.fn(), error: jest.fn(), warn: jest.fn() };
+jest.mock('../logger', () => ({ childLogger: jest.fn().mockReturnValue(mockLog) }));
+
 // Mock the external libraries
 jest.mock('pdf-parse');
 jest.mock('mammoth');
@@ -107,17 +111,13 @@ describe('File Parser Service', () => {
 
       (mammoth.extractRawText as jest.Mock).mockResolvedValue(mockResult);
 
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-
       const buffer = Buffer.from('fake docx data');
       await parseDOCX(buffer);
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'DOCX parsing warnings:',
-        expect.any(Array),
+      expect(mockLog.warn).toHaveBeenCalledWith(
+        expect.objectContaining({ messages: expect.any(Array) }),
+        'DOCX parsing warnings',
       );
-
-      consoleSpy.mockRestore();
     });
 
     it('should handle DOCX parsing errors', async () => {

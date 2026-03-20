@@ -75,10 +75,7 @@ export class LangChainLLMClient {
           if (!validationResult.success) {
             throw new Error(
               `Schema validation failed: ${validationResult.error.issues
-                .map(
-                  (e: { path: Array<string | number>; message: string }) =>
-                    `${e.path.join('.')}: ${e.message}`,
-                )
+                .map((e) => `${e.path.map(String).join('.')}: ${e.message}`)
                 .join(', ')}`,
             );
           }
@@ -87,7 +84,7 @@ export class LangChainLLMClient {
 
         return {
           success: true,
-          data: result.data,
+          data: result.data as T,
           rawResponse: result.rawResponse,
           retryCount,
           durationMs: Date.now() - startTime,

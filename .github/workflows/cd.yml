@@ -27,6 +27,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma client (API)
+        run: pnpm --filter "@ai-decision-journal/api" exec prisma generate
+
       - name: Build API
         run: pnpm --filter "@ai-decision-journal/api" build
 

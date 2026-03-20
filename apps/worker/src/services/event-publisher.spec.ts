@@ -10,6 +10,10 @@ import {
   EVENTS_CHANNEL,
 } from './event-publisher';
 
+// Mock logger
+const mockLog = { info: jest.fn(), error: jest.fn(), warn: jest.fn() };
+jest.mock('../logger', () => ({ childLogger: jest.fn().mockReturnValue(mockLog) }));
+
 // Mock ioredis module
 const mockPublish = jest.fn().mockResolvedValue(1);
 const mockOn = jest.fn();
@@ -81,32 +85,25 @@ describe('Event Publisher Service', () => {
     });
 
     it('should log success message', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
       await publishRunUpdate('decision-123', 'run-456', 'PROCESSING');
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('📡 Published event: PROCESSING'),
+      expect(mockLog.info).toHaveBeenCalledWith(
+        expect.objectContaining({ decisionId: 'decision-123', runId: 'run-456', status: 'PROCESSING' }),
+        'Published decision event',
       );
-
-      consoleSpy.mockRestore();
     });
 
     it('should not throw error if publishing fails', async () => {
       mockPublish.mockRejectedValue(new Error('Redis error'));
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
       await expect(
         publishRunUpdate('decision-123', 'run-456', 'PROCESSING'),
       ).resolves.not.toThrow();
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Failed to publish event:',
-        expect.any(Error),
+      expect(mockLog.error).toHaveBeenCalledWith(
+        expect.objectContaining({ err: expect.any(Error) }),
+        'Failed to publish event',
       );
-
-      consoleSpy.mockRestore();
     });
   });
 
@@ -159,36 +156,29 @@ describe('Event Publisher Service', () => {
     });
 
     it('should log success message', async () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
       await publishAttachmentUpdate(
         'attachment-123',
         'decision-456',
         'PROCESSING',
       );
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('📡 Published attachment event: PROCESSING'),
+      expect(mockLog.info).toHaveBeenCalledWith(
+        expect.objectContaining({ attachmentId: 'attachment-123', decisionId: 'decision-456', status: 'PROCESSING' }),
+        'Published attachment event',
       );
-
-      consoleSpy.mockRestore();
     });
 
     it('should not throw error if publishing fails', async () => {
       mockPublish.mockRejectedValue(new Error('Redis error'));
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
       await expect(
         publishAttachmentUpdate('attachment-123', 'decision-456', 'PROCESSING'),
       ).resolves.not.toThrow();
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Failed to publish attachment event:',
-        expect.any(Error),
+      expect(mockLog.error).toHaveBeenCalledWith(
+        expect.objectContaining({ err: expect.any(Error) }),
+        'Failed to publish attachment event',
       );
-
-      consoleSpy.mockRestore();
     });
   });
 
