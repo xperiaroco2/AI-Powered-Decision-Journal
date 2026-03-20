@@ -64,6 +64,7 @@ describe('Decision Embedding Processor', () => {
     // Create mock embedding provider
     mockProvider = {
       generateEmbedding: jest.fn(),
+      getModelName: jest.fn().mockReturnValue('mock-model'),
     };
 
     (getEmbeddingProvider as jest.Mock).mockReturnValue(mockProvider);

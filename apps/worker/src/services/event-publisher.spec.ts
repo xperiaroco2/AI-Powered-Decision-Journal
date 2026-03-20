@@ -10,9 +10,10 @@ import {
   EVENTS_CHANNEL,
 } from './event-publisher';
 
-// Mock logger
-const mockLog = { info: jest.fn(), error: jest.fn(), warn: jest.fn() };
-jest.mock('../logger', () => ({ childLogger: jest.fn().mockReturnValue(mockLog) }));
+// Mock logger — factory must not reference outer const (jest hoisting TDZ issue)
+jest.mock('../logger', () => ({
+  childLogger: jest.fn(() => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn() })),
+}));
 
 // Mock ioredis module
 const mockPublish = jest.fn().mockResolvedValue(1);
@@ -29,6 +30,12 @@ jest.mock('ioredis', () => {
 
 describe('Event Publisher Service', () => {
   let originalEnv: NodeJS.ProcessEnv;
+  let mockLog: { info: jest.Mock; error: jest.Mock; warn: jest.Mock };
+
+  beforeAll(() => {
+    const { childLogger } = jest.requireMock('../logger') as { childLogger: jest.Mock };
+    mockLog = childLogger.mock.results[0]?.value;
+  });
 
   beforeEach(() => {
     // Save original environment
@@ -41,6 +48,8 @@ describe('Event Publisher Service', () => {
     mockPublish.mockClear();
     mockOn.mockClear();
     mockPublish.mockResolvedValue(1);
+    mockLog?.info?.mockClear();
+    mockLog?.error?.mockClear();
   });
 
   afterEach(() => {

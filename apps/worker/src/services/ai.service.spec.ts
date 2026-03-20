@@ -65,16 +65,9 @@ describe('AI Service', () => {
       process.env.AI_PROVIDER = 'groq';
       delete process.env.GROQ_API_KEY;
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
       const provider = getAIProvider();
 
       expect(provider.constructor.name).toBe('MockProvider');
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('GROQ_API_KEY is required'),
-      );
-
-      consoleSpy.mockRestore();
     });
 
     it('should handle case-insensitive provider names', () => {

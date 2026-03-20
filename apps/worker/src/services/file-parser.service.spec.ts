@@ -13,9 +13,10 @@ import {
   validateParsedText,
 } from './file-parser.service';
 
-// Mock logger
-const mockLog = { info: jest.fn(), error: jest.fn(), warn: jest.fn() };
-jest.mock('../logger', () => ({ childLogger: jest.fn().mockReturnValue(mockLog) }));
+// Mock logger — factory must not reference outer const (jest hoisting TDZ issue)
+jest.mock('../logger', () => ({
+  childLogger: jest.fn(() => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn() })),
+}));
 
 // Mock the external libraries
 jest.mock('pdf-parse');
@@ -25,6 +26,13 @@ import pdf from 'pdf-parse';
 import mammoth from 'mammoth';
 
 describe('File Parser Service', () => {
+  let mockLog: { info: jest.Mock; error: jest.Mock; warn: jest.Mock };
+
+  beforeAll(() => {
+    const { childLogger } = jest.requireMock('../logger') as { childLogger: jest.Mock };
+    mockLog = childLogger.mock.results[0]?.value;
+  });
+
   describe('parseTextFile', () => {
     it('should parse plain text file', () => {
       const buffer = Buffer.from('This is plain text content');
