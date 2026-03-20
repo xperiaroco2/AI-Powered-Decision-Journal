@@ -20,18 +20,26 @@ export async function POST(request: Request) {
 
     const data = await response.json();
 
-    // Forward the Set-Cookie header from NestJS to the client
+    const responseHeaders = new Headers({ 'Content-Type': 'application/json' });
+
+    // Forward refresh_token cookie from NestJS
     const setCookieHeader = response.headers.get('set-cookie');
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
     if (setCookieHeader) {
-      headers['Set-Cookie'] = setCookieHeader;
+      responseHeaders.append('Set-Cookie', setCookieHeader);
+    }
+
+    // Set access_token as httpOnly cookie so the proxy can read it server-side
+    if (data.accessToken) {
+      const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+      responseHeaders.append(
+        'Set-Cookie',
+        `access_token=${data.accessToken}; HttpOnly; Path=/; SameSite=Strict; Max-Age=900${secure}`,
+      );
     }
 
     return new Response(JSON.stringify(data), {
       status: response.status,
-      headers,
+      headers: responseHeaders,
     });
   } catch (error) {
     console.error('[Login Proxy] Error:', error);

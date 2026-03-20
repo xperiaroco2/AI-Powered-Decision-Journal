@@ -48,11 +48,7 @@ export default function DecisionDetailPage() {
 
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/decisions/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-          },
-        });
+        const response = await fetch(`/api/decisions/${id}`);
 
         if (response.status === 404) {
           router.push("/decisions");

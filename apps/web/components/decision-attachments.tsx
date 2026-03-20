@@ -66,11 +66,7 @@ export default function DecisionAttachments({ decisionId }: DecisionAttachmentsP
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/decisions/${decisionId}/attachments`, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
-      });
+      const response = await fetch(`/api/decisions/${decisionId}/attachments`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch attachments");
@@ -115,9 +111,6 @@ export default function DecisionAttachments({ decisionId }: DecisionAttachmentsP
 
       const response = await fetch(`/api/decisions/${decisionId}/attachments`, {
         method: "POST",
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
         body: formData, // Don't set Content-Type header - browser will set it with boundary
       });
 

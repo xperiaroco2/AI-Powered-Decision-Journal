@@ -21,17 +21,17 @@ interface DashboardData {
 }
 
 export default function DashboardClient() {
-  const { accessToken } = useAuth();
+  const { accessToken, isLoading: authLoading } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading || !accessToken) return;
+
     async function fetchDashboardData() {
       try {
-        const response = await fetch("/api/dashboard", {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const response = await fetch("/api/dashboard");
         if (!response.ok) {
           throw new Error("Failed to fetch dashboard data");
         }
@@ -45,7 +45,7 @@ export default function DashboardClient() {
     }
 
     fetchDashboardData();
-  }, [accessToken]);
+  }, [accessToken, authLoading]);
 
   // Loading state
   if (loading) {
