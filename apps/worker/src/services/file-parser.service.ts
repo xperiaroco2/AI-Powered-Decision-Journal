@@ -1,12 +1,12 @@
-import pdf from "pdf-parse";
-import mammoth from "mammoth";
-import { childLogger } from "../logger";
+import pdf from 'pdf-parse';
+import mammoth from 'mammoth';
+import { childLogger } from '../logger';
 
 const log = childLogger('file-parser');
 
 /**
  * File Parser Service
- * 
+ *
  * Extracts text content from various file formats:
  * - PDF (.pdf)
  * - Microsoft Word (.doc, .docx)
@@ -28,7 +28,7 @@ export interface ParseResult {
 export async function parsePDF(buffer: Buffer): Promise<ParseResult> {
   try {
     const data = await pdf(buffer);
-    
+
     return {
       text: data.text,
       metadata: {
@@ -39,7 +39,7 @@ export async function parsePDF(buffer: Buffer): Promise<ParseResult> {
     };
   } catch (error) {
     throw new Error(
-      `Failed to parse PDF: ${error instanceof Error ? error.message : "Unknown error"}`
+      `Failed to parse PDF: ${error instanceof Error ? error.message : 'Unknown error'}`,
     );
   }
 }
@@ -50,17 +50,17 @@ export async function parsePDF(buffer: Buffer): Promise<ParseResult> {
 export async function parseDOCX(buffer: Buffer): Promise<ParseResult> {
   try {
     const result = await mammoth.extractRawText({ buffer });
-    
+
     if (result.messages.length > 0) {
       log.warn({ messages: result.messages }, 'DOCX parsing warnings');
     }
-    
+
     return {
       text: result.value,
     };
   } catch (error) {
     throw new Error(
-      `Failed to parse DOCX: ${error instanceof Error ? error.message : "Unknown error"}`
+      `Failed to parse DOCX: ${error instanceof Error ? error.message : 'Unknown error'}`,
     );
   }
 }
@@ -70,11 +70,11 @@ export async function parseDOCX(buffer: Buffer): Promise<ParseResult> {
  */
 export function parseTextFile(buffer: Buffer): ParseResult {
   try {
-    const text = buffer.toString("utf-8");
+    const text = buffer.toString('utf-8');
     return { text };
   } catch (error) {
     throw new Error(
-      `Failed to parse text file: ${error instanceof Error ? error.message : "Unknown error"}`
+      `Failed to parse text file: ${error instanceof Error ? error.message : 'Unknown error'}`,
     );
   }
 }
@@ -84,27 +84,27 @@ export function parseTextFile(buffer: Buffer): ParseResult {
  */
 export async function parseFile(
   buffer: Buffer,
-  filename: string
+  filename: string,
 ): Promise<ParseResult> {
   const extension = filename.toLowerCase().match(/\.([^.]+)$/)?.[1];
-  
+
   if (!extension) {
-    throw new Error("Unable to determine file type from filename");
+    throw new Error('Unable to determine file type from filename');
   }
-  
+
   switch (extension) {
-    case "pdf":
+    case 'pdf':
       return parsePDF(buffer);
-    
-    case "docx":
-    case "doc":
+
+    case 'docx':
+    case 'doc':
       return parseDOCX(buffer);
-    
-    case "txt":
-    case "md":
-    case "markdown":
+
+    case 'txt':
+    case 'md':
+    case 'markdown':
       return parseTextFile(buffer);
-    
+
     default:
       throw new Error(`Unsupported file type: .${extension}`);
   }
@@ -117,17 +117,16 @@ export function validateParsedText(text: string, filename: string): void {
   if (!text || text.trim().length === 0) {
     throw new Error(`No text content extracted from ${filename}`);
   }
-  
+
   if (text.length < 50) {
     throw new Error(
-      `Extracted text is too short (${text.length} chars). Minimum 50 characters required.`
+      `Extracted text is too short (${text.length} chars). Minimum 50 characters required.`,
     );
   }
-  
+
   if (text.length > 1_000_000) {
     throw new Error(
-      `Extracted text is too long (${text.length} chars). Maximum 1,000,000 characters allowed.`
+      `Extracted text is too long (${text.length} chars). Maximum 1,000,000 characters allowed.`,
     );
   }
 }
-

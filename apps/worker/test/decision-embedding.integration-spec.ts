@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Decision Embedding Integration Tests
  *
@@ -202,4 +203,3 @@ describe('Decision Embedding Integration', () => {
     }, 15000);
   });
 });
-

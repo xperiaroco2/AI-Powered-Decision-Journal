@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Embedding Service Unit Tests
  *
@@ -21,7 +22,8 @@ describe('Embedding Service', () => {
     // Dynamically import the module to get fresh instance
     const embeddingService = await import('./embedding.service');
     getEmbeddingProvider = embeddingService.getEmbeddingProvider;
-    prepareDecisionTextForEmbedding = embeddingService.prepareDecisionTextForEmbedding;
+    prepareDecisionTextForEmbedding =
+      embeddingService.prepareDecisionTextForEmbedding;
     MockEmbeddingProvider = embeddingService.MockEmbeddingProvider;
     OpenAIEmbeddingProvider = embeddingService.OpenAIEmbeddingProvider;
   });
@@ -160,4 +162,3 @@ describe('Embedding Service', () => {
     });
   });
 });
-

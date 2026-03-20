@@ -112,7 +112,11 @@ describe('Event Publisher Service', () => {
 
   describe('publishAttachmentUpdate', () => {
     it('should publish attachment update event with correct format', async () => {
-      await publishAttachmentUpdate('attachment-123', 'decision-456', 'PROCESSING');
+      await publishAttachmentUpdate(
+        'attachment-123',
+        'decision-456',
+        'PROCESSING',
+      );
 
       expect(mockPublish).toHaveBeenCalledWith(
         EVENTS_CHANNEL,
@@ -157,7 +161,11 @@ describe('Event Publisher Service', () => {
     it('should log success message', async () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-      await publishAttachmentUpdate('attachment-123', 'decision-456', 'PROCESSING');
+      await publishAttachmentUpdate(
+        'attachment-123',
+        'decision-456',
+        'PROCESSING',
+      );
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('📡 Published attachment event: PROCESSING'),
@@ -190,4 +198,3 @@ describe('Event Publisher Service', () => {
     });
   });
 });
-

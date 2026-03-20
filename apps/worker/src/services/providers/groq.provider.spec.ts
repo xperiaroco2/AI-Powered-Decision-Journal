@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Groq Provider Unit Tests
  *
@@ -26,8 +27,11 @@ describe('GroqProvider', () => {
     } as any;
 
     // Mock the orchestrator constructor
-    (DecisionAnalysisOrchestrator as jest.MockedClass<typeof DecisionAnalysisOrchestrator>)
-      .mockImplementation(() => mockOrchestrator);
+    (
+      DecisionAnalysisOrchestrator as jest.MockedClass<
+        typeof DecisionAnalysisOrchestrator
+      >
+    ).mockImplementation(() => mockOrchestrator);
 
     // Create provider
     provider = new GroqProvider('test-api-key', mockPrisma);
@@ -71,15 +75,15 @@ describe('GroqProvider', () => {
       const mockOrchestratorResult = {
         analysis: {
           category: 'CAREER' as const,
-          cognitiveBiases: [
-            { name: 'Anchoring', description: 'Test bias' },
-          ],
+          cognitiveBiases: [{ name: 'Anchoring', description: 'Test bias' }],
           missedAlternatives: [
-            { alternative: 'Stay and negotiate', reasoning: 'Could improve current situation', feasibility: 'HIGH' as const },
+            {
+              alternative: 'Stay and negotiate',
+              reasoning: 'Could improve current situation',
+              feasibility: 'HIGH' as const,
+            },
           ],
-          insights: [
-            { type: 'STRENGTH' as const, content: 'Good reasoning' },
-          ],
+          insights: [{ type: 'STRENGTH' as const, content: 'Good reasoning' }],
           confidence: 0.85,
         },
         rawOutputs: { initial: 'data', reflection: 'data', final: 'data' },
@@ -115,11 +119,22 @@ describe('GroqProvider', () => {
         analysis: {
           category: 'FINANCIAL' as const,
           cognitiveBiases: [
-            { name: 'Confirmation Bias', description: 'Seeking confirming info' },
+            {
+              name: 'Confirmation Bias',
+              description: 'Seeking confirming info',
+            },
           ],
           missedAlternatives: [
-            { alternative: 'Alternative 1', reasoning: 'Could work', feasibility: 'MEDIUM' as const },
-            { alternative: 'Alternative 2', reasoning: 'Less likely', feasibility: 'LOW' as const },
+            {
+              alternative: 'Alternative 1',
+              reasoning: 'Could work',
+              feasibility: 'MEDIUM' as const,
+            },
+            {
+              alternative: 'Alternative 2',
+              reasoning: 'Less likely',
+              feasibility: 'LOW' as const,
+            },
           ],
           insights: [
             { type: 'STRENGTH' as const, content: 'Well thought out' },
@@ -129,7 +144,11 @@ describe('GroqProvider', () => {
           ],
           confidence: 0.75,
         },
-        rawOutputs: { initial: 'data', reflection: 'more data', final: 'final data' },
+        rawOutputs: {
+          initial: 'data',
+          reflection: 'more data',
+          final: 'final data',
+        },
         metadata: {
           totalDurationMs: 2000,
           stepsExecuted: ['initial', 'reflection', 'final'],
@@ -174,14 +193,18 @@ describe('GroqProvider', () => {
         analysis: {
           category: 'OTHER' as const,
           cognitiveBiases: [
-            { name: 'Test Bias', description: 'Test description for minimum requirement' },
+            {
+              name: 'Test Bias',
+              description: 'Test description for minimum requirement',
+            },
           ],
           missedAlternatives: [
-            { alternative: 'Test alternative', reasoning: 'Test reasoning for minimum requirement' },
+            {
+              alternative: 'Test alternative',
+              reasoning: 'Test reasoning for minimum requirement',
+            },
           ],
-          insights: [
-            { type: 'STRENGTH' as const, content: 'Some insight' },
-          ],
+          insights: [{ type: 'STRENGTH' as const, content: 'Some insight' }],
           confidence: 0.5,
         },
         rawOutputs: {},
@@ -229,17 +252,30 @@ describe('GroqProvider', () => {
         analysis: {
           category: 'CAREER' as const,
           cognitiveBiases: [
-            { name: 'Test Bias', description: 'Test description for minimum requirement' },
+            {
+              name: 'Test Bias',
+              description: 'Test description for minimum requirement',
+            },
           ],
           missedAlternatives: [
-            { alternative: 'Test alternative', reasoning: 'Test reasoning for minimum requirement' },
+            {
+              alternative: 'Test alternative',
+              reasoning: 'Test reasoning for minimum requirement',
+            },
           ],
           insights: [
-            { type: 'STRENGTH' as const, content: 'Test insight for minimum requirement' },
+            {
+              type: 'STRENGTH' as const,
+              content: 'Test insight for minimum requirement',
+            },
           ],
           confidence: 0.6,
         },
-        rawOutputs: { initial: 'test data', reflection: 'test data', final: 'test data' },
+        rawOutputs: {
+          initial: 'test data',
+          reflection: 'test data',
+          final: 'test data',
+        },
         metadata: {
           totalDurationMs: 800,
           stepsExecuted: ['initial', 'reflection', 'final'],
@@ -254,8 +290,11 @@ describe('GroqProvider', () => {
 
       expect(() => JSON.parse(result.rawAiResponse)).not.toThrow();
       const parsed = JSON.parse(result.rawAiResponse);
-      expect(parsed).toEqual({ initial: 'test data', reflection: 'test data', final: 'test data' });
+      expect(parsed).toEqual({
+        initial: 'test data',
+        reflection: 'test data',
+        final: 'test data',
+      });
     });
   });
 });
-

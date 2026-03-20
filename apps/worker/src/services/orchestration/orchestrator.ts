@@ -1,14 +1,14 @@
-import { PrismaClient } from "@prisma/client";
-import { trace, SpanStatusCode } from "@opentelemetry/api";
-import { LLMClient } from "./llm-client";
-import { LangChainLLMClient } from "./langchain-client";
-import { childLogger } from "../../logger";
+import { PrismaClient } from '@prisma/client';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
+import { LLMClient } from './llm-client';
+import { LangChainLLMClient } from './langchain-client';
+import { childLogger } from '../../logger';
 
 const log = childLogger('orchestrator');
 const tracer = trace.getTracer('worker');
-import { UserContextManager } from "./user-context";
-import { InputValidator } from "./input-validator";
-import { PromptBuilder } from "./prompts";
+import { UserContextManager } from './user-context';
+import { InputValidator } from './input-validator';
+import { PromptBuilder } from './prompts';
 import {
   OrchestrationContext,
   OrchestrationResult,
@@ -19,7 +19,7 @@ import {
   ReflectionSchema,
   FinalAnalysisSchema,
   DecisionInputSchema,
-} from "./types";
+} from './types';
 
 /**
  * Decision Analysis Orchestrator
@@ -54,7 +54,7 @@ export class DecisionAnalysisOrchestrator {
     apiKey: string,
     prisma: PrismaClient,
     telemetryLogger?: TelemetryLogger,
-    useLangChain: boolean = true // Feature flag to enable/disable LangChain
+    useLangChain: boolean = true, // Feature flag to enable/disable LangChain
   ) {
     this.llmClient = new LLMClient(apiKey);
     this.langChainClient = new LangChainLLMClient(apiKey);
@@ -73,12 +73,14 @@ export class DecisionAnalysisOrchestrator {
   async execute(
     input: unknown,
     userId: string,
-    runId: string
+    runId: string,
   ): Promise<OrchestrationResult> {
     // Step 0: Input Validation
     const validationResult = this.inputValidator.validate(input);
     if (!validationResult.valid) {
-      throw new Error(`Input validation failed: ${validationResult.errors.join(", ")}`);
+      throw new Error(
+        `Input validation failed: ${validationResult.errors.join(', ')}`,
+      );
     }
 
     const validatedInput = DecisionInputSchema.parse(input);
@@ -95,7 +97,7 @@ export class DecisionAnalysisOrchestrator {
       input: validatedInput,
       userContext,
       runId,
-      provider: "groq",
+      provider: 'groq',
     };
 
     // Choose execution path based on feature flag
@@ -113,48 +115,59 @@ export class DecisionAnalysisOrchestrator {
    * Uses LangChain's ChatGroq instead of direct Groq SDK
    */
   private async executeLangChainWorkflow(
-    context: OrchestrationContext
+    context: OrchestrationContext,
   ): Promise<OrchestrationResult> {
     const startTime = Date.now();
-    const stepsExecuted: string[] = ["validation", "user-context"];
+    const stepsExecuted: string[] = ['validation', 'user-context'];
     let totalRetries = 0;
 
     this.logEvent({
       timestamp: new Date(),
       runId: context.runId,
-      eventType: "STEP_START",
-      stepName: "orchestration-langchain",
+      eventType: 'STEP_START',
+      stepName: 'orchestration-langchain',
     });
 
     try {
       // Step 2: Initial Analysis using LangChain
-      const initialResult = await this.runStep('orchestration.initial-analysis', context.runId, () =>
-        this.executeInitialAnalysisLangChain(context)
+      const initialResult = await this.runStep(
+        'orchestration.initial-analysis',
+        context.runId,
+        () => this.executeInitialAnalysisLangChain(context),
       );
       if (!initialResult.success || !initialResult.data) {
         throw new Error(`Initial analysis failed: ${initialResult.error}`);
       }
-      stepsExecuted.push("initial-analysis");
+      stepsExecuted.push('initial-analysis');
       totalRetries += initialResult.retryCount;
 
       // Step 3: Reflection using LangChain
-      const reflectionResult = await this.runStep('orchestration.reflection', context.runId, () =>
-        this.executeReflectionLangChain(context, initialResult.data)
+      const reflectionResult = await this.runStep(
+        'orchestration.reflection',
+        context.runId,
+        () => this.executeReflectionLangChain(context, initialResult.data),
       );
       if (!reflectionResult.success || !reflectionResult.data) {
         throw new Error(`Reflection failed: ${reflectionResult.error}`);
       }
-      stepsExecuted.push("reflection");
+      stepsExecuted.push('reflection');
       totalRetries += reflectionResult.retryCount;
 
       // Step 4: Final Synthesis using LangChain
-      const finalResult = await this.runStep('orchestration.final-synthesis', context.runId, () =>
-        this.executeFinalSynthesisLangChain(context, initialResult.data, reflectionResult.data)
+      const finalResult = await this.runStep(
+        'orchestration.final-synthesis',
+        context.runId,
+        () =>
+          this.executeFinalSynthesisLangChain(
+            context,
+            initialResult.data,
+            reflectionResult.data,
+          ),
       );
       if (!finalResult.success || !finalResult.data) {
         throw new Error(`Final synthesis failed: ${finalResult.error}`);
       }
-      stepsExecuted.push("final-synthesis");
+      stepsExecuted.push('final-synthesis');
       totalRetries += finalResult.retryCount;
 
       const totalDuration = Date.now() - startTime;
@@ -162,8 +175,8 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_COMPLETE",
-        stepName: "orchestration-langchain",
+        eventType: 'STEP_COMPLETE',
+        stepName: 'orchestration-langchain',
         durationMs: totalDuration,
         metadata: {
           stepsExecuted,
@@ -178,7 +191,8 @@ export class DecisionAnalysisOrchestrator {
           totalDurationMs: totalDuration,
           stepsExecuted,
           retryCount: totalRetries,
-          userContextUsed: (context.userContext?.patterns?.decisionCount ?? 0) > 0,
+          userContextUsed:
+            (context.userContext?.patterns?.decisionCount ?? 0) > 0,
         },
         rawOutputs: {
           initial: initialResult.data,
@@ -187,13 +201,14 @@ export class DecisionAnalysisOrchestrator {
         },
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
 
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_ERROR",
-        stepName: "orchestration-langchain",
+        eventType: 'STEP_ERROR',
+        stepName: 'orchestration-langchain',
         error: errorMessage,
         durationMs: Date.now() - startTime,
       });
@@ -207,48 +222,59 @@ export class DecisionAnalysisOrchestrator {
    * Kept for backward compatibility and A/B testing
    */
   private async executeLegacyWorkflow(
-    context: OrchestrationContext
+    context: OrchestrationContext,
   ): Promise<OrchestrationResult> {
     const startTime = Date.now();
-    const stepsExecuted: string[] = ["validation", "user-context"];
+    const stepsExecuted: string[] = ['validation', 'user-context'];
     let totalRetries = 0;
 
     this.logEvent({
       timestamp: new Date(),
       runId: context.runId,
-      eventType: "STEP_START",
-      stepName: "orchestration",
+      eventType: 'STEP_START',
+      stepName: 'orchestration',
     });
 
     try {
       // Step 2: Initial Analysis
-      const initialResult = await this.runStep('orchestration.initial-analysis', context.runId, () =>
-        this.executeInitialAnalysis(context)
+      const initialResult = await this.runStep(
+        'orchestration.initial-analysis',
+        context.runId,
+        () => this.executeInitialAnalysis(context),
       );
       if (!initialResult.success || !initialResult.data) {
         throw new Error(`Initial analysis failed: ${initialResult.error}`);
       }
-      stepsExecuted.push("initial-analysis");
+      stepsExecuted.push('initial-analysis');
       totalRetries += initialResult.retryCount;
 
       // Step 3: Reflection
-      const reflectionResult = await this.runStep('orchestration.reflection', context.runId, () =>
-        this.executeReflection(context, initialResult.data)
+      const reflectionResult = await this.runStep(
+        'orchestration.reflection',
+        context.runId,
+        () => this.executeReflection(context, initialResult.data),
       );
       if (!reflectionResult.success || !reflectionResult.data) {
         throw new Error(`Reflection failed: ${reflectionResult.error}`);
       }
-      stepsExecuted.push("reflection");
+      stepsExecuted.push('reflection');
       totalRetries += reflectionResult.retryCount;
 
       // Step 4: Final Synthesis
-      const finalResult = await this.runStep('orchestration.final-synthesis', context.runId, () =>
-        this.executeFinalSynthesis(context, initialResult.data, reflectionResult.data)
+      const finalResult = await this.runStep(
+        'orchestration.final-synthesis',
+        context.runId,
+        () =>
+          this.executeFinalSynthesis(
+            context,
+            initialResult.data,
+            reflectionResult.data,
+          ),
       );
       if (!finalResult.success || !finalResult.data) {
         throw new Error(`Final synthesis failed: ${finalResult.error}`);
       }
-      stepsExecuted.push("final-synthesis");
+      stepsExecuted.push('final-synthesis');
       totalRetries += finalResult.retryCount;
 
       const totalDuration = Date.now() - startTime;
@@ -256,8 +282,8 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_COMPLETE",
-        stepName: "orchestration",
+        eventType: 'STEP_COMPLETE',
+        stepName: 'orchestration',
         durationMs: totalDuration,
         metadata: {
           stepsExecuted,
@@ -272,7 +298,8 @@ export class DecisionAnalysisOrchestrator {
           totalDurationMs: totalDuration,
           stepsExecuted,
           retryCount: totalRetries,
-          userContextUsed: (context.userContext?.patterns?.decisionCount ?? 0) > 0,
+          userContextUsed:
+            (context.userContext?.patterns?.decisionCount ?? 0) > 0,
         },
         rawOutputs: {
           initial: initialResult.data,
@@ -281,13 +308,14 @@ export class DecisionAnalysisOrchestrator {
         },
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
 
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_ERROR",
-        stepName: "orchestration",
+        eventType: 'STEP_ERROR',
+        stepName: 'orchestration',
         error: errorMessage,
         durationMs: Date.now() - startTime,
       });
@@ -300,28 +328,29 @@ export class DecisionAnalysisOrchestrator {
    * Step 1: Initial Analysis (Deterministic)
    */
   private async executeInitialAnalysis(
-    context: OrchestrationContext
+    context: OrchestrationContext,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<StepResult<any>> {
     const startTime = Date.now();
 
     this.logEvent({
       timestamp: new Date(),
       runId: context.runId,
-      eventType: "STEP_START",
-      stepName: "initial-analysis",
+      eventType: 'STEP_START',
+      stepName: 'initial-analysis',
     });
 
     const prompts = this.promptBuilder.buildInitialAnalysisPrompt(
       context.input.situation,
       context.input.chosenDecision,
       context.input.personalReasoning,
-      context.userContext
+      context.userContext,
     );
 
     const result = await this.llmClient.call({
       temperature: 0.3, // Deterministic
       maxTokens: 2000,
-      responseFormat: "json_object",
+      responseFormat: 'json_object',
       systemPrompt: prompts.system,
       userPrompt: prompts.user,
       schema: InitialAnalysisSchema,
@@ -336,8 +365,8 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_COMPLETE",
-        stepName: "initial-analysis",
+        eventType: 'STEP_COMPLETE',
+        stepName: 'initial-analysis',
         durationMs,
         metadata: { retryCount: result.retryCount },
       });
@@ -345,8 +374,8 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_ERROR",
-        stepName: "initial-analysis",
+        eventType: 'STEP_ERROR',
+        stepName: 'initial-analysis',
         error: result.error,
         durationMs,
       });
@@ -366,27 +395,29 @@ export class DecisionAnalysisOrchestrator {
    */
   private async executeReflection(
     context: OrchestrationContext,
-    initialAnalysis: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    initialAnalysis: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<StepResult<any>> {
     const startTime = Date.now();
 
     this.logEvent({
       timestamp: new Date(),
       runId: context.runId,
-      eventType: "STEP_START",
-      stepName: "reflection",
+      eventType: 'STEP_START',
+      stepName: 'reflection',
     });
 
     const prompts = this.promptBuilder.buildReflectionPrompt(
       initialAnalysis,
       context.input.situation,
-      context.input.chosenDecision
+      context.input.chosenDecision,
     );
 
     const result = await this.llmClient.call({
       temperature: 0.7, // Creative
       maxTokens: 1500,
-      responseFormat: "json_object",
+      responseFormat: 'json_object',
       systemPrompt: prompts.system,
       userPrompt: prompts.user,
       schema: ReflectionSchema,
@@ -401,8 +432,8 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_COMPLETE",
-        stepName: "reflection",
+        eventType: 'STEP_COMPLETE',
+        stepName: 'reflection',
         durationMs,
         metadata: { retryCount: result.retryCount },
       });
@@ -410,8 +441,8 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_ERROR",
-        stepName: "reflection",
+        eventType: 'STEP_ERROR',
+        stepName: 'reflection',
         error: result.error,
         durationMs,
       });
@@ -431,16 +462,19 @@ export class DecisionAnalysisOrchestrator {
    */
   private async executeFinalSynthesis(
     context: OrchestrationContext,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     initialAnalysis: any,
-    reflection: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    reflection: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<StepResult<any>> {
     const startTime = Date.now();
 
     this.logEvent({
       timestamp: new Date(),
       runId: context.runId,
-      eventType: "STEP_START",
-      stepName: "final-synthesis",
+      eventType: 'STEP_START',
+      stepName: 'final-synthesis',
     });
 
     const prompts = this.promptBuilder.buildFinalSynthesisPrompt(
@@ -449,13 +483,13 @@ export class DecisionAnalysisOrchestrator {
       context.input.personalReasoning,
       initialAnalysis,
       reflection,
-      context.userContext
+      context.userContext,
     );
 
     const result = await this.llmClient.call({
       temperature: 0.5, // Balanced
       maxTokens: 2500,
-      responseFormat: "json_object",
+      responseFormat: 'json_object',
       systemPrompt: prompts.system,
       userPrompt: prompts.user,
       schema: FinalAnalysisSchema,
@@ -470,17 +504,20 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_COMPLETE",
-        stepName: "final-synthesis",
+        eventType: 'STEP_COMPLETE',
+        stepName: 'final-synthesis',
         durationMs,
-        metadata: { retryCount: result.retryCount, confidence: result.data?.confidence },
+        metadata: {
+          retryCount: result.retryCount,
+          confidence: result.data?.confidence,
+        },
       });
     } else {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_ERROR",
-        stepName: "final-synthesis",
+        eventType: 'STEP_ERROR',
+        stepName: 'final-synthesis',
         error: result.error,
         durationMs,
       });
@@ -499,28 +536,29 @@ export class DecisionAnalysisOrchestrator {
    * LangChain Step 1: Initial Analysis (Deterministic)
    */
   private async executeInitialAnalysisLangChain(
-    context: OrchestrationContext
+    context: OrchestrationContext,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<StepResult<any>> {
     const startTime = Date.now();
 
     this.logEvent({
       timestamp: new Date(),
       runId: context.runId,
-      eventType: "STEP_START",
-      stepName: "initial-analysis-langchain",
+      eventType: 'STEP_START',
+      stepName: 'initial-analysis-langchain',
     });
 
     const prompts = this.promptBuilder.buildInitialAnalysisPrompt(
       context.input.situation,
       context.input.chosenDecision,
       context.input.personalReasoning,
-      context.userContext
+      context.userContext,
     );
 
     const result = await this.langChainClient.call({
       temperature: 0.3, // Deterministic
       maxTokens: 2000,
-      responseFormat: "json_object",
+      responseFormat: 'json_object',
       systemPrompt: prompts.system,
       userPrompt: prompts.user,
       schema: InitialAnalysisSchema,
@@ -535,8 +573,8 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_COMPLETE",
-        stepName: "initial-analysis-langchain",
+        eventType: 'STEP_COMPLETE',
+        stepName: 'initial-analysis-langchain',
         durationMs,
         metadata: { retryCount: result.retryCount },
       });
@@ -544,8 +582,8 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_ERROR",
-        stepName: "initial-analysis-langchain",
+        eventType: 'STEP_ERROR',
+        stepName: 'initial-analysis-langchain',
         error: result.error,
         durationMs,
       });
@@ -565,27 +603,29 @@ export class DecisionAnalysisOrchestrator {
    */
   private async executeReflectionLangChain(
     context: OrchestrationContext,
-    initialAnalysis: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    initialAnalysis: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<StepResult<any>> {
     const startTime = Date.now();
 
     this.logEvent({
       timestamp: new Date(),
       runId: context.runId,
-      eventType: "STEP_START",
-      stepName: "reflection-langchain",
+      eventType: 'STEP_START',
+      stepName: 'reflection-langchain',
     });
 
     const prompts = this.promptBuilder.buildReflectionPrompt(
       initialAnalysis,
       context.input.situation,
-      context.input.chosenDecision
+      context.input.chosenDecision,
     );
 
     const result = await this.langChainClient.call({
       temperature: 0.7, // Creative
       maxTokens: 1500,
-      responseFormat: "json_object",
+      responseFormat: 'json_object',
       systemPrompt: prompts.system,
       userPrompt: prompts.user,
       schema: ReflectionSchema,
@@ -600,8 +640,8 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_COMPLETE",
-        stepName: "reflection-langchain",
+        eventType: 'STEP_COMPLETE',
+        stepName: 'reflection-langchain',
         durationMs,
         metadata: { retryCount: result.retryCount },
       });
@@ -609,8 +649,8 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_ERROR",
-        stepName: "reflection-langchain",
+        eventType: 'STEP_ERROR',
+        stepName: 'reflection-langchain',
         error: result.error,
         durationMs,
       });
@@ -630,16 +670,19 @@ export class DecisionAnalysisOrchestrator {
    */
   private async executeFinalSynthesisLangChain(
     context: OrchestrationContext,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     initialAnalysis: any,
-    reflection: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    reflection: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<StepResult<any>> {
     const startTime = Date.now();
 
     this.logEvent({
       timestamp: new Date(),
       runId: context.runId,
-      eventType: "STEP_START",
-      stepName: "final-synthesis-langchain",
+      eventType: 'STEP_START',
+      stepName: 'final-synthesis-langchain',
     });
 
     const prompts = this.promptBuilder.buildFinalSynthesisPrompt(
@@ -648,13 +691,13 @@ export class DecisionAnalysisOrchestrator {
       context.input.personalReasoning,
       initialAnalysis,
       reflection,
-      context.userContext
+      context.userContext,
     );
 
     const result = await this.langChainClient.call({
       temperature: 0.5, // Balanced
       maxTokens: 2500,
-      responseFormat: "json_object",
+      responseFormat: 'json_object',
       systemPrompt: prompts.system,
       userPrompt: prompts.user,
       schema: FinalAnalysisSchema,
@@ -669,17 +712,20 @@ export class DecisionAnalysisOrchestrator {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_COMPLETE",
-        stepName: "final-synthesis-langchain",
+        eventType: 'STEP_COMPLETE',
+        stepName: 'final-synthesis-langchain',
         durationMs,
-        metadata: { retryCount: result.retryCount, confidence: result.data?.confidence },
+        metadata: {
+          retryCount: result.retryCount,
+          confidence: result.data?.confidence,
+        },
       });
     } else {
       this.logEvent({
         timestamp: new Date(),
         runId: context.runId,
-        eventType: "STEP_ERROR",
-        stepName: "final-synthesis-langchain",
+        eventType: 'STEP_ERROR',
+        stepName: 'final-synthesis-langchain',
         error: result.error,
         durationMs,
       });
@@ -712,12 +758,18 @@ export class DecisionAnalysisOrchestrator {
           span.setAttribute('llm.retry_count', result.retryCount);
           span.setAttribute('llm.duration_ms', result.durationMs);
           if (!result.success) {
-            span.setStatus({ code: SpanStatusCode.ERROR, message: result.error ?? 'step failed' });
+            span.setStatus({
+              code: SpanStatusCode.ERROR,
+              message: result.error ?? 'step failed',
+            });
           }
           return result;
         } catch (err) {
           span.recordException(err as Error);
-          span.setStatus({ code: SpanStatusCode.ERROR, message: (err as Error).message });
+          span.setStatus({
+            code: SpanStatusCode.ERROR,
+            message: (err as Error).message,
+          });
           throw err;
         } finally {
           span.end();
@@ -737,11 +789,17 @@ export class DecisionAnalysisOrchestrator {
    * Default telemetry logger (console)
    */
   private defaultTelemetryLogger(event: TelemetryEvent): void {
-    if (event.eventType === "STEP_ERROR") {
+    if (event.eventType === 'STEP_ERROR') {
       log.error({ stepName: event.stepName, err: event.error }, 'Step error');
     } else {
-      log.info({ eventType: event.eventType, stepName: event.stepName, ...(event.metadata || {}) }, 'Step event');
+      log.info(
+        {
+          eventType: event.eventType,
+          stepName: event.stepName,
+          ...(event.metadata || {}),
+        },
+        'Step event',
+      );
     }
   }
 }
-

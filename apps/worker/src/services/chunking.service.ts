@@ -1,8 +1,8 @@
 /**
  * Chunking Service
- * 
+ *
  * Provides fixed-size text chunking with overlap for RAG ingestion.
- * 
+ *
  * Design Principles:
  * - Fixed-size chunking (simple, deterministic, predictable)
  * - Character-based with token estimation (4 chars ≈ 1 token)
@@ -85,17 +85,17 @@ export interface ChunkingResult {
  * Default chunking configuration
  */
 export const DEFAULT_CHUNK_CONFIG: ChunkConfig = {
-  chunkSizeTokens: 500,    // ~2000 characters
-  overlapTokens: 100,      // ~400 characters
-  maxChunks: 50,           // Max 25,000 tokens per attachment
+  chunkSizeTokens: 500, // ~2000 characters
+  overlapTokens: 100, // ~400 characters
+  maxChunks: 50, // Max 25,000 tokens per attachment
 };
 
 /**
  * Estimate token count from character count.
- * 
+ *
  * Rule of thumb: 1 token ≈ 4 characters for English text.
  * This is a rough approximation - actual tokenization varies by model.
- * 
+ *
  * @param text Text to estimate
  * @returns Estimated token count
  */
@@ -105,7 +105,7 @@ export function estimateTokenCount(text: string): number {
 
 /**
  * Convert token count to approximate character count.
- * 
+ *
  * @param tokens Token count
  * @returns Approximate character count
  */
@@ -115,21 +115,21 @@ export function tokensToCharacters(tokens: number): number {
 
 /**
  * Chunk text into fixed-size segments with overlap.
- * 
+ *
  * Algorithm:
  * 1. Calculate chunk size and overlap in characters
  * 2. Split text at chunk boundaries
  * 3. Apply overlap by backing up before each chunk
  * 4. Enforce maxChunks limit (truncate if exceeded)
  * 5. Return chunks with metadata
- * 
+ *
  * @param text Text to chunk
  * @param config Chunking configuration
  * @returns Chunking result with chunks and metadata
  */
 export function chunkText(
   text: string,
-  config: ChunkConfig = DEFAULT_CHUNK_CONFIG
+  config: ChunkConfig = DEFAULT_CHUNK_CONFIG,
 ): ChunkingResult {
   // Handle empty text
   if (!text || text.trim().length === 0) {
@@ -143,9 +143,9 @@ export function chunkText(
 
   // Normalize whitespace (collapse multiple spaces, normalize line breaks)
   const normalizedText = text
-    .replace(/\r\n/g, "\n")  // Normalize line breaks
-    .replace(/\r/g, "\n")    // Normalize line breaks
-    .replace(/\t/g, " ")     // Replace tabs with spaces
+    .replace(/\r\n/g, '\n') // Normalize line breaks
+    .replace(/\r/g, '\n') // Normalize line breaks
+    .replace(/\t/g, ' ') // Replace tabs with spaces
     .trim();
 
   const totalCharacters = normalizedText.length;
@@ -159,7 +159,7 @@ export function chunkText(
   const stepSize = chunkSizeChars - overlapChars;
   if (stepSize <= 0) {
     throw new Error(
-      `Invalid chunk configuration: overlap (${config.overlapTokens} tokens) must be less than chunk size (${config.chunkSizeTokens} tokens)`
+      `Invalid chunk configuration: overlap (${config.overlapTokens} tokens) must be less than chunk size (${config.chunkSizeTokens} tokens)`,
     );
   }
 
@@ -229,68 +229,68 @@ export function chunkText(
 
 /**
  * Calculate the cost of embedding a chunking result.
- * 
+ *
  * Based on OpenAI text-embedding-3-small pricing:
  * $0.00002 per 1K tokens
- * 
+ *
  * @param result Chunking result
  * @returns Estimated cost in USD
  */
 export function estimateEmbeddingCost(result: ChunkingResult): number {
   const totalTokens = result.chunks.reduce(
     (sum, chunk) => sum + chunk.estimatedTokens,
-    0
+    0,
   );
   return (totalTokens / 1000) * 0.00002;
 }
 
 /**
  * Validate attachment content before chunking.
- * 
+ *
  * Checks:
  * - Content is not empty
  * - Content is not too large (prevents abuse)
- * 
+ *
  * @param content Attachment content
  * @param maxSizeChars Maximum allowed size in characters (default: 1M chars = ~250K tokens)
  * @throws Error if validation fails
  */
 export function validateAttachmentContent(
   content: string,
-  maxSizeChars: number = 1_000_000
+  maxSizeChars: number = 1_000_000,
 ): void {
   if (!content || content.trim().length === 0) {
-    throw new Error("Attachment content cannot be empty");
+    throw new Error('Attachment content cannot be empty');
   }
 
   if (content.length > maxSizeChars) {
     throw new Error(
-      `Attachment content too large: ${content.length} characters (max: ${maxSizeChars})`
+      `Attachment content too large: ${content.length} characters (max: ${maxSizeChars})`,
     );
   }
 }
 
 /**
  * Get chunking statistics for logging/monitoring.
- * 
+ *
  * @param result Chunking result
  * @returns Human-readable statistics
  */
 export function getChunkingStats(result: ChunkingResult): string {
-  const avgChunkSize = result.chunks.length > 0
-    ? Math.round(
-        result.chunks.reduce((sum, c) => sum + c.content.length, 0) /
-          result.chunks.length
-      )
-    : 0;
+  const avgChunkSize =
+    result.chunks.length > 0
+      ? Math.round(
+          result.chunks.reduce((sum, c) => sum + c.content.length, 0) /
+            result.chunks.length,
+        )
+      : 0;
 
   return [
     `Chunks: ${result.chunks.length}`,
     `Total chars: ${result.totalCharacters}`,
     `Est. tokens: ${result.totalEstimatedTokens}`,
     `Avg chunk size: ${avgChunkSize} chars`,
-    `Truncated: ${result.wasTruncated ? "YES" : "NO"}`,
+    `Truncated: ${result.wasTruncated ? 'YES' : 'NO'}`,
     `Est. cost: $${estimateEmbeddingCost(result).toFixed(6)}`,
-  ].join(" | ");
+  ].join(' | ');
 }
-

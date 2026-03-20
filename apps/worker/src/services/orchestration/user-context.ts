@@ -1,12 +1,12 @@
-import { PrismaClient, Category } from "@prisma/client";
-import { UserContext, UserDecisionPattern } from "./types";
+import { PrismaClient, Category } from '@prisma/client';
+import { UserContext, UserDecisionPattern } from './types';
 
 /**
  * User Context Manager
- * 
+ *
  * Lightweight memory system that provides user-specific context to the LLM.
  * No vector DB - just aggregated patterns from recent decisions.
- * 
+ *
  * This allows the AI to:
  * - Recognize recurring biases
  * - Adapt tone based on user history
@@ -24,13 +24,13 @@ export class UserContextManager {
     const recentDecisions = await this.prisma.decision.findMany({
       where: {
         userId,
-        status: "DONE",
+        status: 'DONE',
       },
       include: {
         latestRun: true,
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
       take: 10,
     });
@@ -45,9 +45,11 @@ export class UserContextManager {
       recentDecisions: recentDecisions
         .filter((d) => d.latestRun?.resultJson)
         .map((d) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const result = d.latestRun!.resultJson as any;
           return {
             category: result.category as Category,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             biases: result.cognitiveBiases?.map((b: any) => b.name) || [],
             createdAt: d.createdAt,
           };
@@ -59,6 +61,7 @@ export class UserContextManager {
   /**
    * Extract decision patterns from user history
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extractPatterns(decisions: any[]): UserDecisionPattern {
     const categoryCount = new Map<Category, number>();
     const biasCount = new Map<string, number>();
@@ -66,6 +69,7 @@ export class UserContextManager {
     for (const decision of decisions) {
       if (!decision.latestRun?.resultJson) continue;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = decision.latestRun.resultJson as any;
 
       // Count categories
@@ -114,11 +118,11 @@ export class UserContextManager {
     prompt += `- Total decisions analyzed: ${patterns.decisionCount}\n`;
 
     if (patterns.commonCategories.length > 0) {
-      prompt += `- Common decision areas: ${patterns.commonCategories.join(", ")}\n`;
+      prompt += `- Common decision areas: ${patterns.commonCategories.join(', ')}\n`;
     }
 
     if (patterns.frequentBiases.length > 0) {
-      prompt += `- Recurring cognitive biases: ${patterns.frequentBiases.join(", ")}\n`;
+      prompt += `- Recurring cognitive biases: ${patterns.frequentBiases.join(', ')}\n`;
       prompt += `  → Pay special attention to these patterns in your analysis\n`;
     }
 
@@ -127,7 +131,7 @@ export class UserContextManager {
       recentDecisions.slice(0, 3).forEach((d, i) => {
         prompt += `${i + 1}. ${d.category} decision`;
         if (d.biases.length > 0) {
-          prompt += ` (biases: ${d.biases.slice(0, 2).join(", ")})`;
+          prompt += ` (biases: ${d.biases.slice(0, 2).join(', ')})`;
         }
         prompt += `\n`;
       });
@@ -138,4 +142,3 @@ export class UserContextManager {
     return prompt;
   }
 }
-

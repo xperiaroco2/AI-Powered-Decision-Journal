@@ -1,13 +1,13 @@
-import { Job } from "bullmq";
-import { PrismaClient } from "@prisma/client";
-import { context, trace, SpanStatusCode } from "@opentelemetry/api";
-import { DecisionAnalysisJobData } from "../config/queue";
-import { getAIProvider } from "../services/ai.service";
-import { publishRunUpdate } from "../services/event-publisher";
-import { GroqProvider } from "../services/providers/groq.provider";
-import { childLogger } from "../logger";
-import { extractTraceContext } from "../trace-context.helper";
-import { jobsTotal, jobDurationSeconds } from "../metrics";
+import { Job } from 'bullmq';
+import { PrismaClient } from '@prisma/client';
+import { context, trace, SpanStatusCode } from '@opentelemetry/api';
+import { DecisionAnalysisJobData } from '../config/queue';
+import { getAIProvider } from '../services/ai.service';
+import { publishRunUpdate } from '../services/event-publisher';
+import { GroqProvider } from '../services/providers/groq.provider';
+import { childLogger } from '../logger';
+import { extractTraceContext } from '../trace-context.helper';
+import { jobsTotal, jobDurationSeconds } from '../metrics';
 
 const log = childLogger('analysis-processor');
 const tracer = trace.getTracer('worker');
@@ -20,20 +20,24 @@ const prisma = new Proxy({} as PrismaClient, {
     if (!_prismaClient) {
       _prismaClient = new PrismaClient();
     }
-    const value = (_prismaClient as any)[prop];
+    const value = (
+      _prismaClient as unknown as Record<string | symbol, unknown>
+    )[prop];
     return typeof value === 'function' ? value.bind(_prismaClient) : value;
   },
 });
 
 export async function processDecisionAnalysis(
-  job: Job<DecisionAnalysisJobData>
+  job: Job<DecisionAnalysisJobData>,
 ): Promise<void> {
   const { runId } = job.data;
   const QUEUE = 'decision-analysis';
   const jobStartMs = Date.now();
 
   // Restore the parent trace context injected by the API when the job was enqueued
-  const parentCtx = extractTraceContext(job.data as unknown as Record<string, unknown>);
+  const parentCtx = extractTraceContext(
+    job.data as unknown as Record<string, unknown>,
+  );
 
   return context.with(parentCtx, () =>
     tracer.startActiveSpan(
@@ -54,13 +58,16 @@ export async function processDecisionAnalysis(
           }
 
           const decision = run.decision;
-          log.info({ jobId: job.id, decisionId: decision.id }, 'Processing decision');
+          log.info(
+            { jobId: job.id, decisionId: decision.id },
+            'Processing decision',
+          );
 
           // 2. Update run status to PROCESSING
           await prisma.decisionAnalysisRun.update({
             where: { id: runId },
             data: {
-              status: "PROCESSING",
+              status: 'PROCESSING',
               startedAt: new Date(),
             },
           });
@@ -68,18 +75,22 @@ export async function processDecisionAnalysis(
           // 3. Update decision status to PROCESSING (for UI compatibility)
           await prisma.decision.update({
             where: { id: decision.id },
-            data: { status: "PROCESSING" },
+            data: { status: 'PROCESSING' },
           });
 
           log.info({ jobId: job.id }, 'Run status updated to PROCESSING');
 
-          await publishRunUpdate(decision.id, runId, "PROCESSING");
+          await publishRunUpdate(decision.id, runId, 'PROCESSING');
 
           // 4. Generate AI analysis
-          log.info({ jobId: job.id, provider: run.provider }, 'Calling AI provider for analysis');
+          log.info(
+            { jobId: job.id, provider: run.provider },
+            'Calling AI provider for analysis',
+          );
 
           const provider = getAIProvider();
-          const providerName = provider instanceof GroqProvider ? 'groq' : 'mock';
+          const providerName =
+            provider instanceof GroqProvider ? 'groq' : 'mock';
 
           if (provider instanceof GroqProvider) {
             provider.setContext(decision.userId, runId);
@@ -102,11 +113,17 @@ export async function processDecisionAnalysis(
                   personalReasoning: decision.personalReasoning,
                 });
                 aiSpan.setAttribute('ai.category', result.category);
-                aiSpan.setAttribute('ai.bias_count', result.cognitiveBiases.length);
+                aiSpan.setAttribute(
+                  'ai.bias_count',
+                  result.cognitiveBiases.length,
+                );
                 return result;
               } catch (err) {
                 aiSpan.recordException(err as Error);
-                aiSpan.setStatus({ code: SpanStatusCode.ERROR, message: (err as Error).message });
+                aiSpan.setStatus({
+                  code: SpanStatusCode.ERROR,
+                  message: (err as Error).message,
+                });
                 throw err;
               } finally {
                 aiSpan.end();
@@ -114,19 +131,23 @@ export async function processDecisionAnalysis(
             },
           );
 
-          log.info({ jobId: job.id, category: analysisData.category }, 'Analysis completed');
+          log.info(
+            { jobId: job.id, category: analysisData.category },
+            'Analysis completed',
+          );
 
           // 5. Update run with results
           await prisma.decisionAnalysisRun.update({
             where: { id: runId },
             data: {
-              status: "COMPLETED",
+              status: 'COMPLETED',
               resultJson: {
                 category: analysisData.category,
                 cognitiveBiases: analysisData.cognitiveBiases,
                 missedAlternatives: analysisData.missedAlternatives,
                 insights: analysisData.insights,
                 rawAiResponse: analysisData.rawAiResponse,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
               } as any,
               categoryText: analysisData.category,
               biasesText: analysisData.cognitiveBiases.map((b) => b.name),
@@ -140,17 +161,23 @@ export async function processDecisionAnalysis(
           await prisma.decision.update({
             where: { id: decision.id },
             data: {
-              status: "DONE",
+              status: 'DONE',
               latestRunId: runId,
             },
           });
 
-          log.info({ jobId: job.id }, 'Decision analysis completed successfully');
+          log.info(
+            { jobId: job.id },
+            'Decision analysis completed successfully',
+          );
 
           jobsTotal.inc({ queue: QUEUE, status: 'success' });
-          jobDurationSeconds.observe({ queue: QUEUE }, (Date.now() - jobStartMs) / 1000);
+          jobDurationSeconds.observe(
+            { queue: QUEUE },
+            (Date.now() - jobStartMs) / 1000,
+          );
 
-          await publishRunUpdate(decision.id, runId, "COMPLETED");
+          await publishRunUpdate(decision.id, runId, 'COMPLETED');
         } catch (error) {
           span.recordException(error as Error);
           span.setStatus({
@@ -159,12 +186,17 @@ export async function processDecisionAnalysis(
           });
 
           jobsTotal.inc({ queue: QUEUE, status: 'failed' });
-          jobDurationSeconds.observe({ queue: QUEUE }, (Date.now() - jobStartMs) / 1000);
+          jobDurationSeconds.observe(
+            { queue: QUEUE },
+            (Date.now() - jobStartMs) / 1000,
+          );
 
           log.error({ jobId: job.id, err: error }, 'Error processing run');
 
           const errorMessage =
-            error instanceof Error ? error.message : "Unknown error occurred during analysis";
+            error instanceof Error
+              ? error.message
+              : 'Unknown error occurred during analysis';
 
           try {
             const run = await prisma.decisionAnalysisRun.findUnique({
@@ -175,7 +207,7 @@ export async function processDecisionAnalysis(
               await prisma.decisionAnalysisRun.update({
                 where: { id: runId },
                 data: {
-                  status: "FAILED",
+                  status: 'FAILED',
                   error: errorMessage,
                   finishedAt: new Date(),
                 },
@@ -184,24 +216,30 @@ export async function processDecisionAnalysis(
               await prisma.decision.update({
                 where: { id: run.decisionId },
                 data: {
-                  status: "FAILED",
+                  status: 'FAILED',
                   latestRunId: runId,
                 },
               });
 
-              log.info({ jobId: job.id, errorMessage }, 'Run status updated to FAILED');
+              log.info(
+                { jobId: job.id, errorMessage },
+                'Run status updated to FAILED',
+              );
 
-              await publishRunUpdate(run.decisionId, runId, "FAILED");
+              await publishRunUpdate(run.decisionId, runId, 'FAILED');
             }
           } catch (updateError) {
-            log.error({ jobId: job.id, err: updateError }, 'Failed to update run status to FAILED');
+            log.error(
+              { jobId: job.id, err: updateError },
+              'Failed to update run status to FAILED',
+            );
           }
 
           throw error;
         } finally {
           span.end();
         }
-      }
-    )
+      },
+    ),
   );
 }

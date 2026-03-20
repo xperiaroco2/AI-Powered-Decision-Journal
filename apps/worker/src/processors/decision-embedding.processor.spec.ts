@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Decision Embedding Processor Unit Tests
  *
@@ -14,12 +15,18 @@ jest.mock('@prisma/client', () => {
   return {
     PrismaClient: jest.fn().mockImplementation(() => ({
       decision: {
-        get findUnique() { return mockFindUniqueDecision; },
+        get findUnique() {
+          return mockFindUniqueDecision;
+        },
       },
       decisionEmbedding: {
-        get findUnique() { return mockFindUniqueEmbedding; },
+        get findUnique() {
+          return mockFindUniqueEmbedding;
+        },
       },
-      get $executeRaw() { return mockExecuteRaw; },
+      get $executeRaw() {
+        return mockExecuteRaw;
+      },
     })),
     Category: {
       CAREER: 'CAREER',
@@ -39,8 +46,10 @@ jest.mock('@prisma/client', () => {
 jest.mock('../services/embedding.service');
 
 import { processDecisionEmbedding } from './decision-embedding.processor';
-import { PrismaClient } from '@prisma/client';
-import { getEmbeddingProvider, prepareDecisionTextForEmbedding } from '../services/embedding.service';
+import {
+  getEmbeddingProvider,
+  prepareDecisionTextForEmbedding,
+} from '../services/embedding.service';
 
 describe('Decision Embedding Processor', () => {
   let mockProvider: any;
@@ -58,7 +67,9 @@ describe('Decision Embedding Processor', () => {
     };
 
     (getEmbeddingProvider as jest.Mock).mockReturnValue(mockProvider);
-    (prepareDecisionTextForEmbedding as jest.Mock).mockReturnValue('Prepared text for embedding');
+    (prepareDecisionTextForEmbedding as jest.Mock).mockReturnValue(
+      'Prepared text for embedding',
+    );
 
     // Create mock job
     mockJob = {
@@ -103,15 +114,21 @@ describe('Decision Embedding Processor', () => {
       });
 
       // Verify text was prepared
-      expect(prepareDecisionTextForEmbedding).toHaveBeenCalledWith(mockDecision);
+      expect(prepareDecisionTextForEmbedding).toHaveBeenCalledWith(
+        mockDecision,
+      );
 
       // Verify embedding was generated
-      expect(mockProvider.generateEmbedding).toHaveBeenCalledWith('Prepared text for embedding');
+      expect(mockProvider.generateEmbedding).toHaveBeenCalledWith(
+        'Prepared text for embedding',
+      );
 
       // Verify embedding was inserted
       expect(mockExecuteRaw).toHaveBeenCalled();
       const insertCall = mockExecuteRaw.mock.calls[0];
-      expect(insertCall[0].join('')).toContain('INSERT INTO "DecisionEmbedding"');
+      expect(insertCall[0].join('')).toContain(
+        'INSERT INTO "DecisionEmbedding"',
+      );
       expect(insertCall[0].join('')).toContain('COMPLETED');
     });
 
@@ -184,14 +201,17 @@ describe('Decision Embedding Processor', () => {
       mockProvider.generateEmbedding.mockRejectedValue(new Error('API error'));
       mockExecuteRaw.mockResolvedValue(1);
 
-      await expect(processDecisionEmbedding(mockJob)).rejects.toThrow('API error');
+      await expect(processDecisionEmbedding(mockJob)).rejects.toThrow(
+        'API error',
+      );
 
       // Verify FAILED status was inserted
       expect(mockExecuteRaw).toHaveBeenCalled();
       const failedCall = mockExecuteRaw.mock.calls[0];
-      expect(failedCall[0].join('')).toContain('INSERT INTO "DecisionEmbedding"');
+      expect(failedCall[0].join('')).toContain(
+        'INSERT INTO "DecisionEmbedding"',
+      );
       expect(failedCall[0].join('')).toContain('FAILED');
     });
   });
 });
-
