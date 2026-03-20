@@ -53,7 +53,7 @@ export default function DashboardClient() {
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-          <p className="text-zinc-600 dark:text-zinc-400">Loading dashboard...</p>
+          <p className="text-zinc-600 dark:text-zinc-400">Loading dashboard....</p>
         </div>
       </div>
     );
