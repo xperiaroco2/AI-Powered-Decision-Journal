@@ -59,6 +59,11 @@ exporters:
       enabled: true   # promote service.name etc. to Prometheus labels
 
 service:
+  telemetry:
+    metrics:
+      level: basic
+      address: 0.0.0.0:8888
+
   extensions: [health_check, pprof]
 
   pipelines:

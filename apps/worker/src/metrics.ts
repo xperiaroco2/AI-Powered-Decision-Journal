@@ -45,7 +45,7 @@ export function startMetricsServer(port: number): void {
     }
   });
 
-  server.listen(port, () => {
+  server.listen(port, '0.0.0.0', () => {
     log.info({ port }, 'Metrics server listening');
   });
 }
