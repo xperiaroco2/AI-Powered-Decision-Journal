@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * API Proxy Utility
  *
  * Forwards requests from Next.js API routes to NestJS backend.
- * Forwards the access token from the Authorization header.
+ * Reads the access token from the httpOnly `access_token` cookie (set at login/refresh).
  */
 
 // API_URL is a server-only (non-NEXT_PUBLIC) variable so it is read at runtime
@@ -25,15 +25,15 @@ export async function proxyToNestAPI(
   options: RequestInit = {},
 ): Promise<Response> {
   try {
-    // 1. Get access token from Authorization header
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader) {
+    // 1. Get access token from httpOnly cookie set at login/refresh
+    const token = request.cookies.get('access_token')?.value;
+    if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // 2. Build headers
     const headers = new Headers(options.headers || {});
-    headers.set('Authorization', authHeader); // Forward the token
+    headers.set('Authorization', `Bearer ${token}`);
     headers.set('Content-Type', 'application/json');
 
     // 3. Forward request to NestJS
@@ -114,9 +114,9 @@ export async function proxyMultipartPOST(
   request: NextRequest,
 ): Promise<NextResponse> {
   try {
-    // 1. Get access token from Authorization header
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader) {
+    // 1. Get access token from httpOnly cookie
+    const token = request.cookies.get('access_token')?.value;
+    if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -125,7 +125,7 @@ export async function proxyMultipartPOST(
 
     // 3. Build headers (don't set Content-Type for multipart, let fetch handle it)
     const headers = new Headers();
-    headers.set('Authorization', authHeader); // Forward the token
+    headers.set('Authorization', `Bearer ${token}`);
 
     // 4. Forward request to NestJS
     const url = `${API_URL}${path}`;

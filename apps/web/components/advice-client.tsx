@@ -46,7 +46,7 @@ interface AdviceClientProps {
 }
 
 export default function AdviceClient({ userId: _userId }: AdviceClientProps) {
-  const { accessToken } = useAuth();
+  const { accessToken, isLoading: authLoading } = useAuth();
   const [question, setQuestion] = useState("");
   const [selectedAttachmentId, setSelectedAttachmentId] = useState<string>("");
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -58,12 +58,12 @@ export default function AdviceClient({ userId: _userId }: AdviceClientProps) {
 
   // Fetch user's attachments
   useEffect(() => {
+    if (authLoading || !accessToken) return;
+
     async function fetchAttachments() {
       try {
         setLoadingAttachments(true);
-        const response = await fetch("/api/attachments", {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        const response = await fetch("/api/attachments");
 
         if (response.ok) {
           const data = await response.json();
@@ -77,7 +77,7 @@ export default function AdviceClient({ userId: _userId }: AdviceClientProps) {
     }
 
     fetchAttachments();
-  }, [accessToken]);
+  }, [accessToken, authLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,7 +110,6 @@ export default function AdviceClient({ userId: _userId }: AdviceClientProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(requestBody),
       });

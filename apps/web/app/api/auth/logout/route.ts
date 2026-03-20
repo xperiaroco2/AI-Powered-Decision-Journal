@@ -24,14 +24,19 @@ export async function POST(request: Request) {
       headers,
     });
 
-    // Forward the Set-Cookie header from NestJS to the client (to clear the cookie)
+    const responseHeaders = new Headers({ 'Content-Type': 'application/json' });
+
+    // Forward refresh_token clearance from NestJS
     const setCookieHeader = response.headers.get('set-cookie');
-    const responseHeaders: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
     if (setCookieHeader) {
-      responseHeaders['Set-Cookie'] = setCookieHeader;
+      responseHeaders.append('Set-Cookie', setCookieHeader);
     }
+
+    // Clear the access_token httpOnly cookie
+    responseHeaders.append(
+      'Set-Cookie',
+      'access_token=; HttpOnly; Path=/; SameSite=Strict; Max-Age=0',
+    );
 
     return new Response(null, {
       status: response.status,

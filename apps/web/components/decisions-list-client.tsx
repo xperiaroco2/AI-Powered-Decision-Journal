@@ -45,12 +45,7 @@ export default function DecisionsListClient() {
     const fetchDecisions = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("/api/decisions", {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-          },
-        });
+        const response = await fetch("/api/decisions", { method: "GET" });
 
         if (!response.ok) {
           throw new Error("Failed to fetch decisions");

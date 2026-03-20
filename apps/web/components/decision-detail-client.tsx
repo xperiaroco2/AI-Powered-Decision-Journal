@@ -67,11 +67,7 @@ export default function DecisionDetailClient({
           if (!accessToken) return;
 
           try {
-            const response = await fetch(`/api/decisions/${decision.id}`, {
-              headers: {
-                "Authorization": `Bearer ${accessToken}`,
-              },
-            });
+            const response = await fetch(`/api/decisions/${decision.id}`);
 
             if (response.ok) {
               const updatedDecision = await response.json();
@@ -101,9 +97,6 @@ export default function DecisionDetailClient({
     try {
       const response = await fetch(`/api/decisions/${decision.id}/rerun`, {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-        },
       });
 
       if (!response.ok) {
