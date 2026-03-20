@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CategoryData {
   name: string;
@@ -20,6 +21,7 @@ interface DashboardData {
 }
 
 export default function DashboardClient() {
+  const { accessToken } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,9 @@ export default function DashboardClient() {
   useEffect(() => {
     async function fetchDashboardData() {
       try {
-        const response = await fetch("/api/dashboard");
+        const response = await fetch("/api/dashboard", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch dashboard data");
         }
@@ -41,7 +45,7 @@ export default function DashboardClient() {
     }
 
     fetchDashboardData();
-  }, []);
+  }, [accessToken]);
 
   // Loading state
   if (loading) {
